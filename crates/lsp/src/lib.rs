@@ -726,6 +726,40 @@ mod tests {
     }
 
     #[test]
+    fn formats_parenthesized_duckdb_interval_and_handles_next_request() {
+        const SOURCE: &str = "select\n  case\n    when a is null\n      or b <= c + interval (3) month\n      then 1\n  end as y\nfrom t\n";
+        const EXPECTED: &str = "select\n    case\n        when\n            a is null\n            or b <= c + interval (3) month\n            then 1\n    end as y\nfrom t\n";
+        let root = TempRoot::new();
+        fs::write(
+            root.path.join(".sqruff"),
+            "[sqruff]\ndialect = duckdb\nrules = LT02\n",
+        )
+        .unwrap();
+        let path = root.path.join("interval.sql");
+        fs::write(&path, SOURCE).unwrap();
+        let uri = path_to_uri(&path);
+        let (mut lsp, _) = diagnostics_lsp(&root.path);
+        lsp.documents.insert(uri.clone(), SOURCE.to_string());
+
+        for id in [1, 2] {
+            let response = lsp
+                .on_request(
+                    id.into(),
+                    Formatting::METHOD,
+                    serde_json::json!({
+                        "textDocument": { "uri": uri },
+                        "options": { "tabSize": 4, "insertSpaces": true }
+                    }),
+                )
+                .unwrap();
+            let edits: Vec<lsp_types::TextEdit> =
+                serde_json::from_value(response.response_result.unwrap()).unwrap();
+            assert_eq!(edits.len(), 1);
+            assert_eq!(edits[0].new_text, EXPECTED);
+        }
+    }
+
+    #[test]
     fn skips_formatting_sqruffignored_file() {
         let root = TempRoot::new();
         fs::write(

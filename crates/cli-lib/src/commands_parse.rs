@@ -1,5 +1,3 @@
-use std::io::{self, BufRead};
-
 use sqruff_lib::core::{
     config::FluffConfig,
     linter::{common::ParsedString, core::Linter},
@@ -9,31 +7,30 @@ use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 use sqruff_lib_core::parser::segments::Tables;
 
 use crate::commands::{ParseArgs, ParseFormat};
+use crate::stdin::{is_std_in_flag_input, read_std_in};
 
 pub(crate) fn run_parse(args: ParseArgs, config: FluffConfig) -> i32 {
-    if args.paths.is_empty() || (args.paths.len() == 1 && args.paths[0].to_str() == Some("-")) {
-        run_parse_stdin(config, args.format, args.include_meta)
-    } else {
-        run_parse_files(args, config)
+    match is_std_in_flag_input(&args.paths) {
+        Ok(true) => run_parse_stdin(config, args.format, args.include_meta),
+        Ok(false) if args.paths.is_empty() => {
+            run_parse_stdin(config, args.format, args.include_meta)
+        }
+        Ok(false) => run_parse_files(args, config),
+        Err(error) => {
+            eprintln!("{error}");
+            1
+        }
     }
 }
 
 fn run_parse_stdin(config: FluffConfig, format: ParseFormat, include_meta: bool) -> i32 {
-    let stdin = io::stdin();
-    let mut sql = String::new();
-
-    for line in stdin.lock().lines() {
-        match line {
-            Ok(line) => {
-                sql.push_str(&line);
-                sql.push('\n');
-            }
-            Err(e) => {
-                eprintln!("Error reading from stdin: {}", e);
-                return 1;
-            }
+    let sql = match read_std_in() {
+        Ok(sql) => sql,
+        Err(error) => {
+            eprintln!("Error reading from stdin: {error}");
+            return 1;
         }
-    }
+    };
 
     parse_and_output_tree(&sql, "<stdin>", &config, format, include_meta)
 }
@@ -118,7 +115,14 @@ fn parse_and_output_tree(
                     }
                     ParseFormat::Pretty => {
                         println!("Parse tree for {}:", filename);
-                        println!("{}", tree.stringify(false));
+                        let serialized = tree.to_serialised(false, true, true, false);
+                        match serde_yaml::to_string(&serialized) {
+                            Ok(tree) => println!("{}", tree),
+                            Err(e) => {
+                                eprintln!("Error serializing parse tree: {}", e);
+                                return 1;
+                            }
+                        }
                     }
                     ParseFormat::None => {}
                 }

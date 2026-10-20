@@ -100,6 +100,63 @@ FROM foo;
 
 The same modifier can be configured for `binary_operator`.
 
+## Finding segment types for layout configuration
+
+A `[sqruff:layout:type:<type>]` section applies layout settings to segments in
+the parsed SQL tree. A segment can represent a whole clause, an expression, or
+a single token. For example, a `FROM` clause has type `from_clause`, while its
+`FROM` token has type `keyword`.
+
+To browse the available names, open the [dialect reference](../reference/dialects.md),
+find your dialect, and expand its **Segment types** list. Each list is generated
+from that dialect's reachable grammar and lexer, including inherited grammar,
+using its default configuration. The names are sorted and deduplicated; the
+list also includes internal and meta segments that may appear in a CST.
+
+To find the types used by your SQL, inspect its concrete syntax tree (CST) with
+the same dialect you use for linting and fixing:
+
+```shell
+sqruff parse query.sql --dialect ansi
+```
+
+You can also read SQL from stdin:
+
+```shell
+echo 'SELECT a, b FROM example' | sqruff parse --dialect ansi -
+```
+
+The default output shows node labels and raw token text. For example, the tree
+for this query includes the following labels:
+
+```text
+...
+select_clause:
+...
+    comma: ','
+...
+from_clause:
+```
+
+Copy the label for the construct you want to configure into the section
+heading. For example, this puts commas at the beginning of a line when the
+surrounding SQL spans multiple lines:
+
+```ini
+[sqruff:layout:type:comma]
+line_position = leading
+```
+
+Use `--format json` or `--format yaml` for structured CST output. Add
+`--include-meta` to include meta segments and source positions in those formats:
+
+```shell
+sqruff parse query.sql --dialect ansi --format json --include-meta
+```
+
+In the [playground](https://playground.quary.dev), select the **Cst** tool to
+inspect the same tree interactively.
+
 ## Attaching operators to adjacent lines
 
 The `leading:attached` and `trailing:attached` modifiers allow an operator in

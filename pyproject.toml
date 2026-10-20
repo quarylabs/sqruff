@@ -1,6 +1,6 @@
 [project]
 name = "sqruff"
-version = "0.41.0"
+version = "0.42.0"
 requires-python = ">=3.10"
 dependencies = [
     "Jinja2>=3.0.0",
@@ -36,6 +36,11 @@ test = [
 cargo-test = [
     # Pinned: see crates/cli-python/pyproject.toml (maturin minor bumps can break the build).
     "maturin==1.14.1",
+]
+sqlmesh-test = [
+    "pytest>=9.0.3",
+    "jinja2-simple-tags>=0.3.1",
+    "sqlmesh~=0.235.0",
 ]
 docs = [
     "zensical>=0.0.19",

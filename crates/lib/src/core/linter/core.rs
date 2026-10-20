@@ -4,12 +4,14 @@ use std::sync::{Arc, OnceLock};
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::linter::common::{BatchRenderedResult, ParsedString, ParsedVariant, RenderedFile};
+use crate::core::linter::common::{
+    BatchRenderedResult, NewlineMap, ParsedString, ParsedVariant, RenderedFile,
+};
 use crate::core::linter::discovery::paths_from_path;
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
-use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
+use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack, RuleSet};
 use crate::rules::get_ruleset;
 use crate::templaters::{ProcessingMode, Templater, TemplaterKind};
 use hashbrown::{HashMap, HashSet};
@@ -306,13 +308,26 @@ impl Linter {
         rs.get_rulepack(&self.config)
     }
 
+    /// Install and configure a ruleset before this linter's rules are initialized.
+    /// Returns an error if rules have already been installed or used for linting.
+    pub fn set_ruleset(&self, rule_set: &RuleSet) -> Result<(), SQLFluffUserError> {
+        self.rulepack
+            .set(rule_set.get_rulepack(&self.config)?)
+            .map_err(|_| {
+                SQLFluffUserError::new(
+                    "Cannot set rules after the linter's rules have been initialized".to_string(),
+                )
+            })
+    }
+
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
         match self.render_string(&in_str, fname.clone(), &self.config) {
             Ok(rendered) => rendered,
             Err(err) => {
                 log::error!("Failed to template file {}: {:?}", fname, err);
-                let source_str = Self::normalise_newlines(&in_str).to_string();
+                let (source_str, newline_map) = Self::normalise_newlines(&in_str);
+                let source_str = source_str.into_owned();
                 RenderedFile {
                     templated_file: TemplatedFile::new(
                         source_str.clone(),
@@ -328,6 +343,7 @@ impl Linter {
                     ))],
                     filename: fname,
                     source_str,
+                    newline_map,
                 }
             }
         }
@@ -362,25 +378,26 @@ impl Linter {
                         templater_violations: vec![],
                         filename: fname.clone(),
                         source_str,
+                        newline_map: NewlineMap::default(),
                     })
                 })
                 .collect();
         }
 
         // Read all files and prepare for batch processing
-        let files: Vec<(String, String)> = fnames
+        let files: Vec<(String, String, NewlineMap)> = fnames
             .iter()
             .map(|fname| {
                 let content = std::fs::read_to_string(fname).unwrap_or_default();
-                let normalized = Self::normalise_newlines(&content).to_string();
-                (normalized, fname.clone())
+                let (normalized, newline_map) = Self::normalise_newlines(&content);
+                (normalized.into_owned(), fname.clone(), newline_map)
             })
             .collect();
 
         // Convert to slice of references for the process method
         let file_refs: Vec<(&str, &str)> = files
             .iter()
-            .map(|(content, fname)| (content.as_str(), fname.as_str()))
+            .map(|(content, fname, _)| (content.as_str(), fname.as_str()))
             .collect();
 
         // Process all files in batch
@@ -391,8 +408,8 @@ impl Linter {
         // Convert results to BatchRenderedResults, preserving order
         results
             .into_iter()
-            .zip(files.iter())
-            .map(|(result, (source_str, fname))| match result {
+            .zip(files)
+            .map(|(result, (source_str, fname, newline_map))| match result {
                 Ok(mut templated_files) if !templated_files.is_empty() => {
                     let variant_limit = self
                         .config
@@ -405,8 +422,9 @@ impl Linter {
                         templated_file: templated_files.remove(0),
                         alternate_templated_files: templated_files,
                         templater_violations: vec![],
-                        filename: fname.clone(),
-                        source_str: source_str.clone(),
+                        filename: fname,
+                        source_str,
+                        newline_map,
                     })
                 }
                 Ok(_) => BatchRenderedResult::Rendered(RenderedFile {
@@ -422,14 +440,15 @@ impl Linter {
                     templater_violations: vec![SQLTemplaterError::new(format!(
                         "Templater returned no variants for file {fname}"
                     ))],
-                    filename: fname.clone(),
-                    source_str: source_str.clone(),
+                    filename: fname,
+                    source_str,
+                    newline_map,
                 }),
                 Err(err) => {
                     let err_str = err.to_string();
                     if let Some(reason) = err_str.strip_prefix("SKIP:") {
                         return BatchRenderedResult::Skipped {
-                            filename: fname.clone(),
+                            filename: fname,
                             reason: reason.to_string(),
                         };
                     }
@@ -451,8 +470,9 @@ impl Linter {
                         templater_violations: vec![SQLTemplaterError::new(format!(
                             "Failed to template file {fname}: {err}"
                         ))],
-                        filename: fname.clone(),
-                        source_str: source_str.clone(),
+                        filename: fname,
+                        source_str,
+                        newline_map,
                     })
                 }
             })
@@ -484,6 +504,7 @@ impl Linter {
             violations: primary_violations,
             templated_file,
             filename,
+            newline_map,
             alternate_variants,
             ..
         } = parsed_string;
@@ -572,6 +593,7 @@ impl Linter {
             filename,
             patches,
             templated_file,
+            newline_map,
             violations,
             has_parse_or_templating_errors,
             ignore_mask,
@@ -787,7 +809,7 @@ impl Linter {
         filename: String,
         config: &FluffConfig,
     ) -> Result<RenderedFile, SQLFluffUserError> {
-        let sql = Self::normalise_newlines(sql);
+        let (sql, newline_map) = Self::normalise_newlines(sql);
 
         if let Some(error) = config.verify_dialect_specified() {
             return Err(error);
@@ -814,6 +836,7 @@ impl Linter {
                     templater_violations,
                     filename,
                     source_str: sql.to_string(),
+                    newline_map,
                 })
             }
             Some(Err(err)) => Err(SQLFluffUserError::new(format!(
@@ -846,6 +869,7 @@ impl Linter {
                 templated_file: rendered.templated_file,
                 filename: rendered.filename,
                 source_str: rendered.source_str,
+                newline_map: rendered.newline_map,
                 config: self.config.clone(),
                 alternate_variants: Vec::new(),
             };
@@ -864,6 +888,7 @@ impl Linter {
             templated_file: primary.templated_file,
             filename: rendered.filename,
             source_str: rendered.source_str,
+            newline_map: rendered.newline_map,
             config: self.config.clone(),
             alternate_variants,
         }
@@ -961,8 +986,8 @@ impl Linter {
     }
 
     /// Normalise newlines to unix-style line endings.
-    fn normalise_newlines(string: &str) -> Cow<'_, str> {
-        lazy_regex::regex!("\r\n|\r").replace_all(string, "\n")
+    fn normalise_newlines(string: &str) -> (Cow<'_, str>, NewlineMap) {
+        NewlineMap::normalise(string)
     }
 
     pub fn config(&self) -> &FluffConfig {
@@ -1041,6 +1066,83 @@ mod tests {
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
+    use crate::core::rules::context::RuleContext;
+    use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+    use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups, RuleSet};
+
+    #[derive(Debug)]
+    struct RuleZZ01;
+
+    impl Rule for RuleZZ01 {
+        fn load_from_config(
+            &self,
+            _config: &HashMap<String, sqruff_lib_core::value::Value>,
+        ) -> Result<ErasedRule, String> {
+            Ok(Self.erased())
+        }
+
+        fn name(&self) -> &'static str {
+            "custom.always"
+        }
+
+        fn description(&self) -> &'static str {
+            "Custom rule violation."
+        }
+
+        fn long_description(&self) -> &'static str {
+            self.description()
+        }
+
+        fn groups(&self) -> &'static [RuleGroups] {
+            &[RuleGroups::All]
+        }
+
+        fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+            vec![LintResult::new(
+                Some(context.segment.clone()),
+                vec![],
+                None,
+                None,
+            )]
+        }
+
+        fn crawl_behaviour(&self) -> Crawler {
+            RootOnlyCrawler.into()
+        }
+    }
+
+    #[test]
+    fn set_ruleset_lints_with_custom_rules() {
+        let config = FluffConfig::from_source("[sqruff]\nrules = ZZ01\n", None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let ruleset = RuleSet::from_iter([RuleZZ01.erased()]);
+        linter.set_ruleset(&ruleset).unwrap();
+
+        let result = linter.lint_string("SELECT 1\n", None, false).unwrap();
+        assert_eq!(result.violations().len(), 1);
+        assert_eq!(result.violations()[0].rule_code(), "ZZ01");
+        assert_eq!(result.violations()[0].description, "Custom rule violation.");
+    }
+
+    #[test]
+    fn set_ruleset_preserves_initialized_rules() {
+        for use_defaults in [false, true] {
+            let config = FluffConfig::from_source("[sqruff]\nrules = all\n", None);
+            let linter = Linter::new(config, None, None, false).unwrap();
+            if !use_defaults {
+                let ruleset = RuleSet::from_iter([RuleZZ01.erased()]);
+                linter.set_ruleset(&ruleset).unwrap();
+            }
+            let original: Vec<_> = linter.rules().unwrap().iter().map(|r| r.code()).collect();
+
+            let error = linter
+                .set_ruleset(&crate::rules::get_ruleset())
+                .unwrap_err();
+            assert!(error.value.contains("initialized"));
+            let remaining: Vec<_> = linter.rules().unwrap().iter().map(|r| r.code()).collect();
+            assert_eq!(remaining, original);
+        }
+    }
 
     fn postgres_all_rules_linter() -> Linter {
         let config = FluffConfig::from_source(
@@ -1411,7 +1513,7 @@ dialect = ansi
         let in_str = "SELECT\r\n foo\n FROM \r \n\r bar;";
         let out_str = "SELECT\n foo\n FROM \n \n\n bar;";
 
-        assert_eq!(Linter::normalise_newlines(in_str), out_str);
+        assert_eq!(Linter::normalise_newlines(in_str).0, out_str);
     }
 
     /// Regression test for https://github.com/quarylabs/sqruff/issues/2354
@@ -1420,7 +1522,7 @@ dialect = ansi
     /// syntax like `{{ ref('stg_users') }}`.
     #[test]
     fn test_templater_error_skips_linting() {
-        use crate::core::linter::common::RenderedFile;
+        use crate::core::linter::common::{NewlineMap, RenderedFile};
         use sqruff_lib_core::errors::SQLTemplaterError;
         use sqruff_lib_core::templaters::TemplatedFile;
 
@@ -1452,6 +1554,7 @@ dialect = ansi
             )],
             filename: "test.sql".to_string(),
             source_str: source.to_string(),
+            newline_map: NewlineMap::default(),
         };
 
         let result = linter.lint_rendered(rendered, false).unwrap();
@@ -1549,5 +1652,120 @@ from test;
             .fix_string();
 
         assert_eq!(fixed, expected);
+    }
+
+    fn postgres_linter_with_rules(rules: &str) -> Linter {
+        let config = FluffConfig::from_source(
+            &format!("[sqruff]\ndialect = postgres\nrules = {rules}\n"),
+            None,
+        );
+        Linter::new(config, None, None, true).unwrap()
+    }
+
+    fn source_patch_summary(
+        sql: &str,
+        rules: &str,
+    ) -> (Vec<(std::ops::Range<usize>, String)>, String) {
+        let linted = postgres_linter_with_rules(rules)
+            .lint_string_wrapped(sql, true)
+            .unwrap();
+        let patches = linted
+            .source_patches()
+            .into_iter()
+            .map(|patch| (patch.source_slice, patch.fixed_raw.to_string()))
+            .collect();
+        (patches, linted.fix_string())
+    }
+
+    /// Apply `source_patches()` to the original input, like an external
+    /// consumer would.
+    fn apply_source_patches(source: &str, patches: &[(std::ops::Range<usize>, String)]) -> String {
+        let mut fixed = String::new();
+        let mut idx = 0;
+        for (range, replacement) in patches {
+            fixed.push_str(&source[idx..range.start]);
+            fixed.push_str(replacement);
+            idx = range.end;
+        }
+        fixed.push_str(&source[idx..]);
+        fixed
+    }
+
+    #[test]
+    fn test_source_patches_are_granular_for_literal_files() {
+        let sql = "DELETE FROM jobs where id = $1";
+        let (patches, fixed) = source_patch_summary(sql, "CP01");
+
+        assert_eq!(patches, vec![(17..22, "WHERE".to_string())]);
+        assert_eq!(fixed, "DELETE FROM jobs WHERE id = $1");
+        assert_eq!(apply_source_patches(sql, &patches), fixed);
+    }
+
+    #[test]
+    fn test_source_patches_cover_deletion_alongside_insertion() {
+        let sql = "select a,b   from   t where x=1 and y  = 2";
+        let (patches, fixed) = source_patch_summary(sql, "LT01");
+
+        assert_eq!(
+            patches,
+            vec![
+                (9..9, " ".to_string()),
+                (10..13, " ".to_string()),
+                (17..20, " ".to_string()),
+                (29..29, " ".to_string()),
+                (30..30, " ".to_string()),
+                (37..39, " ".to_string()),
+            ]
+        );
+        assert_eq!(fixed, "select a, b from t where x = 1 and y = 2");
+        assert_eq!(apply_source_patches(sql, &patches), fixed);
+    }
+
+    #[test]
+    fn test_source_patches_keep_multiple_insertions_at_same_point() {
+        let sql = "select\n    a AND\n    -- comment1!\n    b\nfrom foo\n";
+        let (patches, fixed) = source_patch_summary(sql, "LT03");
+
+        assert_eq!(
+            patches,
+            vec![
+                (12..16, String::new()),
+                (38..38, "AND".to_string()),
+                (38..38, " ".to_string()),
+            ]
+        );
+        assert_eq!(
+            fixed,
+            "select\n    a\n    -- comment1!\n    AND b\nfrom foo\n"
+        );
+        assert_eq!(apply_source_patches(sql, &patches), fixed);
+    }
+
+    #[test]
+    fn test_source_patches_use_original_crlf_byte_offsets() {
+        let sql = "SELECT 1\r\nwhere id = $1";
+        let (patches, fixed) = source_patch_summary(sql, "CP01");
+
+        assert_eq!(patches, vec![(10..15, "WHERE".to_string())]);
+        assert_eq!(
+            apply_source_patches(sql, &patches),
+            "SELECT 1\r\nWHERE id = $1"
+        );
+        // `fix_string()` still works on the normalised source.
+        assert_eq!(fixed, "SELECT 1\nWHERE id = $1");
+    }
+
+    #[test]
+    fn test_source_patches_apply_to_crlf_input_when_edits_touch_newlines() {
+        // The trailing whitespace deletions run into the `\r\n`, and the later
+        // patches sit behind several collapsed newlines.
+        let sql = "select a  \r\n  from   t  \r\nwhere x=1\r\n";
+        let (patches, fixed) = source_patch_summary(sql, "LT01");
+
+        assert_eq!(
+            apply_source_patches(sql, &patches),
+            "select a\r\n  from t\r\nwhere x = 1\r\n"
+        );
+        assert_eq!(fixed, "select a\n  from t\nwhere x = 1\n");
     }
 }

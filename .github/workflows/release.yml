@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
       - name: Setup Bazel
-        uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # ratchet:bazel-contrib/setup-bazel@0.19.0
+        uses: bazel-contrib/setup-bazel@104e3eea9447cdaa4b00d0fb46191a3985d26ab3 # ratchet:bazel-contrib/setup-bazel@0.19.1
         with:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
@@ -239,7 +239,7 @@ jobs:
             run-binary: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: cargo-bins/cargo-binstall@c06f6a0003f7c6165a00c89d1697731c9e8a5c72 # ratchet:cargo-bins/cargo-binstall@v1.25.2
+      - uses: cargo-bins/cargo-binstall@3be4ad2b146f3302f92e5956c54fedbb6ae8cccc # ratchet:cargo-bins/cargo-binstall@v1.25.3
         with:
           version: "1.25.2"
       - name: Read released version
@@ -287,7 +287,7 @@ jobs:
       - convert_release_to_not_draft
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # ratchet:actions/setup-node@v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # ratchet:actions/setup-node@v7.1.0
         with:
           node-version-file: ".nvmrc"
       - run: npm install -g vsce
@@ -304,7 +304,7 @@ jobs:
       - convert_release_to_not_draft
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # ratchet:actions/setup-node@v7.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # ratchet:actions/setup-node@v7.1.0
         with:
           node-version-file: ".nvmrc"
       - run: npm install -g ovsx

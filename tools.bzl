@@ -65,26 +65,26 @@ _CARGO_HACK_PLATFORMS = {
     },
 }
 
-_UV_VERSION = "0.9.22"
+_UV_VERSION = "0.13.0"
 _UV_PLATFORMS = {
     "linux_amd64": {
         "url": "https://github.com/astral-sh/uv/releases/download/{version}/uv-x86_64-unknown-linux-gnu.tar.gz",
-        "sha256": "e170aed70ac0225feee612e855d3a57ae73c61ffb22c7e52c3fd33b87c286508",
+        "sha256": "1468ebd5a5541121837c5a2817b9972ba6090fa6caa3d142620850a47fb75154",
         "strip_prefix": "uv-x86_64-unknown-linux-gnu",
     },
     "linux_arm64": {
         "url": "https://github.com/astral-sh/uv/releases/download/{version}/uv-aarch64-unknown-linux-gnu.tar.gz",
-        "sha256": "2f8716c407d5da21b8a3e8609ed358147216aaab28b96b1d6d7f48e9bcc6254e",
+        "sha256": "3ccfb6af6e242433eb552f7d9676abd5412c6595c497e990d9c8cb7b5bd4d2c3",
         "strip_prefix": "uv-aarch64-unknown-linux-gnu",
     },
     "darwin_amd64": {
         "url": "https://github.com/astral-sh/uv/releases/download/{version}/uv-x86_64-apple-darwin.tar.gz",
-        "sha256": "c0057ad78b475f343739b1bbe223361c1054524c9edf310ee1dc85a050207f86",
+        "sha256": "5f44dcbde809b632f47c36fadb241cb4d6f9af71d0c8f172b5d2026d3dde742c",
         "strip_prefix": "uv-x86_64-apple-darwin",
     },
     "darwin_arm64": {
         "url": "https://github.com/astral-sh/uv/releases/download/{version}/uv-aarch64-apple-darwin.tar.gz",
-        "sha256": "4bfc6dacc9bcc9e433a9214a658495ca082b94fd607949b6745a955f34ccbc3c",
+        "sha256": "a9c1b29002cf3c83f07fa9cd8a887a3be0107d90e23189721221e7257db8e3d6",
         "strip_prefix": "uv-aarch64-apple-darwin",
     },
 }

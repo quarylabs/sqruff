@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use crate::core::linter::common::NewlineMap;
 use crate::core::rules::noqa::IgnoreMask;
 
 use hashbrown::HashSet;
@@ -13,6 +14,9 @@ pub struct LintedFile {
     pub path: String,
     patches: Vec<FixPatch>,
     templated_file: TemplatedFile,
+    /// Maps offsets in the normalised `templated_file` source back to the
+    /// original input.
+    newline_map: NewlineMap,
     violations: Vec<SQLBaseError>,
     has_parse_or_templating_errors: bool,
     #[expect(dead_code)]
@@ -24,6 +28,7 @@ impl LintedFile {
         path: String,
         patches: Vec<FixPatch>,
         templated_file: TemplatedFile,
+        newline_map: NewlineMap,
         mut violations: Vec<SQLBaseError>,
         has_parse_or_templating_errors: bool,
         ignore_mask: Option<IgnoreMask>,
@@ -44,6 +49,7 @@ impl LintedFile {
             path,
             patches,
             templated_file,
+            newline_map,
             violations,
             has_parse_or_templating_errors,
             ignore_mask,
@@ -102,22 +108,50 @@ impl LintedFile {
     ) -> String {
         // Iterate through the patches, building up the new string.
         let mut str_buff = String::new();
+        let mut patches = source_patches.iter().peekable();
         for source_slice in source_file_slices.iter() {
+            // Patches which start before this slice can't apply to it or to anything after it.
+            while patches
+                .next_if(|patch| patch.source_slice.start < source_slice.start)
+                .is_some()
+            {}
+
             // Is it one in the patch buffer:
-            let mut is_patched = false;
-            for patch in source_patches.iter() {
-                if patch.source_slice == *source_slice {
-                    str_buff.push_str(&patch.fixed_raw);
-                    is_patched = true;
-                    break;
-                }
-            }
-            if !is_patched {
+            if let Some(patch) = patches.next_if(|patch| patch.source_slice == *source_slice) {
+                str_buff.push_str(&patch.fixed_raw);
+            } else {
                 // Use the raw string
                 str_buff.push_str(&raw_source_string[source_slice.start..source_slice.end]);
             }
         }
         str_buff
+    }
+
+    /// The edits needed to fix this file, as patches against the original input.
+    ///
+    /// Byte ranges refer to the text as it was passed in, before newline
+    /// normalisation, so they can be applied directly to the caller's copy.
+    /// Patches are sorted and don't overlap; zero-length patches at the same
+    /// offset are insertions and should be applied in order. Replacement text
+    /// uses `\n`, like [`LintedFile::fix_string`].
+    pub fn source_patches(&self) -> Vec<FixPatch> {
+        let patches = Self::generate_source_patches(self.patches.clone(), &self.templated_file);
+
+        let mut source_idx = 0;
+        patches
+            .into_iter()
+            .filter(|patch| {
+                if patch.source_slice.start < source_idx {
+                    return false;
+                }
+                source_idx = patch.source_slice.end;
+                true
+            })
+            .map(|mut patch| {
+                patch.source_slice = self.newline_map.to_original_range(patch.source_slice);
+                patch
+            })
+            .collect()
     }
 
     pub fn fix_string(self) -> String {
@@ -183,28 +217,29 @@ impl LintedFile {
     }
 
     pub(crate) fn merge_source_patches(patch_buffers: Vec<Vec<FixPatch>>) -> Vec<FixPatch> {
-        let mut patches: Vec<_> = patch_buffers.into_iter().flatten().collect();
-        patches.sort_by_key(|patch| (patch.source_slice.start, patch.source_slice.end));
-
         let mut merged: Vec<FixPatch> = Vec::new();
         let mut seen = HashSet::new();
-        for patch in patches {
-            if !seen.insert(patch.dedupe_tuple()) {
-                continue;
-            }
-            if merged.iter().any(|existing| {
-                let a = &existing.source_slice;
-                let b = &patch.source_slice;
-                if a == b {
-                    existing.fixed_raw != patch.fixed_raw
-                } else {
-                    a.start.max(b.start) < a.end.min(b.end)
+        for patches in patch_buffers {
+            let mut accepted = Vec::new();
+            for patch in patches {
+                if !seen.insert(patch.dedupe_tuple()) {
+                    continue;
                 }
-            }) {
-                continue;
+                if merged.iter().any(|existing| {
+                    if existing.source_slice == patch.source_slice {
+                        existing.fixed_raw != patch.fixed_raw
+                    } else {
+                        existing.source_slice.start.max(patch.source_slice.start)
+                            < existing.source_slice.end.min(patch.source_slice.end)
+                    }
+                }) {
+                    continue;
+                }
+                accepted.push(patch);
             }
-            merged.push(patch);
+            merged.extend(accepted);
         }
+        merged.sort_by_key(|patch| (patch.source_slice.start, patch.source_slice.end));
         merged
     }
 
@@ -319,6 +354,33 @@ mod test {
         );
     }
 
+    #[test]
+    fn merge_source_patches_keeps_co_located_insertions_from_one_variant() {
+        let patch = |range: Range<usize>, replacement: &str| {
+            FixPatch::new(
+                range.clone(),
+                replacement.into(),
+                range,
+                String::new(),
+                String::new(),
+            )
+        };
+        // Two insertions at the same point in the root variant are both kept,
+        // in order. An alternate variant that disagrees about that point is
+        // dropped, while its unrelated patches are still merged in.
+        let merged = LintedFile::merge_source_patches(vec![
+            vec![patch(2..4, ""), patch(8..8, "AND"), patch(8..8, " ")],
+            vec![patch(1..1, "X"), patch(8..8, "OR"), patch(8..8, " ")],
+        ]);
+        assert_eq!(
+            merged
+                .iter()
+                .map(|patch| (patch.source_slice.clone(), patch.fixed_raw.as_str()))
+                .collect::<Vec<_>>(),
+            vec![(1..1, "X"), (2..4, ""), (8..8, "AND"), (8..8, " ")]
+        );
+    }
+
     /// Test _build_up_fixed_source_string. This is part of fix_string().
     #[test]
     fn test_linted_file_build_up_fixed_source_string() {
@@ -365,6 +427,16 @@ mod test {
                 )],
                 "a {{b}} c",
                 "a {{ b }} c",
+            ),
+            // Two distinct insertions at the same point are applied in order.
+            (
+                vec![0..1, 1..1, 1..1, 1..2],
+                vec![
+                    FixPatch::new(1..1, "b".into(), 1..1, "".into(), "".into()),
+                    FixPatch::new(1..1, "c".into(), 1..1, "".into(), "".into()),
+                ],
+                "ad",
+                "abcd",
             ),
         ];
 

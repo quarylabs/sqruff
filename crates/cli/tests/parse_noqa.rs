@@ -1,5 +1,3 @@
-#![cfg(feature = "parser")]
-
 use assert_cmd::Command;
 use std::io::Write;
 use tempfile::NamedTempFile;

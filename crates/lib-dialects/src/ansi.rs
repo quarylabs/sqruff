@@ -4912,9 +4912,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("SOME").to_matchable(),
                 ])
                 .to_matchable(),
-                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-                    .to_matchable(),
+                // Keep this strict so non-subquery operands can use the binary-operator
+                // alternative (e.g. PostgreSQL ANY(array_expression)).
+                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -4938,7 +4938,14 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("TildeSegment").to_matchable(),
                 Ref::new("NotOperatorGrammar").to_matchable(),
                 // Used in CONNECT BY clauses (EXASOL, Snowflake, Postgres...)
-                Ref::keyword("PRIOR").to_matchable(),
+                // Exclude when followed by a dot so `prior` can still be used
+                // as an alias/qualifier (e.g. `prior.id`).
+                Ref::keyword("PRIOR")
+                    .exclude(Sequence::new(vec![
+                        Ref::keyword("PRIOR").to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                    ]))
+                    .to_matchable(),
             ])
             .to_matchable()
             .into(),

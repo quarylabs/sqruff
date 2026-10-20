@@ -32,6 +32,29 @@ make rust_test
 make python_test
 ```
 
+#### Python release packaging with Bazel
+
+Build release wheels and a source distribution for the current platform:
+
+```bash
+bazel build //:python_dist
+```
+
+Artifacts are written to `bazel-bin/python_dist/wheels` and
+`bazel-bin/python_dist/sdist`. Check wheel installation, extension imports, and
+the installed CLI on Python 3.14, 3.14t, 3.15, and 3.15t:
+
+```bash
+bazel test //:python_wheel_check
+```
+
+Bazel downloads the Python runtimes and pinned maturin build tools, and caches
+the release build separately from the installation tests. The build uses
+vendored Cargo dependencies; the wheel installation tests run offline with no
+source fallback. Both targets run as part of the normal `//...` CI checks.
+The Python release workflow also builds the full platform matrix and publishes
+the release artifacts.
+
 ## VS Code Setup
 
 Run the following command to set up your VS Code environment using the recommended settings:

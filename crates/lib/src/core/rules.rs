@@ -18,7 +18,7 @@ use sqruff_lib_core::helpers::{Config, IndexMap};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::{TemplateSliceKind, TemplatedFile};
-use strum_macros::AsRefStr;
+use strum_macros::{AsRefStr, EnumIter};
 
 use crate::core::config::{FluffConfig, Value};
 use crate::core::rules::context::RuleContext;
@@ -31,7 +31,7 @@ pub struct LintResult {
     source: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Copy, Hash, Eq, AsRefStr)]
+#[derive(Debug, Clone, PartialEq, Copy, Hash, Eq, AsRefStr, EnumIter)]
 #[strum(serialize_all = "lowercase")]
 pub enum RuleGroups {
     All,
@@ -365,7 +365,7 @@ impl RulePack {
 }
 
 pub struct RuleSet {
-    pub(crate) register: IndexMap<&'static str, RuleManifest>,
+    register: IndexMap<&'static str, RuleManifest>,
 }
 
 impl RuleSet {
@@ -507,5 +507,29 @@ impl RuleSet {
             rules: instantiated_rules,
             reference_map,
         })
+    }
+}
+
+impl FromIterator<ErasedRule> for RuleSet {
+    fn from_iter<T: IntoIterator<Item = ErasedRule>>(iter: T) -> Self {
+        let mut register = IndexMap::default();
+
+        let iter = iter.into_iter();
+        register.reserve(iter.size_hint().0);
+
+        for rule in iter {
+            register.insert(
+                rule.code(),
+                RuleManifest {
+                    code: rule.code(),
+                    name: rule.name(),
+                    description: rule.description(),
+                    groups: rule.groups(),
+                    rule_class: rule,
+                },
+            );
+        }
+
+        RuleSet { register }
     }
 }

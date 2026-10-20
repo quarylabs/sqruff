@@ -73,7 +73,7 @@ jobs:
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # ratchet:PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
+          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t -i python3.15t
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
       - name: Upload wheels
@@ -122,7 +122,7 @@ jobs:
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # ratchet:PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
+          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t -i python3.15t
           manylinux: musllinux_1_2
       - name: Upload wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
@@ -184,19 +184,31 @@ jobs:
         with:
           python-version: 3.14t
           architecture: ${{ matrix.platform.target }}
+      - name: Install Python 3.15
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version: "3.15"
+          architecture: ${{ matrix.platform.target }}
+      - name: Install Python 3.15 free-threaded
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version: 3.15t
+          architecture: ${{ matrix.platform.target }}
       - name: Build wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # ratchet:PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.10 -i python3.11 -i python3.12 -i python3.13 -i python3.14
+          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.10 -i python3.11 -i python3.12 -i python3.13 -i python3.14 -i python3.15
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
       - name: Build free-threaded wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # ratchet:PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
+          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t -i python3.15t
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
       - name: Upload wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
@@ -225,20 +237,30 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         with:
-          python-version: 3.x
+          python-version: "3.15"
       - name: Build wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # ratchet:PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml
+          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.15
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Install Python 3.14 free-threaded
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version: 3.14t
+      - name: Install Python 3.15 free-threaded
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version: 3.15t
       - name: Build free-threaded wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # ratchet:PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
+          args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t -i python3.15t
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
       - name: Upload wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
@@ -264,11 +286,45 @@ jobs:
           name: wheels-sdist
           path: dist
 
+  check-wheels:
+    name: Check wheels (Python ${{ matrix.python-version }}, ${{ matrix.platform.runner }})
+    runs-on: ${{ matrix.platform.runner }}
+    needs: [sqlfluff-sha-only, linux, windows, macos]
+    if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.14", "3.14t", "3.15", "3.15t"]
+        platform:
+          - runner: ubuntu-22.04
+            artifact: wheels-linux-x86_64
+          - runner: windows-latest
+            artifact: wheels-windows-x64
+          - runner: macos-15-intel
+            artifact: wheels-macos-x86_64
+          - runner: macos-15
+            artifact: wheels-macos-aarch64
+    steps:
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # ratchet:actions/download-artifact@v6
+        with:
+          name: ${{ matrix.platform.artifact }}
+          path: dist
+      - name: Install wheel without building from source
+        run: |
+          python -m pip install --no-index --no-deps --find-links dist --only-binary=:all: sqruff
+      - name: Check extension import
+        run: python -c "import sqruff._sqruff"
+      - name: Check CLI
+        run: sqruff --version
+
   release:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [linux, musllinux, windows, macos, sdist]
+    needs: [linux, musllinux, windows, macos, sdist, check-wheels]
     permissions:
       # Use to sign the release artifacts
       id-token: write
@@ -277,7 +333,7 @@ jobs:
       # Used to generate artifact attestation
       attestations: write
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # ratchet:actions/download-artifact@v6
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # ratchet:actions/download-artifact@v6
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # ratchet:actions/attest-build-provenance@v3
         with:

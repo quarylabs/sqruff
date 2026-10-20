@@ -3,9 +3,11 @@ load("//:clippy.bzl", "cargo_lints")
 load("//:python_tests.bzl", "python_rust_test")
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_test", "rust_library", "rust_shared_library")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 
 exports_files([
     "Cargo.toml",
+    "README.md",
     "pyproject.toml",
 ])
 
@@ -13,6 +15,13 @@ exports_files([
 filegroup(
     name = "python_srcs",
     srcs = glob(["python/**/*.py"]),
+    visibility = ["//visibility:public"],
+)
+
+# Include Python modules and their bundled license in release distributions.
+filegroup(
+    name = "package_srcs",
+    srcs = glob(["python/**/*.py", "python/**/*.md"]) + ["README.md", "pyproject.toml"],
     visibility = ["//visibility:public"],
 )
 
@@ -54,16 +63,38 @@ filegroup(
 )
 
 # Runtime extension for native tests, built with the workspace's PyO3 version.
-# Wheel/ABI packaging remains validated by the maturin CI matrix.
+# Wheel/ABI packaging is validated by //:python_wheel_check and release CI.
 rust_shared_library(
     name = "sqruff-extension",
     crate_name = "sqruff_cli_python",
     srcs = ["src/lib.rs"],
     deps = all_crate_deps(normal = True) + [
         "//crates/cli-lib:sqruff-cli-lib-python",
+        "//crates/lib:sqruff-lib-python",
+        "//crates/lib-core:sqruff-lib-core",
         "@rules_python//python/cc:current_py_cc_libs",
     ],
     visibility = ["//visibility:public"],
+)
+
+# API tests need the native extension; pure-Python templater tests run separately.
+sh_test(
+    name = "api_test",
+    size = "medium",
+    srcs = ["//:.hacking/scripts/pytest_uv.sh"],
+    args = ["crates/cli-python/python/tests/test_api.py"],
+    data = [
+        ":python_srcs",
+        ":sqruff-extension",
+        "//:native_test_python",
+        "@rules_python//python:current_py_toolchain",
+    ],
+    env = {
+        "PYTHON_INTERPRETER": "$(PYTHON3_ROOTPATH)",
+        "PYTHON_VENV": "$(rlocationpath //:native_test_python)",
+        "SQRUFF_EXTENSION": "$(rlocationpath :sqruff-extension)",
+    },
+    toolchains = ["@rules_python//python:current_py_toolchain"],
 )
 
 # Test inputs are isolated so a dbt fixture edit does not rerun every CLI test.
@@ -118,6 +149,8 @@ rust_library(
     lint_config = ":cargo_lints",
     deps = all_crate_deps(normal = True) + [
         "//crates/cli-lib:sqruff-cli-lib",
+        "//crates/lib:sqruff-lib",
+        "//crates/lib-core:sqruff-lib-core",
         "@rules_python//python/cc:current_py_cc_libs",
     ],
     visibility = ["//visibility:public"],

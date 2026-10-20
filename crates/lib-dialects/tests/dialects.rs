@@ -531,6 +531,25 @@ fn mysql_rejects_mariadb_alter_table_conditions() {
 }
 
 #[test]
+fn redshift_rejects_postgres_foreign_tables() {
+    let dialect = kind_to_dialect(&DialectKind::Redshift, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "CREATE FOREIGN TABLE t (id INT) SERVER s;",
+        "CREATE FOREIGN TABLE t (id INT, doubled INT GENERATED ALWAYS AS (id * 2) STORED) SERVER s;",
+        "CREATE FOREIGN TABLE t (id INT, doubled INT GENERATED ALWAYS AS (id * 2) VIRTUAL) SERVER s;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn redshift_rejects_postgres_merge_extensions() {
     let dialect = kind_to_dialect(&DialectKind::Redshift, None).unwrap();
     let tables = Tables::default();

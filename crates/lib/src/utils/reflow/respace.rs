@@ -381,6 +381,17 @@ fn determine_aligned_inline_spacing(
                     last_code_pos.working_loc_after(last_code.raw())
                 };
 
+                // Only siblings whose preceding code is on their own line tell us
+                // anything about alignment. When a sibling is the first code on its
+                // line, `last_code` is the trailing code of an *earlier* line, and
+                // its column is unrelated to where this sibling starts. Counting it
+                // inflates the target column and pads every other line to match.
+                // See https://github.com/sqlfluff/sqlfluff/issues/8256.
+                let sibling_line = position_line(sibling_pos, use_source_positions);
+                if loc.0 != sibling_line {
+                    continue;
+                }
+
                 let desired_line_pos = if indent_unit == IndentUnit::Tab {
                     last_code_pos
                         .end_point_marker()
@@ -823,6 +834,62 @@ mod tests {
         let out = seq.respace(&tables, false, Filter::All).raw();
         assert!(out.contains(">="), "operator should stay joined: {out:?}");
         assert!(!out.contains("> ="), "operator must not be split: {out:?}");
+    }
+
+    #[test]
+    fn test_reflow_respace_align_ignores_predecessor_on_another_line() {
+        // Regression test for https://github.com/sqlfluff/sqlfluff/issues/8256.
+        // With leading commas and the T-SQL `=` alias syntax, the first aliased
+        // column is the first code on its line, so the code preceding it is the
+        // trailing token of an *earlier* line (`SELECT`). Its column bore no
+        // relation to where that alias starts, but it was still counted when
+        // picking the alignment target, inflating the target column and padding
+        // every *other* line to match. That produced two spaces after the leading
+        // comma on aliased rows while non-aliased rows kept one.
+        //
+        // The commas must keep a single following space; alignment is achieved by
+        // padding before the `=` instead.
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = tsql
+
+[sqruff:layout:type:comma]
+line_position = leading
+
+[sqruff:layout:type:alias_operator]
+spacing_before = align
+align_within = select_clause
+align_scope = bracketed
+
+[sqruff:layout:type:alias_expression]
+spacing_before = align
+align_within = select_clause
+align_scope = bracketed
+"#,
+            None,
+        );
+
+        let sql = "SELECT\n    FirstCol = 'a'\n    , SecondCol = 'b'\n    , ThirdCol = 'c'\n    , t.NonaliasedCol\nFROM TestTable AS t\n";
+
+        let tables = Tables::default();
+        let root = parse_string_with_config(sql, &config);
+        let seq = ReflowSequence::from_root(&root, &config);
+        let result = seq.respace(&tables, false, Filter::All).raw();
+
+        // Every leading comma keeps exactly one following space.
+        assert!(
+            !result.contains(",  "),
+            "leading comma must keep a single following space: {result:?}"
+        );
+        // Alignment is still achieved, via padding before the `=`.
+        let operator_columns: std::collections::HashSet<usize> =
+            result.lines().filter_map(|line| line.find('=')).collect();
+        assert_eq!(
+            operator_columns.len(),
+            1,
+            "all `=` operators should align to one column: {result:?}"
+        );
     }
 
     #[derive(Debug, Clone, Copy, PartialEq)]

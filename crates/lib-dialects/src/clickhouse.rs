@@ -2289,6 +2289,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // ClickHouse's CONSTRAINT clause only supports CHECK and ASSUME
+    // https://clickhouse.com/docs/en/sql-reference/statements/create/table#constraints
+    clickhouse_dialect.replace_grammar(
+        "TableConstraintSegment",
+        Sequence::new(vec![
+            Ref::keyword("CONSTRAINT").to_matchable(),
+            Ref::new("ObjectReferenceSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("CHECK").to_matchable(),
+                Ref::keyword("ASSUME").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // https://clickhouse.com/docs/sql-reference/statements/rename
     clickhouse_dialect.add([(
         "RenameStatementSegment".into(),

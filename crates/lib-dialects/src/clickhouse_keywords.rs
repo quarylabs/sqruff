@@ -11,6 +11,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "AS",
     "ASCENDING",
     "ASOF",
+    "ASSUME",
     "AST",
     "ASYNC",
     "ATOMIC",

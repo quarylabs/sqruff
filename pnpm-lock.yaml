@@ -10,8 +10,8 @@ catalogs:
       specifier: ^10.0.1
       version: 10.0.1
     '@playwright/test':
-      specifier: 1.62.1
-      version: 1.62.1
+      specifier: 1.64.1
+      version: 1.64.1
     eslint:
       specifier: ^10.12.0
       version: 10.12.0
@@ -53,7 +53,7 @@ importers:
         version: 10.0.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))
       '@playwright/test':
         specifier: 'catalog:'
-        version: 1.62.1
+        version: 1.64.1
       '@rauschma/env-var':
         specifier: ^1.0.1
         version: 1.0.1
@@ -98,7 +98,7 @@ importers:
         version: 4.7.0(monaco-editor@0.56.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@playwright/test':
         specifier: 'catalog:'
-        version: 1.62.1
+        version: 1.64.1
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -611,8 +611,8 @@ packages:
     resolution: {integrity: sha512-DU/t4TSqHvAc+uFMt972forQYqBTh/ul7lZ8U81HYGyxnf6vSPPz9NzuE0OR3x/elqvvGm+n4gcny+QSKT+FDw==}
     engines: {node: '>=20'}
 
-  '@playwright/test@1.62.1':
-    resolution: {integrity: sha512-DTcUc8qii+cpHvtOwggMtBRMjKZHXYWdw8syRYu2vtzuq4Wxphqq4NfCs5Zt44L6mA8rfDfj+PHnxFc/FeK6mQ==}
+  '@playwright/test@1.64.1':
+    resolution: {integrity: sha512-IaYGml/nSOiZWROfPtuIL7neuu9qDOZ3TNvNljUIrhDMxiGTgPjzj/g9p9RxpS2tSepPDRY+UwAaEeiKtUvIAg==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -3208,8 +3208,18 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
+  playwright-core@1.64.1:
+    resolution: {integrity: sha512-BC4s8y6SEVA6Q1rSxZTto8hI1KUI3xXlHGZgvGqP4IqPdI/a6FX9H29IDNz7vKo9l21b6LfYosScPL6M3xxyDQ==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   playwright@1.62.1:
     resolution: {integrity: sha512-0M+L3LAD8/nm554LOla9Ayx0j0tmFZ0FBcoQ7F1VuVHpM/XpiC8RcDzBQB8W5+hA8L22THxELzeF+2WcUzvcLg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.64.1:
+    resolution: {integrity: sha512-HCrVhHr5QQuwYoswEUGTb7gGp522yflbv/ST8nF4sFWGuLjQCt17Q/EubpGGSNKYn1tsTCPZxqHhHCfVURu7UA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -4517,9 +4527,9 @@ snapshots:
     dependencies:
       playwright-core: 1.62.1
 
-  '@playwright/test@1.62.1':
+  '@playwright/test@1.64.1':
     dependencies:
-      playwright: 1.62.1
+      playwright: 1.64.1
 
   '@rauschma/env-var@1.0.1': {}
 
@@ -7512,11 +7522,17 @@ snapshots:
 
   playwright-core@1.62.1: {}
 
+  playwright-core@1.64.1: {}
+
   playwright@1.62.1:
     dependencies:
       playwright-core: 1.62.1
     optionalDependencies:
       fsevents: 2.3.2
+
+  playwright@1.64.1:
+    dependencies:
+      playwright-core: 1.64.1
 
   pluralize@2.0.0: {}
 

@@ -680,6 +680,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     snowflake_dialect.sets_mut("refreshmode_types").extend([
         "ADAPTIVE",
         "AUTO",
+        "CUSTOM_INCREMENTAL",
         "FULL",
         "INCREMENTAL",
     ]);
@@ -3068,21 +3069,51 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "ChangesClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::ChangesClause, |_| {
-                Sequence::new(vec![
-                    Ref::keyword("CHANGES").to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::keyword("INFORMATION").to_matchable(),
-                        Ref::new("ParameterAssignerSegment").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("DEFAULT").to_matchable(),
-                            Ref::keyword("APPEND_ONLY").to_matchable(),
+                one_of(vec![
+                    // Bounded form: the standard CHANGES clause.
+                    Sequence::new(vec![
+                        Ref::keyword("CHANGES").to_matchable(),
+                        Bracketed::new(vec![
+                            Ref::keyword("INFORMATION").to_matchable(),
+                            Ref::new("ParameterAssignerSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DEFAULT").to_matchable(),
+                                Ref::keyword("APPEND_ONLY").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("AT").to_matchable(),
+                                Bracketed::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("TIMESTAMP").to_matchable(),
+                                        Ref::keyword("OFFSET").to_matchable(),
+                                        Ref::keyword("STATEMENT").to_matchable(),
+                                        Ref::keyword("STREAM").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("ParameterAssignerSegment").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("BEFORE").to_matchable(),
+                                Bracketed::new(vec![
+                                    Ref::keyword("STATEMENT").to_matchable(),
+                                    Ref::new("ParameterAssignerSegment").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("AT").to_matchable(),
+                            Ref::keyword("END").to_matchable(),
                             Bracketed::new(vec![
                                 one_of(vec![
                                     Ref::keyword("TIMESTAMP").to_matchable(),
@@ -3096,35 +3127,29 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .to_matchable(),
                         ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("BEFORE").to_matchable(),
-                            Bracketed::new(vec![
-                                Ref::keyword("STATEMENT").to_matchable(),
-                                Ref::new("ParameterAssignerSegment").to_matchable(),
-                                Ref::new("ExpressionSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
+                        .config(|this| this.optional())
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    // Unbounded form: no time bounds.
                     Sequence::new(vec![
-                        Ref::keyword("END").to_matchable(),
+                        Ref::keyword("CHANGES").to_matchable(),
                         Bracketed::new(vec![
-                            one_of(vec![
-                                Ref::keyword("TIMESTAMP").to_matchable(),
-                                Ref::keyword("OFFSET").to_matchable(),
-                                Ref::keyword("STATEMENT").to_matchable(),
-                                Ref::keyword("STREAM").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("INFORMATION").to_matchable(),
+                                Ref::new("ParameterAssignerSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                    Ref::keyword("APPEND_ONLY").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
+                            .config(|this| this.optional())
                             .to_matchable(),
-                            Ref::new("ParameterAssignerSegment").to_matchable(),
-                            Ref::new("ExpressionSegment").to_matchable(),
                         ])
+                        .config(|this| this.parse_mode = ParseMode::Greedy)
                         .to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
                 .to_matchable()
@@ -8230,6 +8255,32 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("ROW_TIMESTAMP").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
                             Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("BACKFILL").to_matchable(),
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("START").to_matchable(),
+                            Ref::keyword("AT").to_matchable(),
+                            Bracketed::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("STREAM").to_matchable(),
+                                    Ref::keyword("TIMESTAMP").to_matchable(),
+                                    Ref::keyword("STATEMENT").to_matchable(),
+                                    Ref::keyword("OFFSET").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("ParameterAssignerSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .config(|this| this.parse_mode = ParseMode::Greedy)
+                            .to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),

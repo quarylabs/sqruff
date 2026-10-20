@@ -5761,7 +5761,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (393)</summary>
+<summary>Segment types (394)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5864,6 +5864,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>create_cast_statement</code></li>
 <li><code>create_clone_statement</code></li>
 <li><code>create_cortex_search_service_statement</code></li>
+<li><code>create_data_metric_function_statement</code></li>
 <li><code>create_database_role_statement</code></li>
 <li><code>create_database_statement</code></li>
 <li><code>create_dbt_project_statement</code></li>

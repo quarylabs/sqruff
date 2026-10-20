@@ -247,6 +247,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DropSequenceStatement
         | DropCastStatement
         | CreateFunctionStatement
+        | CreateDataMetricFunctionStatement
         | DropFunctionStatement
         | CreateModelStatement
         | CreateViewStatement

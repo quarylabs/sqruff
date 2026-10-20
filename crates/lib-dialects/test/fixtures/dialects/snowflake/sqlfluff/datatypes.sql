@@ -21,5 +21,5 @@ CREATE OR REPLACE PROCEDURE my_procedure(values ARRAY(INTEGER))
   LANGUAGE SQL
   AS
   $$
-    ...
+    RETURN ARRAY_CONSTRUCT();
   $$;

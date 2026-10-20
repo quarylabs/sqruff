@@ -135,12 +135,18 @@ file:
     - data_type:
       - data_type_identifier: INT
     - keyword: AS
-    - udf_body: |-
-        $$
-        BEGIN
-            RETURN 1;
-        END
-        $$
+    - udf_body:
+      - file:
+        - statement:
+          - scripting_block_statement:
+            - keyword: BEGIN
+            - statement:
+              - return_statement:
+                - keyword: RETURN
+                - expression:
+                  - numeric_literal: '1'
+            - statement_terminator: ;
+            - keyword: END
 - statement_terminator: ;
 - statement:
   - create_procedure_statement:
@@ -164,12 +170,18 @@ file:
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS
-    - udf_body: |-
-        $$
-        BEGIN
-            RETURN 1;
-        END
-        $$
+    - udf_body:
+      - file:
+        - statement:
+          - scripting_block_statement:
+            - keyword: BEGIN
+            - statement:
+              - return_statement:
+                - keyword: RETURN
+                - expression:
+                  - numeric_literal: '1'
+            - statement_terminator: ;
+            - keyword: END
 - statement_terminator: ;
 - statement:
   - create_procedure_statement:
@@ -352,18 +364,57 @@ file:
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS
-    - udf_body: |-
-        $$
-        -- Snowflake Scripting code
-        DECLARE
-        radius_of_circle FLOAT;
-        area_of_circle FLOAT;
-        BEGIN
-        radius_of_circle := 3;
-        area_of_circle := pi() * radius_of_circle * radius_of_circle;
-        RETURN area_of_circle;
-        END;
-        $$
+    - udf_body:
+      - file:
+        - statement:
+          - scripting_declare_statement:
+            - keyword: DECLARE
+            - variable: radius_of_circle
+            - data_type:
+              - data_type_identifier: FLOAT
+            - statement_terminator: ;
+            - variable: area_of_circle
+            - data_type:
+              - data_type_identifier: FLOAT
+        - statement_terminator: ;
+        - statement:
+          - scripting_block_statement:
+            - keyword: BEGIN
+            - statement:
+              - scripting_let_statement:
+                - variable: radius_of_circle
+                - assignment_operator: :=
+                - expression:
+                  - numeric_literal: '3'
+            - statement_terminator: ;
+            - statement:
+              - scripting_let_statement:
+                - variable: area_of_circle
+                - assignment_operator: :=
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: pi
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                  - binary_operator: '*'
+                  - column_reference:
+                    - naked_identifier: radius_of_circle
+                  - binary_operator: '*'
+                  - column_reference:
+                    - naked_identifier: radius_of_circle
+            - statement_terminator: ;
+            - statement:
+              - return_statement:
+                - keyword: RETURN
+                - expression:
+                  - column_reference:
+                    - naked_identifier: area_of_circle
+            - statement_terminator: ;
+            - keyword: END
+        - statement_terminator: ;
 - statement_terminator: ;
 - statement:
   - create_procedure_statement:
@@ -641,5 +692,12 @@ file:
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS
-    - udf_body: $$ SELECT 1 $$
+    - udf_body:
+      - file:
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
 - statement_terminator: ;

@@ -328,6 +328,8 @@ struct LineIgnoreRules {
 #[derive(Debug, Clone, Default)]
 pub struct IgnoreMask {
     ignore_list: Vec<NoQADirective>,
+    /// Directives inside quoted SQL apply only within that parsed region.
+    scopes: HashMap<usize, std::ops::Range<(usize, usize)>>,
     /// Tracks, per directive in `ignore_list`, whether the directive was ever
     /// used to mask a violation. Held separately (rather than as a field on the
     /// directive) so directive equality/parsing stay untouched, and behind
@@ -340,7 +342,11 @@ const NOQA_PREFIX: &str = "noqa";
 impl IgnoreMask {
     fn new(ignore_list: Vec<NoQADirective>) -> Self {
         let used = ignore_list.iter().map(|_| Cell::new(false)).collect();
-        IgnoreMask { ignore_list, used }
+        IgnoreMask {
+            ignore_list,
+            used,
+            scopes: HashMap::default(),
+        }
     }
 
     /// Extract ignore mask entries from a comment segment
@@ -384,6 +390,21 @@ impl IgnoreMask {
     ) -> (IgnoreMask, Vec<SQLBaseError>) {
         let mut ignore_list: Vec<NoQADirective> = vec![];
         let mut violations: Vec<SQLBaseError> = vec![];
+        let regions = tree
+            .recursive_crawl_all(false)
+            .into_iter()
+            .filter_map(|segment| {
+                let file = segment.quoted_file()?;
+                let marker = file.get_position_marker()?;
+                Some(
+                    marker.source_position()
+                        ..marker
+                            .templated_file
+                            .get_line_pos_of_char_pos(marker.source_slice.end, true),
+                )
+            })
+            .collect::<Vec<_>>();
+        let mut scopes = HashMap::default();
         for comment in tree.recursive_crawl(
             const {
                 &SyntaxSet::new(&[
@@ -400,10 +421,20 @@ impl IgnoreMask {
             if let Err(err) = ignore_entry {
                 violations.push(err);
             } else if let Ok(Some(ignore_entry)) = ignore_entry {
+                let position = (ignore_entry.line_no(), ignore_entry.line_pos());
+                if let Some(region) = regions
+                    .iter()
+                    .rev()
+                    .find(|region| region.contains(&position))
+                {
+                    scopes.insert(ignore_list.len(), region.clone());
+                }
                 ignore_list.push(ignore_entry);
             }
         }
-        (IgnoreMask::new(ignore_list), violations)
+        let mut mask = IgnoreMask::new(ignore_list);
+        mask.scopes = scopes;
+        (mask, violations)
     }
 
     /// Parse `noqa` directives from raw source using a dialect's comment lexer.
@@ -461,6 +492,13 @@ impl IgnoreMask {
 
         // Line-specific directives.
         for (idx, ignore) in self.ignore_list.iter().enumerate() {
+            if self
+                .scopes
+                .get(&idx)
+                .is_some_and(|scope| !scope.contains(&(vline_no, vline_pos)))
+            {
+                continue;
+            }
             match ignore {
                 NoQADirective::LineIgnoreAll(LineIgnoreAll { line_no, .. })
                     if vline_no == *line_no =>
@@ -489,6 +527,13 @@ impl IgnoreMask {
         // with their position so they can be evaluated in source order.
         let mut directives: Vec<(usize, usize, usize)> = Vec::new();
         for (idx, ignore) in self.ignore_list.iter().enumerate() {
+            if self
+                .scopes
+                .get(&idx)
+                .is_some_and(|scope| !scope.contains(&(vline_no, vline_pos)))
+            {
+                continue;
+            }
             match ignore {
                 NoQADirective::RangeIgnoreAll(RangeIgnoreAll {
                     line_no, line_pos, ..

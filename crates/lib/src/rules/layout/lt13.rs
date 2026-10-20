@@ -126,6 +126,10 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
         true
     }
 
+    fn is_file_boundary(&self) -> bool {
+        true
+    }
+
     fn crawl_behaviour(&self) -> Crawler {
         RootOnlyCrawler.into()
     }

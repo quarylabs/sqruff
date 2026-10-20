@@ -12,6 +12,7 @@ use hashbrown::{HashMap, HashSet};
 use itertools::chain;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::errors::{ErrorStructRule, SQLFluffUserError, SQLLintError};
 use sqruff_lib_core::helpers::{Config, IndexMap};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -217,6 +218,11 @@ pub trait Rule: Debug + 'static + Send + Sync {
         false
     }
 
+    /// Whether the rule applies only to the containing file's boundaries.
+    fn is_file_boundary(&self) -> bool {
+        false
+    }
+
     fn crawl_behaviour(&self) -> Crawler;
 }
 
@@ -242,8 +248,6 @@ pub fn crawl(
     config: &FluffConfig,
     on_violation: &mut impl FnMut(LintResult),
 ) -> Result<(), Exception> {
-    let mut root_context = RuleContext::new(tables, dialect, config, tree.clone());
-    root_context.templated_file = Some(templated_file.clone());
     let mut has_exception = false;
 
     // TODO Will to return a note that rules were skipped
@@ -251,26 +255,48 @@ pub fn crawl(
         return Ok(());
     }
 
-    rule.crawl_behaviour()
-        .crawl(&mut root_context, &mut |context| {
-            let resp =
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| rule.eval(context)));
+    let mut roots = vec![(tree.clone(), templated_file.clone())];
+    if !rule.is_file_boundary() && tree.contains_quoted_sql() {
+        roots.extend(
+            tree.recursive_crawl_all(false)
+                .into_iter()
+                .filter_map(|segment| {
+                    let file = segment.quoted_file()?;
+                    // Preserve the entire quoted token if its contents cannot be parsed.
+                    if file.descendant_type_set().contains(SyntaxKind::Unparsable) {
+                        return None;
+                    }
+                    Some((
+                        file.clone(),
+                        file.get_position_marker()?.templated_file.clone(),
+                    ))
+                }),
+        );
+    }
+    for (root, templated_file) in roots {
+        let mut root_context = RuleContext::new(tables, dialect, config, root);
+        root_context.templated_file = Some(templated_file.clone());
+        rule.crawl_behaviour()
+            .crawl(&mut root_context, &mut |context| {
+                let resp =
+                    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| rule.eval(context)));
 
-            let Ok(results) = resp else {
-                has_exception = true;
-                return;
-            };
+                let Ok(results) = resp else {
+                    has_exception = true;
+                    return;
+                };
 
-            for result in results {
-                if !result
-                    .fixes
-                    .iter()
-                    .any(|it| it.has_template_conflicts(templated_file))
-                {
-                    on_violation(result);
+                for result in results {
+                    if !result
+                        .fixes
+                        .iter()
+                        .any(|it| it.has_template_conflicts(&templated_file))
+                    {
+                        on_violation(result);
+                    }
                 }
-            }
-        });
+            });
+    }
 
     if has_exception {
         Err(Exception)

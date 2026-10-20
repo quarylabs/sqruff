@@ -71,6 +71,14 @@ impl SegmentSeekerCrawler {
 
 impl BaseCrawler for SegmentSeekerCrawler {
     fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
+        // Quoted SQL has its own parse root and working coordinates. The rule
+        // walker visits it separately from the surrounding statement.
+        if context.segment.quoted_file().is_some() {
+            if self.provide_raw_stack {
+                context.raw_stack.push(context.segment.clone());
+            }
+            return;
+        }
         let mut self_match = false;
 
         if self.is_self_match(&context.segment) {
@@ -112,6 +120,9 @@ pub struct TokenSeekerCrawler;
 
 impl BaseCrawler for TokenSeekerCrawler {
     fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
+        if context.segment.quoted_file().is_some() {
+            return;
+        }
         if context.segment.segments().is_empty() {
             f(context);
         }

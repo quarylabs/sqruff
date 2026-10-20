@@ -1,0 +1,17 @@
+file:
+- statement:
+  - drop_object_statement:
+    - keyword: DROP
+    - keyword: ALERT
+    - object_reference:
+      - naked_identifier: my_alert
+- statement_terminator: ;
+- statement:
+  - drop_object_statement:
+    - keyword: DROP
+    - keyword: ALERT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_alert
+- statement_terminator: ;

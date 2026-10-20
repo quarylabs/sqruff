@@ -999,7 +999,7 @@ impl ErasedSegment {
     /// Nodes without a match grammar defer validation to their parent. This lets
     /// constructs such as bracketed segments be checked in the context where
     /// their grammar is defined.
-    fn validate_after_fixes(&self, parse_context: &mut ParseContext) -> bool {
+    fn validate_after_fixes(&self, parse_context: &ParseContext) -> bool {
         let grammars = parse_context
             .dialect()
             .match_grammars_for_kind(self.get_type());
@@ -1054,23 +1054,37 @@ impl ErasedSegment {
             + 1;
         let trimmed = &raw_segments[start_idx..end_idx];
 
+        // Cached match results contain indices into their input buffer. Each
+        // subtree validation constructs a different buffer, so matches from a
+        // previous validation may have incompatible offsets even when source
+        // positions and buffer lengths coincide.
+        let mut validation_context = ParseContext::new_with_limits(
+            parse_context.dialect(),
+            parse_context.indentation_config,
+            parse_context.max_parse_depth(),
+            parse_context.max_parse_nodes(),
+        );
+
         grammars.into_iter().any(|grammar| {
-            let Ok(rematch) = grammar.match_segments(trimmed, 0, parse_context) else {
+            let Ok(rematch) = grammar.match_segments(trimmed, 0, &mut validation_context) else {
                 return false;
             };
             if rematch.span.start != 0 || rematch.span.end != trimmed.len() as u32 {
                 return false;
             }
 
-            if parse_context
+            if validation_context
                 .check_parse_node_limit(&rematch, trimmed.len())
                 .is_err()
             {
                 return false;
             }
 
-            let rematched_segments =
-                rematch.apply(&Tables::default(), parse_context.dialect().name, trimmed);
+            let rematched_segments = rematch.apply(
+                &Tables::default(),
+                validation_context.dialect().name,
+                trimmed,
+            );
             let closing_unparsables = rematched_segments
                 .iter()
                 .map(|segment| {

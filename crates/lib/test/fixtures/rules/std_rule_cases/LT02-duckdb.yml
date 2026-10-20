@@ -1,5 +1,29 @@
 rule: LT02
 
+test_fix_parenthesized_interval_in_multiline_case:
+  fail_str: |
+    select
+      case
+        when a is null
+          or b <= c + interval (3) month
+          then 1
+      end as y
+    from t
+  fix_str: |
+    select
+        case
+            when
+                a is null
+                or b <= c + interval (3) month
+                then 1
+        end as y
+    from t
+  roundtrip: true
+  configs:
+    core:
+      dialect: duckdb
+      templater: raw
+
 test_fix_duckdb_named_parameter_brackets:
   fail_str: |
     FROM

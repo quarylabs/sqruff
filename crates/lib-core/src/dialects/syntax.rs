@@ -317,6 +317,7 @@ pub enum SyntaxKind {
     CreateConsumerGroupStatement,
     CreateCortexSearchServiceStatement,
     CreateCredentialStatement,
+    CreateDataMetricFunctionStatement,
     CreateDatabaseFromShareStatement,
     CreateDatabaseRoleStatement,
     CreateDatabaseScopedCredentialStatement,

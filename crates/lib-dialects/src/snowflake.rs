@@ -1425,6 +1425,55 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // The TABLE( ... ) argument type of data metric functions as accepted
+        // in the signature positions (ALTER / DROP / GRANT), where columns may
+        // be given as datatypes only.
+        // https://docs.snowflake.com/en/sql-reference/sql/drop-function
+        (
+            "DataMetricFunctionTableTypeGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("TABLE").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("DatatypeSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // The TABLE( ... ) argument type as written in CREATE DATA METRIC
+        // FUNCTION, where every column must be named.
+        // https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+        (
+            "DataMetricFunctionNamedTableTypeGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("TABLE").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::UdfBody)
@@ -2798,6 +2847,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateSchemaStatementSegment").to_matchable(),
                 Ref::new("AlterSchemaStatementSegment").to_matchable(),
                 Ref::new("CreateFunctionStatementSegment").to_matchable(),
+                Ref::new("CreateDataMetricFunctionStatementSegment").to_matchable(),
                 Ref::new("AlterFunctionStatementSegment").to_matchable(),
                 Ref::new("CreateExternalFunctionStatementSegment").to_matchable(),
                 Ref::new("CreateStageSegment").to_matchable(),
@@ -7140,11 +7190,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     any_set_of(vec![
                         Sequence::new(vec![
-                            Ref::keyword("NOT").to_matchable(),
+                            Ref::keyword("NOT").optional().to_matchable(),
                             Ref::keyword("NULL").to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
+                        Ref::keyword("MEMOIZABLE").optional().to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("LANGUAGE").to_matchable(),
                             one_of(vec![
@@ -7265,6 +7316,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ARTIFACT_REPOSITORY").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -7288,6 +7350,126 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // A parameter list referencing a function by its signature. Data metric
+        // functions are addressed by their TABLE( ... ) typed signature in
+        // ALTER / DROP FUNCTION and in GRANT / REVOKE, so these positions accept
+        // it alongside the ordinary parameter forms.
+        // https://docs.snowflake.com/en/sql-reference/sql/drop-function
+        (
+            "FunctionSignatureParameterListSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionParameterList, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("DataMetricFunctionTableTypeGrammar").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("DataMetricFunctionTableTypeGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("FunctionParameterGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // The parameter list of a data metric function. Every argument must be
+        // named and take a TABLE( ... ) type.
+        // https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+        (
+            "DataMetricFunctionParameterListSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionParameterList, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("DataMetricFunctionNamedTableTypeGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // The return type of a data metric function. The docs state the data
+        // type can only be NUMBER.
+        // https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+        (
+            "DataMetricFunctionReturnTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
+                StringParser::new("NUMBER", SyntaxKind::DataTypeIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // A `CREATE DATA METRIC FUNCTION` statement.
+        // https://docs.snowflake.com/en/sql-reference/sql/create-data-metric-function
+        (
+            "CreateDataMetricFunctionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDataMetricFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    // OR REPLACE and IF NOT EXISTS are mutually exclusive.
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                            Ref::keyword("SECURE").optional().to_matchable(),
+                            Ref::keyword("DATA").to_matchable(),
+                            Ref::keyword("METRIC").to_matchable(),
+                            Ref::keyword("FUNCTION").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SECURE").optional().to_matchable(),
+                            Ref::keyword("DATA").to_matchable(),
+                            Ref::keyword("METRIC").to_matchable(),
+                            Ref::keyword("FUNCTION").to_matchable(),
+                            Ref::new("IfNotExistsGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("FunctionNameSegment").to_matchable(),
+                    Ref::new("DataMetricFunctionParameterListSegment").to_matchable(),
+                    Ref::keyword("RETURNS").to_matchable(),
+                    Ref::new("DataMetricFunctionReturnTypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").optional().to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LANGUAGE").to_matchable(),
+                        Ref::keyword("SQL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    one_of(vec![
+                        Ref::new("DoubleQuotedUDFBody").to_matchable(),
+                        Ref::new("SingleQuotedUDFBody").to_matchable(),
+                        Ref::new("DollarQuotedUDFBody").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "AlterFunctionStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterFunctionStatement, |_| {
@@ -7301,7 +7483,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                     Ref::new("FunctionNameSegment").to_matchable(),
-                    Ref::new("FunctionParameterListGrammar").to_matchable(),
+                    Ref::new("FunctionSignatureParameterListSegment").to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("RENAME").to_matchable(),
@@ -14203,7 +14385,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("FUNCTION").to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("FunctionNameSegment").to_matchable(),
-                    Ref::new("FunctionParameterListGrammar").to_matchable(),
+                    Ref::new("FunctionSignatureParameterListSegment").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -15999,7 +16181,7 @@ fn snowflake_access_object() -> Matchable {
                 Ref::new("ObjectReferenceSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("FunctionNameSegment").to_matchable(),
-                    Ref::new("FunctionParameterListGrammar")
+                    Ref::new("FunctionSignatureParameterListSegment")
                         .optional()
                         .to_matchable(),
                 ])

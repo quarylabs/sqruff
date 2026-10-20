@@ -75,6 +75,19 @@ test_pass_templated_macro_newlines:
     core:
       templater: jinja
 
+test_pass_templated_block_tag_ends_with_newline:
+  # A file whose last line is a Jinja block tag still ends with a single
+  # trailing newline in the source, so LT12 must not fire. The rendered output
+  # consumes that newline, which is what made the rule report a file that is
+  # already correct.
+  pass_str: |
+    {% if true %}
+    select 1 as x
+    {% endif %}
+  configs:
+    core:
+      templater: jinja
+
 test_pass_templated_loop_repeated_newline:
   pass_str: |
     {% for i in [1, 2] %}

@@ -107,6 +107,58 @@ fn templated_source_missing_final_newline(context: &RuleContext) -> bool {
         })
 }
 
+/// Whether the source file ends with exactly one newline of its own.
+///
+/// A Jinja block tag swallows the newline that follows it, so a file whose last
+/// line is `{% endif %}` renders without a trailing newline even though the
+/// source ends with exactly one. The source is already correct, so LT12 must not
+/// report it (#5109).
+fn source_ends_with_single_newline(context: &RuleContext) -> bool {
+    context
+        .templated_file
+        .as_ref()
+        .is_some_and(|templated_file| {
+            let source = templated_file.source_str.as_str();
+            source.ends_with('\n') && !source.ends_with("\n\n")
+        })
+}
+
+/// Whether a block tag sits between the last rendered content and the source's
+/// final newline.
+///
+/// A file ending in `{% endif %}` is sliced as the block tag, then the newline
+/// that follows it, so the rendered output has no trailing newline while the
+/// source has exactly one. The newline belongs to the source, so the file is
+/// correct and the rule must not report it.
+fn block_tag_precedes_the_final_newline(context: &RuleContext) -> bool {
+    context
+        .templated_file
+        .as_ref()
+        .is_some_and(|templated_file| {
+            let raw_sliced = templated_file.raw_sliced();
+            let Some(last) = raw_sliced.last() else {
+                return false;
+            };
+
+            // The source's final newline is the last slice, and it is literal.
+            if !last.has_slice_kind(TemplateSliceKind::Literal) || last.raw() != "\n" {
+                return false;
+            }
+
+            // The slice before it is the block tag that swallowed the newline.
+            raw_sliced
+                .get(raw_sliced.len().saturating_sub(2))
+                .is_some_and(|slice| {
+                    matches!(
+                        slice.slice_kind(),
+                        TemplateSliceKind::BlockEnd
+                            | TemplateSliceKind::BlockStart
+                            | TemplateSliceKind::BlockMid
+                    )
+                })
+        })
+}
+
 fn raw_slice_index_at_source_pos(raw_sliced: &[RawFileSlice], source_pos: usize) -> Option<usize> {
     raw_sliced.iter().position(|slice| {
         slice.source_slice().start <= source_pos && source_pos < slice.source_slice().end
@@ -282,6 +334,16 @@ Add trailing newline to the end. The $ character represents end of file.
 
         let source_missing_final_newline = templated_source_missing_final_newline(context);
         let templated_extra_final_newline = templated_file_has_extra_final_newline(context);
+
+        // A file whose last line is a Jinja block tag (`{% endif %}`, `{% endfor %}`)
+        // ends with exactly one newline in the source, but the tag swallows it and
+        // the rendered output has none. The source is correct, so the rule must
+        // stay quiet instead of reporting a file that is already right (#5109).
+        if source_ends_with_single_newline(context) && block_tag_precedes_the_final_newline(context)
+        {
+            return Vec::new();
+        }
+
         let (parent_stack, segment) = get_last_segment(FunctionalContext::new(context).segment());
 
         if segment.is_empty() {

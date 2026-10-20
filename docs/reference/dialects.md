@@ -845,7 +845,7 @@ ClickHouse SQL dialect for real-time analytics.
 ```
 
 <details>
-<summary>Segment types (247)</summary>
+<summary>Segment types (246)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1014,7 +1014,6 @@ ClickHouse SQL dialect for real-time analytics.
 <li><code>quoted_identifier</code></li>
 <li><code>quoted_literal</code></li>
 <li><code>raw_comparison_operator</code></li>
-<li><code>referenced_column_list</code></li>
 <li><code>rename_table_statement</code></li>
 <li><code>revoke_statement</code></li>
 <li><code>role_reference</code></li>

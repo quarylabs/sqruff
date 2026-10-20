@@ -42,6 +42,31 @@ fn get_children(segments: Segments) -> Segments {
     })
 }
 
+/// Split a `::` shorthand cast into (value, datatype, later casts).
+///
+/// The value being cast can span more than one segment: an array subscript
+/// such as `a[1]` parses as a `column_reference` followed by one or more
+/// `array_accessor` children. Locate the target type by finding the first
+/// `data_type` child rather than assuming it sits at a fixed index, so the
+/// whole left-hand operand is kept intact. Anything after that first
+/// `data_type` is a chained cast (e.g. the `text` in `1::int::text`).
+fn split_shorthand_cast(
+    expression_datatype_segment: &Segments,
+) -> (&[ErasedSegment], ErasedSegment, Segments) {
+    let data_type_idx = expression_datatype_segment
+        .iter()
+        .position(|seg| seg.is_type(SyntaxKind::DataType))
+        .unwrap();
+    (
+        &expression_datatype_segment.base[..data_type_idx],
+        expression_datatype_segment[data_type_idx].clone(),
+        Segments::from_vec(
+            expression_datatype_segment.base[data_type_idx + 1..].to_vec(),
+            None,
+        ),
+    )
+}
+
 fn shorthand_fix_list(
     tables: &Tables,
     root_segment: ErasedSegment,
@@ -226,17 +251,16 @@ FROM foo;
                         TypeCastingStyle::Shorthand => {
                             let expression_datatype_segment =
                                 get_children(functional_context.segment());
+                            let (value, data_type, later_types) =
+                                split_shorthand_cast(&expression_datatype_segment);
 
                             fixes = cast_fix_list(
                                 context.tables,
                                 context.dialect.name,
                                 context.segment.clone(),
-                                &[expression_datatype_segment[0].clone()],
-                                expression_datatype_segment[1].clone(),
-                                Some(Segments::from_vec(
-                                    expression_datatype_segment.base[2..].to_vec(),
-                                    None,
-                                )),
+                                value,
+                                data_type,
+                                Some(later_types),
                             )
                         }
                         _ => {}
@@ -262,24 +286,23 @@ FROM foo;
                                 context.dialect.name,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
-                                cast_content[0].clone(),
+                                &[cast_content[0].clone()],
                                 None,
                             );
                         }
                         TypeCastingStyle::Shorthand => {
                             let expression_datatype_segment =
                                 get_children(functional_context.segment());
+                            let (value, data_type, later_types) =
+                                split_shorthand_cast(&expression_datatype_segment);
 
                             fixes = convert_fix_list(
                                 context.tables,
                                 context.dialect.name,
                                 context.segment.clone(),
-                                expression_datatype_segment[1].clone(),
-                                expression_datatype_segment[0].clone(),
-                                Some(Segments::from_vec(
-                                    expression_datatype_segment.base[2..].to_vec(),
-                                    None,
-                                )),
+                                data_type,
+                                value,
+                                Some(later_types),
                             );
                         }
                         _ => (),
@@ -370,21 +393,16 @@ FROM foo;
                         TypeCastingStyle::Shorthand => {
                             let expression_datatype_segment =
                                 get_children(functional_context.segment());
-                            let data_type_idx = expression_datatype_segment
-                                .iter()
-                                .position(|seg| seg.is_type(SyntaxKind::DataType))
-                                .unwrap();
+                            let (value, data_type, later_types) =
+                                split_shorthand_cast(&expression_datatype_segment);
 
                             fixes = cast_fix_list(
                                 context.tables,
                                 context.dialect.name,
                                 context.segment.clone(),
-                                &expression_datatype_segment[..data_type_idx],
-                                expression_datatype_segment[data_type_idx].clone(),
-                                Some(Segments::from_vec(
-                                    expression_datatype_segment.base[data_type_idx + 1..].to_vec(),
-                                    None,
-                                )),
+                                value,
+                                data_type,
+                                Some(later_types),
                             );
                         }
                         _ => {}
@@ -406,20 +424,22 @@ FROM foo;
                                 context.dialect.name,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
-                                cast_content[0].clone(),
+                                &[cast_content[0].clone()],
                                 None,
                             );
                         }
                         TypeCastingStyle::Shorthand => {
                             let cast_content = get_children(functional_context.segment());
+                            let (value, data_type, later_types) =
+                                split_shorthand_cast(&cast_content);
 
                             fixes = convert_fix_list(
                                 context.tables,
                                 context.dialect.name,
                                 context.segment.clone(),
-                                cast_content[1].clone(),
-                                cast_content[0].clone(),
-                                Some(Segments::from_vec(cast_content.base[2..].to_vec(), None)),
+                                data_type,
+                                value,
+                                Some(later_types),
                             )
                         }
                         _ => {}
@@ -568,7 +588,7 @@ fn convert_fix_list(
     dialect: DialectKind,
     root: ErasedSegment,
     convert_arg_1: ErasedSegment,
-    convert_arg_2: ErasedSegment,
+    convert_arg_2: &[ErasedSegment],
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
     // Return no fixes on the dialects whose CONVERT takes its arguments the
@@ -580,17 +600,16 @@ fn convert_fix_list(
         return Vec::new();
     }
 
-    let mut function = build_function(
-        tables,
-        dialect,
-        "convert",
-        vec![
-            convert_arg_1,
-            SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
-            SegmentBuilder::whitespace(tables.next_id(), " "),
-            convert_arg_2,
-        ],
-    );
+    // The value being converted can span more than one segment (e.g. the
+    // array subscript `a[1]`), so splice all of its segments in rather than a
+    // single one.
+    let mut contents = vec![
+        convert_arg_1,
+        SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+        SegmentBuilder::whitespace(tables.next_id(), " "),
+    ];
+    contents.extend(convert_arg_2.iter().cloned());
+    let mut function = build_function(tables, dialect, "convert", contents);
 
     if let Some(later_types) = later_types {
         for data_type in later_types.base {

@@ -1,7 +1,6 @@
 use itertools::{Itertools, chain};
-use sqruff_lib_core::helpers::IndexMap;
 
-use crate::core::rules::{ErasedRule, RuleManifest, RuleSet};
+use crate::core::rules::{ErasedRule, RuleSet};
 
 pub mod aliasing;
 pub mod ambiguous;
@@ -33,25 +32,7 @@ pub fn rules() -> Vec<ErasedRule> {
 }
 
 pub fn get_ruleset() -> RuleSet {
-    let mut register = IndexMap::default();
-
-    let rules = rules();
-    register.reserve(rules.len());
-
-    for rule in rules {
-        register.insert(
-            rule.code(),
-            RuleManifest {
-                code: rule.code(),
-                name: rule.name(),
-                description: rule.description(),
-                groups: rule.groups(),
-                rule_class: rule,
-            },
-        );
-    }
-
-    RuleSet { register }
+    rules().into_iter().collect()
 }
 
 #[cfg(test)]

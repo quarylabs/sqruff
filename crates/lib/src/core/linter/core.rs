@@ -9,7 +9,7 @@ use crate::core::linter::discovery::paths_from_path;
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
-use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
+use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack, RuleSet};
 use crate::rules::get_ruleset;
 use crate::templaters::{ProcessingMode, Templater, TemplaterKind};
 use hashbrown::{HashMap, HashSet};
@@ -304,6 +304,18 @@ impl Linter {
     pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
         let rs = get_ruleset();
         rs.get_rulepack(&self.config)
+    }
+
+    /// Install and configure a ruleset before this linter's rules are initialized.
+    /// Returns an error if rules have already been installed or used for linting.
+    pub fn set_ruleset(&self, rule_set: &RuleSet) -> Result<(), SQLFluffUserError> {
+        self.rulepack
+            .set(rule_set.get_rulepack(&self.config)?)
+            .map_err(|_| {
+                SQLFluffUserError::new(
+                    "Cannot set rules after the linter's rules have been initialized".to_string(),
+                )
+            })
     }
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
@@ -1041,6 +1053,83 @@ mod tests {
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
+    use crate::core::rules::context::RuleContext;
+    use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+    use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups, RuleSet};
+
+    #[derive(Debug)]
+    struct RuleZZ01;
+
+    impl Rule for RuleZZ01 {
+        fn load_from_config(
+            &self,
+            _config: &HashMap<String, sqruff_lib_core::value::Value>,
+        ) -> Result<ErasedRule, String> {
+            Ok(Self.erased())
+        }
+
+        fn name(&self) -> &'static str {
+            "custom.always"
+        }
+
+        fn description(&self) -> &'static str {
+            "Custom rule violation."
+        }
+
+        fn long_description(&self) -> &'static str {
+            self.description()
+        }
+
+        fn groups(&self) -> &'static [RuleGroups] {
+            &[RuleGroups::All]
+        }
+
+        fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+            vec![LintResult::new(
+                Some(context.segment.clone()),
+                vec![],
+                None,
+                None,
+            )]
+        }
+
+        fn crawl_behaviour(&self) -> Crawler {
+            RootOnlyCrawler.into()
+        }
+    }
+
+    #[test]
+    fn set_ruleset_lints_with_custom_rules() {
+        let config = FluffConfig::from_source("[sqruff]\nrules = ZZ01\n", None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let ruleset = RuleSet::from_iter([RuleZZ01.erased()]);
+        linter.set_ruleset(&ruleset).unwrap();
+
+        let result = linter.lint_string("SELECT 1\n", None, false).unwrap();
+        assert_eq!(result.violations().len(), 1);
+        assert_eq!(result.violations()[0].rule_code(), "ZZ01");
+        assert_eq!(result.violations()[0].description, "Custom rule violation.");
+    }
+
+    #[test]
+    fn set_ruleset_preserves_initialized_rules() {
+        for use_defaults in [false, true] {
+            let config = FluffConfig::from_source("[sqruff]\nrules = all\n", None);
+            let linter = Linter::new(config, None, None, false).unwrap();
+            if !use_defaults {
+                let ruleset = RuleSet::from_iter([RuleZZ01.erased()]);
+                linter.set_ruleset(&ruleset).unwrap();
+            }
+            let original: Vec<_> = linter.rules().unwrap().iter().map(|r| r.code()).collect();
+
+            let error = linter
+                .set_ruleset(&crate::rules::get_ruleset())
+                .unwrap_err();
+            assert!(error.value.contains("initialized"));
+            let remaining: Vec<_> = linter.rules().unwrap().iter().map(|r| r.code()).collect();
+            assert_eq!(remaining, original);
+        }
+    }
 
     fn postgres_all_rules_linter() -> Linter {
         let config = FluffConfig::from_source(

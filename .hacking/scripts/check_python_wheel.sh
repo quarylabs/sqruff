@@ -17,5 +17,14 @@ cd "$TEST_TMPDIR"
 "$UV" venv --python "$PYTHON" --no-project --no-config .venv
 "$UV" pip install --python .venv/bin/python --no-config --offline \
     --no-index --no-deps --find-links "$WHEELS" --only-binary=:all: sqruff
-.venv/bin/python -I -c 'import sqruff._lib_name'
+.venv/bin/python -I - <<'PY'
+import sqruff._sqruff
+from sqruff import FluffConfig, Linter, fix, lint
+
+config = FluffConfig(rules=["LT01"])
+source = "SELECT   1"
+assert any(v.code == "LT01" for v in Linter(config).lint_string(source).violations)
+assert fix(source, config=config).strip() == "SELECT 1"
+assert lint(source, config=config).fix_string() == fix(source, config=config)
+PY
 .venv/bin/sqruff --version

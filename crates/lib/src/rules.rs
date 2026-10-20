@@ -1,6 +1,6 @@
 use itertools::{Itertools, chain};
 
-use crate::core::rules::ErasedRule;
+use crate::core::rules::{ErasedRule, RuleSet};
 
 pub mod aliasing;
 pub mod ambiguous;
@@ -29,6 +29,10 @@ pub fn rules() -> Vec<ErasedRule> {
         tsql::rules()
     )
     .collect_vec()
+}
+
+pub fn get_ruleset() -> RuleSet {
+    rules().into_iter().collect()
 }
 
 #[cfg(test)]

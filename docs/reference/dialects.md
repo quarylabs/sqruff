@@ -5761,7 +5761,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (394)</summary>
+<summary>Segment types (397)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5771,8 +5771,10 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>access_statement</code></li>
 <li><code>access_target</code></li>
 <li><code>aggregate_order_by_clause</code></li>
+<li><code>alert_condition</code></li>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
+<li><code>alter_alert_statement</code></li>
 <li><code>alter_cortex_search_service_statement</code></li>
 <li><code>alter_database_statement</code></li>
 <li><code>alter_dynamic_table_column_action</code></li>
@@ -5860,6 +5862,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>copy_into_table_statement</code></li>
 <li><code>copy_on_error_option</code></li>
 <li><code>copy_options</code></li>
+<li><code>create_alert_statement</code></li>
 <li><code>create_authentication_policy_segment</code></li>
 <li><code>create_cast_statement</code></li>
 <li><code>create_clone_statement</code></li>

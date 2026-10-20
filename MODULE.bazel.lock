@@ -672,7 +672,7 @@
     "@@rules_playwright+//playwright:extensions.bzl%playwright": {
       "general": {
         "bzlTransitiveDigest": "EE8dCDKgYZKRXWLkC+yHbPwTeKZ64+Zd21jPjNkZvjc=",
-        "usagesDigest": "YKe/bMUaf+D8uoirW53S/gNb1Vq+ECp5jMBwp3mXZjE=",
+        "usagesDigest": "mmlDkO0gUI7YNeX8p9fEFWyT6kt3AzZF9S4ks6k5O20=",
         "recordedInputs": [
           "REPO_MAPPING:rules_playwright+,bazel_tools bazel_tools",
           "FILE:@@rules_playwright+//playwright/private/cli/src/download_paths.json 4ab1631c4ed1e744847b20a6802a0d88da0271c4547a90aa9c89f7e751882f7b"
@@ -866,7 +866,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-linux-arm64.zip"
               ]
             }
           },
@@ -874,7 +874,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip"
               ]
             }
           },
@@ -882,7 +882,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-linux-arm64.zip"
               ]
             }
           },
@@ -890,7 +890,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip"
               ]
             }
           },
@@ -898,7 +898,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-linux-arm64.zip"
               ]
             }
           },
@@ -906,7 +906,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip"
               ]
             }
           },
@@ -914,7 +914,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-headless-shell-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-headless-shell-linux-arm64.zip"
               ]
             }
           },
@@ -922,7 +922,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip"
               ]
             }
           },
@@ -930,7 +930,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-headless-shell-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-headless-shell-linux-arm64.zip"
               ]
             }
           },
@@ -938,7 +938,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip"
               ]
             }
           },
@@ -946,7 +946,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-headless-shell-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-headless-shell-linux-arm64.zip"
               ]
             }
           },
@@ -954,7 +954,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip"
               ]
             }
           },
@@ -962,7 +962,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-headless-shell-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-headless-shell-mac-x64.zip"
               ]
             }
           },
@@ -970,7 +970,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-headless-shell-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-headless-shell-mac-arm64.zip"
               ]
             }
           },
@@ -978,7 +978,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-headless-shell-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-headless-shell-mac-x64.zip"
               ]
             }
           },
@@ -986,7 +986,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-headless-shell-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-headless-shell-mac-arm64.zip"
               ]
             }
           },
@@ -994,7 +994,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-headless-shell-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-headless-shell-mac-x64.zip"
               ]
             }
           },
@@ -1002,7 +1002,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-headless-shell-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-headless-shell-mac-arm64.zip"
               ]
             }
           },
@@ -1010,7 +1010,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-headless-shell-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-headless-shell-mac-x64.zip"
               ]
             }
           },
@@ -1018,7 +1018,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-headless-shell-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-headless-shell-mac-arm64.zip"
               ]
             }
           },
@@ -1026,7 +1026,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-headless-shell-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-headless-shell-mac-x64.zip"
               ]
             }
           },
@@ -1034,7 +1034,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-headless-shell-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-headless-shell-mac-arm64.zip"
               ]
             }
           },
@@ -1042,7 +1042,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-headless-shell-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-headless-shell-linux-arm64.zip"
               ]
             }
           },
@@ -1050,7 +1050,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip"
               ]
             }
           },
@@ -1058,7 +1058,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-headless-shell-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-headless-shell-linux-arm64.zip"
               ]
             }
           },
@@ -1066,7 +1066,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip"
               ]
             }
           },
@@ -1074,7 +1074,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-headless-shell-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-headless-shell-linux-arm64.zip"
               ]
             }
           },
@@ -1082,7 +1082,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip"
               ]
             }
           },
@@ -1090,7 +1090,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1098,7 +1098,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1106,7 +1106,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1114,7 +1114,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1122,7 +1122,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-mac-arm64.zip"
               ]
             }
           },
@@ -1130,7 +1130,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1138,7 +1138,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-mac-arm64.zip"
               ]
             }
           },
@@ -1146,7 +1146,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1154,7 +1154,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-mac-arm64.zip"
               ]
             }
           },
@@ -1162,7 +1162,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1170,7 +1170,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-mac-arm64.zip"
               ]
             }
           },
@@ -1178,7 +1178,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-x64/chrome-mac-x64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-x64/chrome-mac-x64.zip"
               ]
             }
           },
@@ -1186,383 +1186,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/mac-arm64/chrome-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-debian11-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-debian11-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-debian12-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-debian12-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-debian13-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-debian13-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-debian11-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-headless-shell-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-debian11-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-headless-shell-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-debian12-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-headless-shell-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-debian12-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-headless-shell-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-debian13-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-headless-shell-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-debian13-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-headless-shell-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac11": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-headless-shell-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac11-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-headless-shell-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac12": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-headless-shell-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac12-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-headless-shell-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac13": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-headless-shell-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac13-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-headless-shell-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac14": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-headless-shell-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac14-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-headless-shell-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac15": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-headless-shell-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-mac15-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-headless-shell-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-ubuntu20.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-headless-shell-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-ubuntu20.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-headless-shell-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-ubuntu22.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-headless-shell-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-ubuntu22.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-headless-shell-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-ubuntu24.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-headless-shell-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-headless-shell-ubuntu24.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-headless-shell-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac10.13": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac10.14": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac10.15": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac11": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac11-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac12": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac12-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac13": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac13-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac14": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac14-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac15": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-x64/chrome-mac-x64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-mac15-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/mac-arm64/chrome-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-ubuntu20.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-ubuntu20.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-ubuntu22.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-ubuntu22.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-linux64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-ubuntu24.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/chromium-tip-of-tree/1433/chromium-tip-of-tree-linux-arm64.zip"
-              ]
-            }
-          },
-          "playwright-chromium-tip-of-tree-ubuntu24.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7893.0/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/mac-arm64/chrome-mac-arm64.zip"
               ]
             }
           },
@@ -1570,7 +1194,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-linux-arm64.zip"
               ]
             }
           },
@@ -1578,7 +1202,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip"
               ]
             }
           },
@@ -1586,7 +1210,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-linux-arm64.zip"
               ]
             }
           },
@@ -1594,7 +1218,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip"
               ]
             }
           },
@@ -1602,7 +1226,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/chromium/1234/chromium-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/chromium/1248/chromium-linux-arm64.zip"
               ]
             }
           },
@@ -1610,7 +1234,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip"
+                "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip"
               ]
             }
           },
@@ -1618,7 +1242,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux-arm64.zip"
               ]
             }
           },
@@ -1626,7 +1250,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux.zip"
               ]
             }
           },
@@ -1634,7 +1258,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux-arm64.zip"
               ]
             }
           },
@@ -1642,7 +1266,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux.zip"
               ]
             }
           },
@@ -1650,7 +1274,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1658,7 +1282,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1666,7 +1290,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1674,7 +1298,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1682,7 +1306,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac-arm64.zip"
               ]
             }
           },
@@ -1690,7 +1314,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1698,7 +1322,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac-arm64.zip"
               ]
             }
           },
@@ -1706,7 +1330,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1714,7 +1338,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac-arm64.zip"
               ]
             }
           },
@@ -1722,7 +1346,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1730,7 +1354,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac-arm64.zip"
               ]
             }
           },
@@ -1738,7 +1362,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac.zip"
               ]
             }
           },
@@ -1746,7 +1370,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-mac-arm64.zip"
               ]
             }
           },
@@ -1754,7 +1378,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux-arm64.zip"
               ]
             }
           },
@@ -1762,7 +1386,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux.zip"
               ]
             }
           },
@@ -1770,7 +1394,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux-arm64.zip"
               ]
             }
           },
@@ -1778,7 +1402,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux.zip"
               ]
             }
           },
@@ -1786,7 +1410,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux-arm64.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux-arm64.zip"
               ]
             }
           },
@@ -1794,183 +1418,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/ffmpeg/1011/ffmpeg-linux.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-debian11-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-debian-11-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-debian11-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-debian-11.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-debian12-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-debian-12-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-debian12-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-debian-12.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac10.13": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac10.14": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac10.15": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac11": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac11-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac12": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac12-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac13": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac13-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac14": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac14-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac15": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-mac15-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-mac-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-ubuntu20.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-ubuntu-20.04.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-ubuntu22.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-ubuntu-22.04-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-ubuntu22.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-ubuntu-22.04.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-ubuntu24.04-arm64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-ubuntu-24.04-arm64.zip"
-              ]
-            }
-          },
-          "playwright-firefox-beta-ubuntu24.04-x64": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
-            "attributes": {
-              "urls": [
-                "https://cdn.playwright.dev/builds/firefox-beta/1526/firefox-beta-ubuntu-24.04.zip"
+                "https://cdn.playwright.dev/builds/ffmpeg/1013/ffmpeg-linux.zip"
               ]
             }
           },
@@ -1978,7 +1426,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-debian-11-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-debian-11-arm64.zip"
               ]
             }
           },
@@ -1986,7 +1434,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-debian-11.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-debian-11.zip"
               ]
             }
           },
@@ -1994,7 +1442,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-debian-12-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-debian-12-arm64.zip"
               ]
             }
           },
@@ -2002,7 +1450,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-debian-12.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-debian-12.zip"
               ]
             }
           },
@@ -2010,7 +1458,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2018,7 +1466,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2026,7 +1474,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2034,7 +1482,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2042,7 +1490,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac-arm64.zip"
               ]
             }
           },
@@ -2050,7 +1498,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2058,7 +1506,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac-arm64.zip"
               ]
             }
           },
@@ -2066,7 +1514,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2074,7 +1522,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac-arm64.zip"
               ]
             }
           },
@@ -2082,7 +1530,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2090,7 +1538,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac-arm64.zip"
               ]
             }
           },
@@ -2098,7 +1546,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac.zip"
               ]
             }
           },
@@ -2106,7 +1554,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-mac-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-mac-arm64.zip"
               ]
             }
           },
@@ -2114,7 +1562,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-ubuntu-20.04-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-ubuntu-20.04-arm64.zip"
               ]
             }
           },
@@ -2122,7 +1570,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-ubuntu-20.04.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-ubuntu-20.04.zip"
               ]
             }
           },
@@ -2130,7 +1578,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-ubuntu-22.04-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-ubuntu-22.04-arm64.zip"
               ]
             }
           },
@@ -2138,7 +1586,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-ubuntu-22.04.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-ubuntu-22.04.zip"
               ]
             }
           },
@@ -2146,7 +1594,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-ubuntu-24.04-arm64.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-ubuntu-24.04-arm64.zip"
               ]
             }
           },
@@ -2154,7 +1602,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/firefox/1538/firefox-ubuntu-24.04.zip"
+                "https://cdn.playwright.dev/builds/firefox/1555/firefox-ubuntu-24.04.zip"
               ]
             }
           },
@@ -2162,7 +1610,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-debian-11-arm64.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-debian-11-arm64.zip"
               ]
             }
           },
@@ -2170,7 +1618,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-debian-11.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-debian-11.zip"
               ]
             }
           },
@@ -2178,7 +1626,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-debian-12-arm64.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-debian-12-arm64.zip"
               ]
             }
           },
@@ -2186,7 +1634,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-debian-12.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-debian-12.zip"
               ]
             }
           },
@@ -2210,7 +1658,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-mac-15.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-mac-15.zip"
               ]
             }
           },
@@ -2218,7 +1666,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-mac-15-arm64.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-mac-15-arm64.zip"
               ]
             }
           },
@@ -2226,7 +1674,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2092/webkit-ubuntu-20.04-arm64.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-ubuntu-20.04-arm64.zip"
               ]
             }
           },
@@ -2234,7 +1682,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2092/webkit-ubuntu-20.04.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-ubuntu-20.04.zip"
               ]
             }
           },
@@ -2242,7 +1690,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-ubuntu-22.04-arm64.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-ubuntu-22.04-arm64.zip"
               ]
             }
           },
@@ -2250,7 +1698,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-ubuntu-22.04.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-ubuntu-22.04.zip"
               ]
             }
           },
@@ -2258,7 +1706,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-ubuntu-24.04-arm64.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-ubuntu-24.04-arm64.zip"
               ]
             }
           },
@@ -2266,14 +1714,14 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_file",
             "attributes": {
               "urls": [
-                "https://cdn.playwright.dev/builds/webkit/2336/webkit-ubuntu-24.04.zip"
+                "https://cdn.playwright.dev/builds/webkit/2370/webkit-ubuntu-24.04.zip"
               ]
             }
           },
           "playwright": {
             "repoRuleId": "@@rules_playwright+//playwright:repositories.bzl%playwright_repository",
             "attributes": {
-              "playwright_version": "1.62.1",
+              "playwright_version": "1.64.1",
               "browsers_workspace_name_prefix": "playwright",
               "rules_playwright_cannonical_name": "@rules_playwright+"
             }

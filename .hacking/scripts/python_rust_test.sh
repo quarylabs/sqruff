@@ -36,7 +36,7 @@ for crate in "$RUNFILES/_main/crates/"*; do
 done
 cp -rL "$RUNFILES/_main/crates/cli-python/python" "$WORK/python"
 if [[ -n "${SQRUFF_EXTENSION:-}" ]]; then
-    cp -L "$RUNFILES/$SQRUFF_EXTENSION" "$WORK/python/sqruff/_lib_name.so"
+    cp -L "$RUNFILES/$SQRUFF_EXTENSION" "$WORK/python/sqruff/_sqruff.so"
 fi
 
 # Preserve the actual Python entry point instead of substituting the native CLI.
@@ -53,7 +53,7 @@ export SQRUFF_PYTHON_BIN="$WORK/bin/sqruff"
 # Fail on missing Python support before a fixture harness can silently skip it.
 "$PYTHON_BIN" -c 'import sqruff.templaters.jinja_templater, sqruff.templaters.dbt_templater'
 if [[ -n "${SQRUFF_EXTENSION:-}" ]]; then
-    "$PYTHON_BIN" -c 'from sqruff._lib_name import run_cli; assert callable(run_cli)'
+    "$PYTHON_BIN" -c 'from sqruff._sqruff import run_cli; assert callable(run_cli)'
 fi
 cd "$WORK/$TEST_CRATE"
 exec "$BINARY" "$@"

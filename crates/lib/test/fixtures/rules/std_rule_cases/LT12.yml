@@ -75,6 +75,58 @@ test_pass_templated_macro_newlines:
     core:
       templater: jinja
 
+test_pass_templated_block_tag_final_newline:
+  # The newline before endif belongs to the block, not to the source EOF.
+  pass_str: "{% if true %}\nselect 1 as x\n{% endif %}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_block_tag_missing_final_newline:
+  fail_str: "{% if true %}\nselect 1 as x\n{% endif %}"
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_block_tag_extra_final_newline:
+  fail_str: "{% if true %}\nselect 1 as x\n{% endif %}\n\n"
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+
+test_pass_templated_comment_final_newline:
+  pass_str: "select 1 as x\n{# end #}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_comment_extra_final_newline:
+  fail_str: "select 1 as x\n{# end #}\n\n"
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+
+test_pass_templated_loop_final_newline:
+  pass_str: "{% for i in [1, 2] %}\nselect 1 as x;\n{% endfor %}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_pass_templated_nested_blocks_final_newline:
+  pass_str: "{% if true %}\n{% if true %}\nselect 1 as x\n{% endif %}\n{% endif %}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_pass_templated_block_tag_consumed_final_newline:
+  pass_str: "{% if true %}\nselect 1 as x\n{% endif -%}\n"
+  configs:
+    core:
+      templater: jinja
+
 test_pass_templated_loop_repeated_newline:
   pass_str: |
     {% for i in [1, 2] %}

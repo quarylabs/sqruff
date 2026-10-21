@@ -5723,7 +5723,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (395)</summary>
+<summary>Segment types (396)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6105,6 +6105,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>variable</code></li>
 <li><code>vertical_bar</code></li>
 <li><code>walrus_operator</code></li>
+<li><code>warehouse_generation</code></li>
 <li><code>warehouse_object_properties</code></li>
 <li><code>warehouse_size</code></li>
 <li><code>when_clause</code></li>

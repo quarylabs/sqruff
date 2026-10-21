@@ -69,10 +69,9 @@ file:
           - grouping_expression_list:
             - numeric_literal: '1'
             - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -117,10 +116,9 @@ file:
             - column_reference:
               - naked_identifier: letter
             - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:

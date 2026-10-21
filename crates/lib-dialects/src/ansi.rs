@@ -4028,7 +4028,10 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "EmptyStructLiteralSegment".into(),
-            NodeMatcher::new(SyntaxKind::EmptyStructLiteral, |_| {
+            // Serialises as `typed_struct_literal` (like a regular struct
+            // literal) so that spacing rules are applied correctly to
+            // `STRUCT()`, matching SQLFluff.
+            NodeMatcher::new(SyntaxKind::TypedStructLiteral, |_| {
                 Sequence::new(vec![
                     Ref::new("StructTypeSegment").to_matchable(),
                     Ref::new("EmptyStructLiteralBracketsSegment").to_matchable(),
@@ -4513,7 +4516,9 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "EmptyStructLiteralBracketsSegment".into(),
-            NodeMatcher::new(SyntaxKind::EmptyStructLiteralBrackets, |_| {
+            // Serialises as `struct_literal` (an empty one) so that spacing
+            // rules are applied correctly to `STRUCT()`, matching SQLFluff.
+            NodeMatcher::new(SyntaxKind::StructLiteral, |_| {
                 Bracketed::new(vec![]).to_matchable()
             })
             .to_matchable()

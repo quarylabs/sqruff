@@ -2429,6 +2429,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .to_matchable(),
                         ])
+                        // The brackets might be empty i.e. `OPTIONS()`.
+                        .config(|this| this.optional())
                         .to_matchable(),
                     ])
                     .to_matchable(),

@@ -96,9 +96,8 @@ file:
               - column_reference:
                 - naked_identifier: store
               - comma: ','
-              - expression:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

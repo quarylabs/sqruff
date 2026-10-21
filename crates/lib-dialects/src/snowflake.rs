@@ -645,9 +645,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .extend(["CSV", "JSON", "AVRO", "ORC", "PARQUET", "XML"]);
 
     snowflake_dialect.sets_mut("warehouse_types").clear();
-    snowflake_dialect
-        .sets_mut("warehouse_types")
-        .extend(["STANDARD", "SNOWPARK-OPTIMIZED"]);
+    snowflake_dialect.sets_mut("warehouse_types").extend([
+        "STANDARD",
+        "SNOWPARK-OPTIMIZED",
+        "ADAPTIVE",
+    ]);
 
     snowflake_dialect.sets_mut("warehouse_sizes").clear();
     snowflake_dialect.sets_mut("warehouse_sizes").extend([
@@ -1251,6 +1253,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 )
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // https://docs.snowflake.com/en/sql-reference/sql/create-warehouse
+            "WarehouseGeneration".into(),
+            MultiStringParser::new(
+                vec!["'1'".into(), "'2'".into()],
+                SyntaxKind::WarehouseGeneration,
+            )
             .to_matchable()
             .into(),
         ),
@@ -4631,6 +4643,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "AlterWarehouseStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterWarehouseStatement, |_| {
+                // These actions accept the warehouse name being omitted, in
+                // which case they apply to the warehouse in use for the session.
+                let session_actions = || {
+                    one_of(vec![
+                        Ref::keyword("SUSPEND").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RESUME").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("IF").to_matchable(),
+                                Ref::keyword("SUSPENDED").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ABORT").to_matchable(),
+                            Ref::keyword("ALL").to_matchable(),
+                            Ref::keyword("QUERIES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable()
+                };
                 Sequence::new(vec![
                     Ref::keyword("ALTER").to_matchable(),
                     Ref::keyword("WAREHOUSE").to_matchable(),
@@ -4641,30 +4677,31 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                     one_of(vec![
+                        session_actions(),
                         Sequence::new(vec![
-                            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
                             one_of(vec![
-                                Ref::keyword("SUSPEND").to_matchable(),
+                                session_actions(),
+                                // Adaptive warehouses only:
+                                Ref::keyword("ENABLE").to_matchable(),
+                                Ref::keyword("DISABLE").to_matchable(),
+                                // Interactive warehouses only:
                                 Sequence::new(vec![
-                                    Ref::keyword("RESUME").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("IF").to_matchable(),
-                                        Ref::keyword("SUSPENDED").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ADD").to_matchable(),
+                                        Ref::keyword("DROP").to_matchable(),
                                     ])
-                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                    Ref::keyword("TABLES").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Delimited::new(vec![
+                                            Ref::new("TableReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("ABORT").to_matchable(),
-                                Ref::keyword("ALL").to_matchable(),
-                                Ref::keyword("QUERIES").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -4696,6 +4733,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                             Ref::keyword("UNSET").to_matchable(),
                             one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("DCM").to_matchable(),
+                                    Ref::keyword("PROJECT").to_matchable(),
+                                ])
+                                .to_matchable(),
                                 Delimited::new(vec![
                                     Ref::new("NakedIdentifierSegment").to_matchable(),
                                 ])
@@ -4755,18 +4797,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            Ref::keyword("ACCOUNTS").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("ACCOUNTS").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("CommentEqualsClauseSegment")
+                                        .optional()
+                                        .to_matchable(),
+                                ])
                                 .to_matchable(),
-                            Ref::new("CommentEqualsClauseSegment")
-                                .optional()
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("SET").to_matchable(),
-                            Ref::new("TagEqualsSegment").to_matchable(),
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                Ref::new("TagEqualsSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -7784,6 +7831,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
+                        Ref::keyword("GENERATION").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("WarehouseGeneration").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
                         Ref::keyword("INITIALLY_SUSPENDED").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
                         Ref::new("BooleanLiteralGrammar").to_matchable(),
@@ -9307,7 +9360,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::keyword("MONITOR").to_matchable(),
                                 ])
                                 .to_matchable(),
-                                Ref::keyword("SHARE").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("API").to_matchable(),
                                     Ref::keyword("INTEGRATION").to_matchable(),
@@ -9355,6 +9407,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("WAREHOUSE").to_matchable(),
                                 Ref::keyword("DATABASE").to_matchable(),
                                 Ref::keyword("TAG").to_matchable(),
+                                Ref::keyword("SHARE").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("EXTERNAL").to_matchable(),
                                     Ref::keyword("FUNCTION").to_matchable(),
@@ -9929,6 +9982,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("TagBracketedEqualsSegment")
                             .optional()
                             .to_matchable(),
+                        // Object parameters can follow the TAG clause.
+                        Ref::new("WarehouseObjectParamsSegment")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -10020,6 +10077,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("TagBracketedEqualsSegment")
+                            .optional()
+                            .to_matchable(),
+                        // Object parameters can follow the TAG clause.
+                        Ref::new("WarehouseObjectParamsSegment")
                             .optional()
                             .to_matchable(),
                     ])

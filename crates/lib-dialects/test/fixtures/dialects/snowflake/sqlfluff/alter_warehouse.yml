@@ -462,3 +462,96 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '4'
 - statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - keyword: RESUME
+    - keyword: IF
+    - keyword: SUSPENDED
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - keyword: ABORT
+    - keyword: ALL
+    - keyword: QUERIES
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: SUSPEND
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: my_wh
+    - keyword: ENABLE
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_wh
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: my_wh
+    - keyword: ADD
+    - keyword: TABLES
+    - bracketed:
+      - start_bracket: (
+      - table_reference:
+        - naked_identifier: t1
+      - comma: ','
+      - table_reference:
+        - naked_identifier: db1
+        - dot: .
+        - naked_identifier: sch1
+        - dot: .
+        - naked_identifier: t2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: my_wh
+    - keyword: DROP
+    - keyword: TABLES
+    - bracketed:
+      - start_bracket: (
+      - table_reference:
+        - naked_identifier: t1
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: my_wh
+    - keyword: UNSET
+    - keyword: DCM
+    - keyword: PROJECT
+- statement_terminator: ;

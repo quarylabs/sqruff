@@ -225,3 +225,29 @@ file:
       - dot: .
       - naked_identifier: account
 - statement_terminator: ;
+- statement:
+  - alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''shared with partners'''
+- statement_terminator: ;
+- statement:
+  - alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''shared with partners'''
+- statement_terminator: ;

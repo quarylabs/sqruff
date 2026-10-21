@@ -253,6 +253,36 @@ class TestFluffConfig:
 
 
 class TestLinter:
+    @pytest.mark.parametrize(
+        "extra_config",
+        [
+            "ignore = templating\n",
+            "ignore = parsing, templating\n",
+            "[sqruff:templater:jinja]\nignore_templating = True\n",
+            (
+                "ignore = templating\n"
+                "[sqruff:templater:jinja]\nignore_templating = False\n"
+            ),
+        ],
+    )
+    def test_jinja_ignore_templating(self, extra_config):
+        config = FluffConfig.from_source(
+            "[sqruff]\ndialect = ansi\ntemplater = jinja\n" + extra_config
+        )
+        result = Linter(config).lint_string("SELECT {{ undefined_macro('x') }} AS y\n")
+
+        assert not result.has_violations
+
+    @pytest.mark.parametrize("extra_config", ["", "ignore = parsing\n"])
+    def test_jinja_undefined_macro_reports_its_name(self, extra_config):
+        config = FluffConfig.from_source(
+            "[sqruff]\ndialect = ansi\ntemplater = jinja\n" + extra_config
+        )
+        with pytest.raises(
+            RuntimeError, match="Undefined jinja template variable: 'undefined_macro'"
+        ):
+            Linter(config).lint_string("SELECT {{ undefined_macro('x') }} AS y\n")
+
     @pytest.mark.parametrize("method", ["lint_string", "lint_paths"])
     def test_shared_linter_does_not_deadlock(self, method, tmp_path):
         sql_path = tmp_path / "test.sql"

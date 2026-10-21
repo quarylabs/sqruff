@@ -420,7 +420,10 @@ class JinjaTemplater(PythonTemplater):
         loader_search_path = self._get_loader_search_path(config)
         final_search_path = (loader_search_path or []) + (macros_path or [])
 
-        ignore_templating = config and config.jinja_ignore_templating
+        # Retain the Jinja-specific option as an alias for core ignore=templating.
+        ignore_templating = config and (
+            config.ignore_templating or config.jinja_ignore_templating
+        )
         if ignore_templating:
 
             class SafeFileSystemLoader(FileSystemLoader):
@@ -806,7 +809,9 @@ class JinjaTemplater(PythonTemplater):
         undefined_variables = self._init_undefined_tracking(
             live_context,
             potentially_undefined_variables,
-            ignore_templating=config.jinja_ignore_templating if config else False,
+            ignore_templating=bool(
+                config and (config.ignore_templating or config.jinja_ignore_templating)
+            ),
         )
 
         try:
@@ -1363,8 +1368,8 @@ def process_from_rust(
     except Exception as e:
         print("Error: ", e)
         raise e
-    if errors != []:
-        raise ValueError
+    if errors:
+        raise ValueError("; ".join(str(error) for error in errors))
     return output
 
 
@@ -1385,6 +1390,6 @@ def process_variants_from_rust(
         config=config,
     ):
         if errors:
-            raise ValueError
+            raise ValueError("; ".join(str(error) for error in errors))
         outputs.append(output)
     return outputs

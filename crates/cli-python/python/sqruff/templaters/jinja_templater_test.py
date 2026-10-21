@@ -24,6 +24,7 @@ loops and placeholders.
 # from .python_templater import FluffConfig, Linter
 # from .python_templater import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 # from .python_templater import BaseSegment, RawFileSlice, TemplatedFile
+import json
 from typing import Optional
 
 import pytest
@@ -33,6 +34,8 @@ from sqruff.templaters.jinja_templater import (
     DummyUndefined,
     JinjaTemplater,
     UndefinedRecorder,
+    process_from_rust,
+    process_variants_from_rust,
 )
 from sqruff.templaters.jinja_templater_builtins_dbt import DBT_BUILTINS
 from sqruff.templaters.jinja_templater_tracers import JinjaAnalyzer
@@ -72,6 +75,45 @@ def _jinja_config(macro_paths=None, library_paths=None):
         dbt_context=None,
         dbt_project_dir=None,
     )
+
+
+@pytest.mark.parametrize(
+    "core_ignore,jinja_ignore",
+    [(True, None), (True, False), (False, True)],
+)
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        ("SELECT {{ undefined_macro('x') }} AS y\n", "SELECT undefined_macro AS y\n"),
+        ('SELECT * FROM {% include "missing.sql" %}\n', "SELECT * FROM missing\n"),
+    ],
+)
+def test_jinja_ignore_templating(core_ignore, jinja_ignore, source, expected):
+    """Core ignore and the legacy Jinja option enable both fallback paths."""
+    config = _jinja_config()._replace(
+        ignore_templating=core_ignore, jinja_ignore_templating=jinja_ignore
+    )
+    templated_file, errors = JinjaTemplater().process(
+        in_str=source, fname="test.sql", config=config
+    )
+
+    assert errors == []
+    assert templated_file.templated_str == expected
+
+
+@pytest.mark.parametrize("process", [process_from_rust, process_variants_from_rust])
+def test_jinja_rust_bridge_preserves_all_error_messages(process):
+    """Both bridge entry points retain every undefined-variable diagnostic."""
+    with pytest.raises(ValueError) as exc:
+        process(
+            "SELECT {{ missing_a }}, {{ missing_b }}\n",
+            "test.sql",
+            json.dumps(_jinja_config()._asdict()),
+            {},
+        )
+
+    assert "Undefined jinja template variable: 'missing_a'" in str(exc.value)
+    assert "Undefined jinja template variable: 'missing_b'" in str(exc.value)
 
 
 def test_jinja_literal_fast_path_skips_rendering_and_variants(monkeypatch):

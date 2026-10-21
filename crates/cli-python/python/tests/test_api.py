@@ -362,6 +362,95 @@ class TestLinter:
         assert "LintedFile" in repr(result)
 
 
+class TestTemplateFixability:
+    CONFIG = """[sqruff]
+dialect = ansi
+templater = jinja
+rules = ST05
+[sqruff:templater:jinja:context]
+tbl = my_table
+[sqruff:rules:structure.subquery]
+forbid_subquery_in = join
+"""
+    PLAIN_SQL = (
+        "select a.id, b.name\n"
+        "from foo as a\n"
+        "inner join (select id, name from bar) as b on a.id = b.id\n"
+    )
+    TEMPLATED_SQL = PLAIN_SQL.replace("from bar", "from {{ tbl }}")
+
+    @pytest.mark.parametrize("fix", [False, True])
+    @pytest.mark.parametrize(
+        "source",
+        [
+            TEMPLATED_SQL,
+            PLAIN_SQL.replace("from foo", "from {{ tbl }}"),
+            PLAIN_SQL.replace("select a.id, b.name", "select {{ 'a.id' }}, b.name"),
+        ],
+    )
+    def test_discarded_template_fixes_are_unfixable(self, source, fix):
+        linter = Linter(FluffConfig.from_source(self.CONFIG))
+        result = linter.lint_string(source, fix=fix)
+
+        assert [(v.code, v.fixable) for v in result.violations] == [("ST05", False)]
+        assert result.has_unfixable_violations
+        assert not result.has_fixes
+        assert result.fix_string() == source
+
+    @pytest.mark.parametrize("fix", [False, True])
+    def test_safe_subquery_fixes_remain_fixable(self, fix):
+        linter = Linter(FluffConfig.from_source(self.CONFIG))
+        result = linter.lint_string(self.PLAIN_SQL, fix=fix)
+
+        assert [(v.code, v.fixable) for v in result.violations] == [("ST05", True)]
+        assert not result.has_unfixable_violations
+        assert result.has_fixes == fix
+        fixed = result.fix_string()
+        if fix:
+            assert fixed != self.PLAIN_SQL
+            assert not linter.lint_string(fixed).has_violations
+        else:
+            assert fixed == self.PLAIN_SQL
+
+    @pytest.mark.parametrize("use_stdin", [False, True])
+    @pytest.mark.parametrize("templated", [False, True])
+    def test_fix_exit_status_matches_applicable_fixes(
+        self, tmp_path, templated, use_stdin
+    ):
+        config_path = tmp_path / ".sqruff"
+        config_path.write_text(self.CONFIG)
+        sql_path = tmp_path / "query.sql"
+        source = self.TEMPLATED_SQL if templated else self.PLAIN_SQL
+        sql_path.write_text(source)
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from sqruff.main import main; main()",
+                "--config",
+                str(config_path),
+                "fix",
+                "-" if use_stdin else str(sql_path),
+            ],
+            input=source if use_stdin else None,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        assert result.returncode == (1 if templated else 0), result.stderr
+        fixed = result.stdout if use_stdin else sql_path.read_text()
+        if templated:
+            assert "ST05" in result.stderr
+            assert fixed == source
+        else:
+            assert fixed != source
+            linter = Linter(FluffConfig.from_source(self.CONFIG))
+            assert not linter.lint_string(fixed).has_violations
+
+
 # ── convenience functions ─────────────────────────────────────────────────────
 
 

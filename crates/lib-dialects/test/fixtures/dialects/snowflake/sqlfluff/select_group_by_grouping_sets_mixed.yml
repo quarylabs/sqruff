@@ -41,10 +41,9 @@ file:
           - column_reference:
             - naked_identifier: b
           - comma: ','
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -158,10 +157,9 @@ file:
                   - naked_identifier: b
               - end_bracket: )
           - comma: ','
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:

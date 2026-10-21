@@ -1362,6 +1362,7 @@ pub enum SyntaxKind {
     WaitOption,
     WaitforStatement,
     WalrusOperator,
+    WarehouseGeneration,
     WarehouseObjectProperties,
     WarehouseSize,
     WhenClause,

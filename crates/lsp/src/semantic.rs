@@ -709,6 +709,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ColumnSelector
         | ExcludeBracketClose
         | WarehouseSize
+        | WarehouseGeneration
         | ExcludeBracketOpen
         | SymlinkFormatManifest
         | StartExcludeBracket

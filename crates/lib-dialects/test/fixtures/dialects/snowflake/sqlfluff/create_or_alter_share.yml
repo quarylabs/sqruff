@@ -1,0 +1,24 @@
+file:
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: SHARE
+    - object_reference:
+      - naked_identifier: my_share
+- statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: SHARE
+    - object_reference:
+      - naked_identifier: my_share
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''a share for my partners'''
+- statement_terminator: ;

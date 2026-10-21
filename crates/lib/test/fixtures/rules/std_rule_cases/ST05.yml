@@ -323,6 +323,59 @@ uses_templating:
         FROM b_tbl
     ) AS b_table ON a_table.some_column = b_table.some_column
 
+test_fail_join_subquery_with_templated_table:
+  # Report the literal subquery even though its CTE rewrite would touch Jinja.
+  fail_str: |
+    select a.id, b.name
+    from foo as a
+    inner join (select id, name from {{ tbl }}) as b on a.id = b.id
+  line_numbers: [3]
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          tbl: my_table
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
+test_fail_join_subquery_with_templated_outer_table:
+  # ST05 replaces the whole SELECT, so templates outside the subquery also
+  # prevent autofixing without preventing the warning.
+  fail_str: |
+    select a.id, b.name
+    from {{ tbl }} as a
+    inner join (select id, name from bar) as b on a.id = b.id
+  line_numbers: [3]
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        context:
+          tbl: my_table
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
+test_fail_join_subquery_with_templated_outer_projection:
+  fail_str: |
+    select {{ 'a.id' }}, b.name
+    from foo as a
+    inner join (select id, name from bar) as b on a.id = b.id
+  line_numbers: [3]
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
 issue_2898_redshift_attribute_error:
   fail_str: |
     INSERT INTO target_table (target_column)

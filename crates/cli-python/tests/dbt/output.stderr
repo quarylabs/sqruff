@@ -17,7 +17,5 @@ L:  14 | P:   6 | JJ01 | Jinja tags should have a single whitespace on either
                        | }}` [jinja.padding]
 L:  17 | P:  49 | JJ01 | Jinja tags should have a single whitespace on either
                        | side: `{{this}}` -> `{{ this }}` [jinja.padding]
-L:  18 | P:  12 | LT12 | Files must end with a single trailing newline.
-                       | [layout.end_of_file]
 The linter processed 8 file(s).
 All Finished

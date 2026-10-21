@@ -3,7 +3,7 @@ use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment, SegmentBuilder, fix::SourceFix};
-use sqruff_lib_core::templaters::{RawFileSlice, TemplateSliceKind, TemplatedFile};
+use sqruff_lib_core::templaters::TemplateSliceKind;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
@@ -23,7 +23,6 @@ fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
         } else if !seg.is_whitespace()
             && !seg.is_type(SyntaxKind::Dedent)
             && !seg.is_type(SyntaxKind::EndOfFile)
-            && !is_source_only_template_placeholder(&seg)
         {
             break;
         }
@@ -107,75 +106,44 @@ fn templated_source_missing_final_newline(context: &RuleContext) -> bool {
         })
 }
 
-fn raw_slice_index_at_source_pos(raw_sliced: &[RawFileSlice], source_pos: usize) -> Option<usize> {
-    raw_sliced.iter().position(|slice| {
-        slice.source_slice().start <= source_pos && source_pos < slice.source_slice().end
-    })
-}
-
-fn whitespace_only_literal_inside_template_block(
-    templated_file: &TemplatedFile,
-    source_pos: usize,
-) -> bool {
-    let raw_sliced = templated_file.raw_sliced();
-    let Some(raw_idx) = raw_slice_index_at_source_pos(raw_sliced, source_pos) else {
+fn templated_file_has_extra_final_newline(context: &RuleContext) -> bool {
+    let Some(templated_file) = context.templated_file.as_ref() else {
         return false;
     };
-    let raw_slice = &raw_sliced[raw_idx];
+    if !templated_file
+        .raw_sliced()
+        .iter()
+        .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
+    {
+        return false;
+    }
 
-    raw_slice.has_slice_kind(TemplateSliceKind::Literal)
-        && raw_slice.raw().chars().all(char::is_whitespace)
-        && raw_sliced[raw_idx + 1..].iter().any(|next_slice| {
-            next_slice.block_idx() == raw_slice.block_idx()
-                && matches!(
-                    next_slice.slice_kind(),
-                    TemplateSliceKind::BlockMid | TemplateSliceKind::BlockEnd
-                )
-        })
-}
-
-fn templated_file_has_extra_final_newline(context: &RuleContext) -> bool {
-    context
-        .templated_file
-        .as_ref()
-        .is_some_and(|templated_file| {
-            if !templated_file
-                .raw_sliced()
-                .iter()
-                .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
-            {
-                return false;
+    // Stop at template placeholders, as SQLFluff does, so newlines before a
+    // closing block or comment aren't counted as source EOF whitespace.
+    let mut literal_trailing_newline_source_positions = HashSet::new();
+    for newline in get_trailing_newlines(&context.segment) {
+        let Some(marker) = newline.get_position_marker() else {
+            continue;
+        };
+        for idx in marker.templated_slice.clone() {
+            if templated_file.templated().as_bytes()[idx] != b'\n' {
+                continue;
             }
-
-            let templated = templated_file.templated();
-            let mut literal_trailing_newline_source_positions = HashSet::new();
-
-            for idx in (0..templated.len()).rev() {
-                if templated.as_bytes()[idx] != b'\n' {
-                    break;
-                }
-
-                let Some(slice) = templated_file.sliced_file.iter().find(|slice| {
-                    slice.templated_slice.start <= idx && idx < slice.templated_slice.end
-                }) else {
-                    continue;
-                };
-
-                if slice.has_slice_kind(TemplateSliceKind::Literal) {
-                    let source_idx = slice.source_slice.start + (idx - slice.templated_slice.start);
-                    if source_idx < slice.source_slice.end
-                        && !whitespace_only_literal_inside_template_block(
-                            templated_file,
-                            source_idx,
-                        )
-                    {
-                        literal_trailing_newline_source_positions.insert(source_idx);
-                    }
+            let Some(slice) = templated_file.sliced_file.iter().find(|slice| {
+                slice.templated_slice.start <= idx && idx < slice.templated_slice.end
+            }) else {
+                continue;
+            };
+            if slice.has_slice_kind(TemplateSliceKind::Literal) {
+                let source_idx = slice.source_slice.start + (idx - slice.templated_slice.start);
+                if source_idx < slice.source_slice.end {
+                    literal_trailing_newline_source_positions.insert(source_idx);
                 }
             }
+        }
+    }
 
-            literal_trailing_newline_source_positions.len() > 1
-        })
+    literal_trailing_newline_source_positions.len() > 1
 }
 
 #[derive(Debug, Default, Clone)]

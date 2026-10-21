@@ -261,14 +261,17 @@ pub fn crawl(
                 return;
             };
 
-            for result in results {
-                if !result
+            for mut result in results {
+                if result
                     .fixes
                     .iter()
                     .any(|it| it.has_template_conflicts(templated_file))
                 {
-                    on_violation(result);
+                    // Keep the warning, but discard the entire fix group so a
+                    // structural rewrite cannot be applied only partially.
+                    result.fixes.clear();
                 }
+                on_violation(result);
             }
         });
 

@@ -59,10 +59,9 @@ file:
                     - naked_identifier: a
                 - end_bracket: )
             - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - end_bracket: )
     - having_clause:
       - keyword: HAVING
@@ -122,9 +121,8 @@ file:
                     - naked_identifier: a
                 - end_bracket: )
             - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;

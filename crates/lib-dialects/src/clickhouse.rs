@@ -1133,6 +1133,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("ExpressionSegment").to_matchable(),
                             ])
+                            // The brackets might be empty i.e. `ORDER BY ()`.
+                            .config(|this| this.optional())
                             .to_matchable(),
                         ])
                         .to_matchable(),
@@ -2798,16 +2800,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         one_of(vec![
             // Double parentheses pattern: func(params)(args)
             Sequence::new(vec![
-                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .to_matchable(),
-                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .to_matchable(),
+                // The parameter brackets might be empty
+                // i.e. `studentTTestOneSample()(...)`.
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             // Standard ANSI single parentheses
             Sequence::new(vec![
-                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
         ])

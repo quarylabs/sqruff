@@ -892,6 +892,16 @@ fn bracketed_matching_modes() {
         ("( a )", ParseMode::Strict, true, true, 1),
         ("(a b)", ParseMode::Strict, true, true, 0),
         ("(a b)", ParseMode::Greedy, true, true, 1),
+        // Empty brackets shouldn't match if the content grammar contains
+        // required elements. The same applies in GREEDY mode: by not
+        // matching, we allow any other grammars which *can* match empty
+        // brackets to be tried, or the surrounding grammar to mark the
+        // section as unparsable.
+        // https://github.com/sqlfluff/sqlfluff/issues/8368
+        ("()", ParseMode::Strict, true, true, 0),
+        ("( )", ParseMode::Strict, true, true, 0),
+        ("()", ParseMode::Greedy, true, true, 0),
+        ("( )", ParseMode::Greedy, true, true, 0),
     ] {
         let tables = Tables::default();
         let (segments, errors) = Lexer::from(&dialect).lex(&tables, sql);

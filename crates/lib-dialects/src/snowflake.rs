@@ -2772,7 +2772,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("WITH").optional().to_matchable(),
                         Ref::keyword("ROW").to_matchable(),
                         Ref::keyword("ACCESS").to_matchable(),
                         Ref::keyword("POLICY").to_matchable(),
@@ -2786,11 +2786,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("WITH").optional().to_matchable(),
                         Ref::new("CommentEqualsClauseSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("TagBracketedEqualsSegment").to_matchable(),
+                    Ref::new("ContactBracketedGrammar").to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -11572,23 +11573,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                Ref::new("DatatypeSegment").to_matchable(),
-                                Ref::keyword("AS").to_matchable(),
-                                optionally_bracketed(vec![
-                                    Sequence::new(vec![
-                                        Ref::new("ExpressionSegment").to_matchable(),
-                                        Ref::new("InlineConstraintPropertiesSegment")
-                                            .optional()
-                                            .to_matchable(),
+                    one_of(vec![
+                        // Columns:
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    Ref::new("DatatypeSegment").to_matchable(),
+                                    Ref::keyword("AS").to_matchable(),
+                                    optionally_bracketed(vec![
                                         Sequence::new(vec![
-                                            Ref::keyword("NOT").optional().to_matchable(),
-                                            Ref::keyword("NULL").optional().to_matchable(),
+                                            Ref::new("ExpressionSegment").to_matchable(),
+                                            Ref::new("InlineConstraintPropertiesSegment")
+                                                .optional()
+                                                .to_matchable(),
+                                            Sequence::new(vec![
+                                                Ref::keyword("NOT").optional().to_matchable(),
+                                                Ref::keyword("NULL").optional().to_matchable(),
+                                            ])
+                                            .config(|this| this.optional())
+                                            .to_matchable(),
                                         ])
-                                        .config(|this| this.optional())
                                         .to_matchable(),
                                     ])
                                     .to_matchable(),
@@ -11596,6 +11601,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("USING").to_matchable(),
+                            Ref::keyword("TEMPLATE").to_matchable(),
+                            Ref::new("SelectableGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -11671,17 +11682,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Sequence::new(vec![Ref::keyword("WITH").to_matchable()])
-                                .config(|this| this.optional())
-                                .to_matchable(),
+                            Ref::keyword("TABLE_FORMAT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::keyword("DELTA").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").optional().to_matchable(),
                             Ref::keyword("ROW").to_matchable(),
                             Ref::keyword("ACCESS").to_matchable(),
                             Ref::keyword("POLICY").to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("TagBracketedEqualsSegment").to_matchable(),
                         Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                        Ref::new("ContactBracketedGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -13103,9 +13127,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Ref::keyword("SCHEMAS").to_matchable(),
                     Ref::keyword("OBJECTS").to_matchable(),
-                    Ref::keyword("TABLES").to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("EXTERNAL").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("EXTERNAL").to_matchable(),
+                            Ref::keyword("ICEBERG").to_matchable(),
+                            Ref::keyword("HYBRID").to_matchable(),
+                            Ref::keyword("EVENT").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                         Ref::keyword("TABLES").to_matchable(),
                     ])
                     .to_matchable(),
@@ -13191,6 +13221,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 let object_scope_types = one_of(vec![
                     Ref::keyword("ACCOUNT").to_matchable(),
                     Ref::keyword("SESSION").to_matchable(),
+                    // Unlike the scopes below, APPLICATION and APPLICATION PACKAGE always
+                    // require the object name.
+                    Sequence::new(vec![
+                        Ref::keyword("APPLICATION").to_matchable(),
+                        Ref::keyword("PACKAGE").optional().to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         one_of(vec![
                             Ref::keyword("DATABASE").to_matchable(),
@@ -14019,6 +14057,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // https://docs.snowflake.com/en/sql-reference/sql/desc-event-table
+                        // https://docs.snowflake.com/en/sql-reference/sql/desc-iceberg-table
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("EVENT").to_matchable(),
+                                Ref::keyword("ICEBERG").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("TABLE").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![

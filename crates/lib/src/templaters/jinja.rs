@@ -111,6 +111,15 @@ templater = jinja
 
 ## Configuration Options
 
+To lint templates with undefined variables or missing includes, use the core
+`ignore` option, as in SQLFluff:
+
+```ini
+[sqruff]
+templater = jinja
+ignore = templating
+```
+
 Configuration options are set in the `[sqruff:templater:jinja]` section:
 
 ```ini
@@ -130,7 +139,7 @@ loader_search_path = ./templates
 # Path to a Python library to make available in the Jinja environment
 library_path = ./my_library
 
-# Set to True to ignore templating errors (useful for partial linting)
+# Legacy alias for the core ignore = templating option
 ignore_templating = False
 ```
 

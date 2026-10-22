@@ -451,24 +451,25 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@JSON'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: max
-          - end_bracket: )
-    - comma: ','
-    - tsql_variable: '@Path'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: max
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@JSON'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: max
+            - end_bracket: )
+      - comma: ','
+      - tsql_variable: '@Path'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: max
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:

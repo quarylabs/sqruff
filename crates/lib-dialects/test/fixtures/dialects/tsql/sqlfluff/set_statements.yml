@@ -10,17 +10,18 @@ file:
       - keyword: UNCOMMITTED
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@BinaryVariable2'
-    - data_type:
-      - keyword: BINARY
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '2'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - binary_literal: '0xFA'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@BinaryVariable2'
+      - data_type:
+        - keyword: BINARY
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '2'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - binary_literal: '0xFA'
   - statement_terminator: ;

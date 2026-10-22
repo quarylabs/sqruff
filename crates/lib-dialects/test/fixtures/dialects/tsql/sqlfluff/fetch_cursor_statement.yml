@@ -96,24 +96,25 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@LastName'
-    - data_type:
-      - keyword: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '50'
-          - end_bracket: )
-    - comma: ','
-    - tsql_variable: '@FirstName'
-    - data_type:
-      - keyword: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '50'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@LastName'
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '50'
+            - end_bracket: )
+      - comma: ','
+      - tsql_variable: '@FirstName'
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '50'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - declare_segment:

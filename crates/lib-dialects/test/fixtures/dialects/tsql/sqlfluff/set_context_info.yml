@@ -7,15 +7,16 @@ file:
       - numeric_literal: '0x01010101'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@BinVar'
-    - data_type:
-      - keyword: varbinary
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '128'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@BinVar'
+      - data_type:
+        - keyword: varbinary
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '128'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:

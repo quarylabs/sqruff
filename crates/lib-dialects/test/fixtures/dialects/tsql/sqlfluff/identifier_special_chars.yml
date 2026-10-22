@@ -1,74 +1,81 @@
 file:
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@variable'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '1'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@variable'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '1'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@$variable'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '2'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@$variable'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '2'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@#variable'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '3'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@#variable'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '3'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@_variable'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '4'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@_variable'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '4'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@var$test'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '5'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@var$test'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '5'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@var#test'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '6'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@var#test'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '6'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@var_test'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '7'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@var_test'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '7'
   - statement_terminator: ;
   - statement:
     - create_table_statement:

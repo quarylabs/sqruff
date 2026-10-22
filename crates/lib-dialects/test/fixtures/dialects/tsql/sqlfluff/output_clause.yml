@@ -85,21 +85,22 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@DeletedRows'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: ProductID
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: Quantity
-        - data_type:
-          - keyword: INT
-      - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@DeletedRows'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ProductID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: Quantity
+          - data_type:
+            - keyword: INT
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - delete_statement:
@@ -133,31 +134,32 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@MyTableVar'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: NewScrapReasonID
-        - data_type:
-          - keyword: SMALLINT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: Name
-        - data_type:
-          - keyword: VARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '50'
-              - end_bracket: )
-      - comma: ','
-      - column_definition:
-        - naked_identifier: ModifiedDate
-        - data_type:
-          - keyword: DATETIME
-      - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@MyTableVar'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: NewScrapReasonID
+          - data_type:
+            - keyword: SMALLINT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: Name
+          - data_type:
+            - keyword: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - integer_literal: '50'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ModifiedDate
+          - data_type:
+            - keyword: DATETIME
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - insert_statement:
@@ -240,29 +242,30 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@UpdatedRows'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: EmpID
-        - data_type:
-          - keyword: INT
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-        - naked_identifier: OldVacationHours
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: NewVacationHours
-        - data_type:
-          - keyword: INT
-      - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@UpdatedRows'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: EmpID
+          - data_type:
+            - keyword: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: OldVacationHours
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: NewVacationHours
+          - data_type:
+            - keyword: INT
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - update_statement:
@@ -380,41 +383,42 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@MyTestVar'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: OldScrapReasonID
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: NewScrapReasonID
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: WorkOrderID
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: ProductID
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: ProductName
-        - data_type:
-          - keyword: NVARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '50'
-              - end_bracket: )
-      - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@MyTestVar'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: OldScrapReasonID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: NewScrapReasonID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: WorkOrderID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ProductID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ProductName
+          - data_type:
+            - keyword: NVARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - integer_literal: '50'
+                - end_bracket: )
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - update_statement:
@@ -512,26 +516,27 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@SummaryOfChanges'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: ChangeType
-        - data_type:
-          - keyword: NVARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '10'
-              - end_bracket: )
-      - comma: ','
-      - column_definition:
-        - naked_identifier: ProductID
-        - data_type:
-          - keyword: INT
-      - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@SummaryOfChanges'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ChangeType
+          - data_type:
+            - keyword: NVARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - integer_literal: '10'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ProductID
+          - data_type:
+            - keyword: INT
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - merge_statement:
@@ -829,21 +834,22 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@Results'
-    - keyword: TABLE
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - naked_identifier: ProdID
-        - data_type:
-          - keyword: INT
-      - comma: ','
-      - column_definition:
-        - naked_identifier: Qty
-        - data_type:
-          - keyword: INT
-      - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@Results'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ProdID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: Qty
+          - data_type:
+            - keyword: INT
+        - end_bracket: )
   - statement_terminator: ;
   - statement:
     - delete_statement:

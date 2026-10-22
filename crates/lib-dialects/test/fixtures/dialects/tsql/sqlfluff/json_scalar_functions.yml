@@ -1136,36 +1136,38 @@ file:
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@json_string'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: max
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - naked_identifier: N
-      - quoted_literal: '''{"name":"John","age":30}'''
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@json_string'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: max
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - naked_identifier: N
+        - quoted_literal: '''{"name":"John","age":30}'''
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@path'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '100'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - naked_identifier: N
-      - quoted_literal: '''$.name'''
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@path'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '100'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - naked_identifier: N
+        - quoted_literal: '''$.name'''
   - statement_terminator: ;
   - statement:
     - select_statement:

@@ -1,15 +1,16 @@
 file:
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@myVar'
-    - data_type:
-      - keyword: CHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '20'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@myVar'
+      - data_type:
+        - keyword: CHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '20'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -32,15 +33,16 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@state'
-    - data_type:
-      - keyword: CHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '25'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@state'
+      - data_type:
+        - keyword: CHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '25'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -110,10 +112,11 @@ file:
             - tsql_variable: '@state'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@NewBalance'
-    - data_type:
-      - keyword: INT
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@NewBalance'
+      - data_type:
+        - keyword: INT
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -172,9 +175,10 @@ file:
                       - dot: .
                       - naked_identifier: SHIPMETHOD
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@my_variable'
-    - keyword: CURSOR
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@my_variable'
+      - keyword: CURSOR
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -195,9 +199,10 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@CursorVar'
-    - keyword: CURSOR
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@CursorVar'
+      - keyword: CURSOR
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -292,10 +297,11 @@ file:
     - keyword: GO
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@rows'
-    - data_type:
-      - keyword: INT
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@rows'
+      - data_type:
+        - keyword: INT
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:

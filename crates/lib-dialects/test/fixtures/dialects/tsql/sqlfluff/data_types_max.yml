@@ -1,74 +1,80 @@
 file:
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@LargeText'
-    - data_type:
-      - keyword: NVARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: MAX
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@LargeText'
+      - data_type:
+        - keyword: NVARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@BigString'
-    - data_type:
-      - keyword: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: MAX
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@BigString'
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@BinaryData'
-    - data_type:
-      - keyword: VARBINARY
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: MAX
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@BinaryData'
+      - data_type:
+        - keyword: VARBINARY
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@LargeText2'
-    - data_type:
-      - keyword: NVARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal:
-            - sign_indicator: '-'
-            - numeric_literal: '1'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@LargeText2'
+      - data_type:
+        - keyword: NVARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@BigString2'
-    - data_type:
-      - keyword: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal:
-            - sign_indicator: '-'
-            - numeric_literal: '1'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@BigString2'
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@BinaryData2'
-    - data_type:
-      - keyword: VARBINARY
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal:
-            - sign_indicator: '-'
-            - numeric_literal: '1'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@BinaryData2'
+      - data_type:
+        - keyword: VARBINARY
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal:
+              - sign_indicator: '-'
+              - numeric_literal: '1'
+            - end_bracket: )
   - statement_terminator: ;

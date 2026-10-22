@@ -1,15 +1,16 @@
 file:
 - batch:
   - statement:
-    - keyword: declare
-    - tsql_variable: '@var1'
-    - data_type:
-      - keyword: binary
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '1'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: declare
+      - tsql_variable: '@var1'
+      - data_type:
+        - keyword: binary
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '1'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -21,15 +22,16 @@ file:
         - binary_literal: '0x0'
   - statement_terminator: ;
   - statement:
-    - keyword: declare
-    - tsql_variable: '@var2'
-    - data_type:
-      - keyword: binary
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '2'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: declare
+      - tsql_variable: '@var2'
+      - data_type:
+        - keyword: binary
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '2'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -41,15 +43,16 @@ file:
         - binary_literal: '0xAE'
   - statement_terminator: ;
   - statement:
-    - keyword: declare
-    - tsql_variable: '@var3'
-    - data_type:
-      - keyword: binary
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '8'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: declare
+      - tsql_variable: '@var3'
+      - data_type:
+        - keyword: binary
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '8'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -61,15 +64,16 @@ file:
         - binary_literal: '0x69048AEFDD010E'
   - statement_terminator: ;
   - statement:
-    - keyword: declare
-    - tsql_variable: '@var4'
-    - data_type:
-      - keyword: binary
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '16'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: declare
+      - tsql_variable: '@var4'
+      - data_type:
+        - keyword: binary
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '16'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:

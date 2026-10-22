@@ -5,6 +5,7 @@ Requires the package to be built first:
 """
 
 import io
+import json
 import pathlib
 import subprocess
 import sys
@@ -253,6 +254,48 @@ class TestFluffConfig:
 
 
 class TestLinter:
+    @pytest.mark.parametrize("ignore_templating", [False, True])
+    def test_jinja_cli_uses_file_config_and_reports_templating_errors(
+        self, tmp_path, ignore_templating
+    ):
+        config = "[sqruff]\ndialect = ansi\ntemplater = jinja\n"
+        if ignore_templating:
+            config += "ignore = templating\n"
+        (tmp_path / ".sqruff").write_text(config)
+        (tmp_path / "ign.sql").write_text("SELECT {{ undefined_macro('x') }} AS y\n")
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "from sqruff.main import main; main()",
+                "lint",
+                "--format",
+                "json",
+                "ign.sql",
+            ],
+            cwd=tmp_path,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        assert result.returncode == (0 if ignore_templating else 1), result.stderr
+        files = json.loads(result.stdout)
+        assert len(files) == 1
+        filename, violations = next(iter(files.items()))
+        assert pathlib.Path(filename).name == "ign.sql"
+        if ignore_templating:
+            assert violations == []
+        else:
+            assert len(violations) == 1
+            assert violations[0]["code"] == "TMP"
+            assert (
+                "Undefined jinja template variable: 'undefined_macro'"
+                in violations[0]["message"]
+            )
+
     @pytest.mark.parametrize(
         "extra_config",
         [

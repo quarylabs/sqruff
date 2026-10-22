@@ -52,20 +52,21 @@ file:
             </xsd:schema>'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@MySchemaCollection'
-    - keyword: AS
-    - data_type:
-      - keyword: NVARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: MAX
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - quoted_literal: ''''''
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@MySchemaCollection'
+      - keyword: AS
+      - data_type:
+        - keyword: NVARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: ''''''
   - statement_terminator: ;
   - statement:
     - create_xml_schema_collection_statement:
@@ -101,25 +102,26 @@ file:
              </schema>'
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@NewItem'
-    - keyword: AS
-    - data_type:
-      - keyword: NVARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - keyword: MAX
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - quoted_literal: |-
-          '
-            <schema xmlns="http://www.w3.org/2001/XMLSchema"
-                   targetNamespace="https://MySchema/test_xml_schema">
-               <element name="yetAnotherElement" type="byte"/>
-           </schema>'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@NewItem'
+      - keyword: AS
+      - data_type:
+        - keyword: NVARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAX
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - quoted_literal: |-
+            '
+              <schema xmlns="http://www.w3.org/2001/XMLSchema"
+                     targetNamespace="https://MySchema/test_xml_schema">
+                 <element name="yetAnotherElement" type="byte"/>
+             </schema>'
   - statement_terminator: ;
   - statement:
     - alter_xml_schema_collection_statement:

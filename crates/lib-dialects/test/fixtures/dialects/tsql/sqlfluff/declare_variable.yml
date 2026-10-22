@@ -1,12 +1,13 @@
 file:
 - batch:
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@MyVariable'
-    - data_type:
-      - keyword: INT
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - integer_literal: '42'
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@MyVariable'
+      - data_type:
+        - keyword: INT
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - integer_literal: '42'
   - statement_terminator: ;

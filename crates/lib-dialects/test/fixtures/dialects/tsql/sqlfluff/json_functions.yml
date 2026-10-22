@@ -163,39 +163,40 @@ file:
                       - end_bracket: )
                 - end_bracket: )
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@id_key'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '10'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - naked_identifier: N
-      - quoted_literal: '''id'''
-    - comma: ','
-    - tsql_variable: '@id_value'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '64'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
-        - function_name:
-          - function_name_identifier: NEWID
-        - function_contents:
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@id_key'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
+            - integer_literal: '10'
             - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - naked_identifier: N
+        - quoted_literal: '''id'''
+      - comma: ','
+      - tsql_variable: '@id_value'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '64'
+            - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: NEWID
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:
@@ -383,25 +384,26 @@ file:
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@id_value'
-    - data_type:
-      - keyword: nvarchar
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '64'
-          - end_bracket: )
-    - assignment_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - function:
-        - function_name:
-          - function_name_identifier: NEWID
-        - function_contents:
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@id_value'
+      - data_type:
+        - keyword: nvarchar
+        - bracketed_arguments:
           - bracketed:
             - start_bracket: (
+            - integer_literal: '64'
             - end_bracket: )
+      - assignment_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: NEWID
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:

@@ -35,6 +35,37 @@ test_pass_no_outer_brackets_tsql:
     core:
       dialect: tsql
 
+test_pass_table_variable_declaration_tsql:
+  pass_str: |
+    DECLARE @table_variable TABLE (id INT);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_table_variable_declaration_with_constraints_tsql:
+  pass_str: |
+    DECLARE @table_variable AS TABLE (
+      id INT PRIMARY KEY,
+      amount DECIMAL(10, 2) CHECK (amount > 0)
+    );
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_outer_brackets_after_table_variable_declaration_tsql:
+  fail_str: |
+    DECLARE @table_variable TABLE (id INT);
+    GO
+    (SELECT 1);
+  fix_str: |
+    DECLARE @table_variable TABLE (id INT);
+    GO
+    SELECT 1;
+  roundtrip: true
+  configs:
+    core:
+      dialect: tsql
+
 test_fail_outer_brackets_tsql:
   fail_str: |
     (SELECT foo

@@ -11,20 +11,21 @@ file:
       - keyword: AS
       - procedure_statement:
         - statement:
-          - keyword: DECLARE
-          - tsql_variable: '@DATEFUNCTION'
-          - data_type:
-            - keyword: DATE
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: GETDATE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
+          - declare_segment:
+            - keyword: DECLARE
+            - tsql_variable: '@DATEFUNCTION'
+            - data_type:
+              - keyword: DATE
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: GETDATE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
         - statement:
           - drop_table_statement:
             - keyword: DROP
@@ -36,15 +37,16 @@ file:
                 - quoted_identifier: '[PowerPlan_BASE]'
         - statement_terminator: ;
         - statement:
-          - keyword: DECLARE
-          - tsql_variable: '@deadlock_var'
-          - data_type:
-            - keyword: NCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '3'
-                - end_bracket: )
+          - declare_segment:
+            - keyword: DECLARE
+            - tsql_variable: '@deadlock_var'
+            - data_type:
+              - keyword: NCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - integer_literal: '3'
+                  - end_bracket: )
         - statement_terminator: ;
         - statement:
           - set_local_variable_segment:

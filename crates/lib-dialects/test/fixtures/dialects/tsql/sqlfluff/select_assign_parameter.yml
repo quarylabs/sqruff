@@ -345,19 +345,20 @@ file:
                   - naked_identifier: dual
   - statement_terminator: ;
   - statement:
-    - keyword: DECLARE
-    - tsql_variable: '@var1'
-    - data_type:
-      - keyword: INT
-    - comma: ','
-    - tsql_variable: '@var2'
-    - data_type:
-      - keyword: VARCHAR
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - integer_literal: '50'
-          - end_bracket: )
+    - declare_segment:
+      - keyword: DECLARE
+      - tsql_variable: '@var1'
+      - data_type:
+        - keyword: INT
+      - comma: ','
+      - tsql_variable: '@var2'
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '50'
+            - end_bracket: )
   - statement_terminator: ;
   - statement:
     - select_statement:

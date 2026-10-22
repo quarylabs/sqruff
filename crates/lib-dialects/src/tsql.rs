@@ -1838,7 +1838,11 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([
         (
             "DeclareStatementSegment".into(),
-            Ref::new("DeclareStatementGrammar").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::DeclareSegment, |_| {
+                Ref::new("DeclareStatementGrammar").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "DeclareStatementGrammar".into(),
@@ -3613,7 +3617,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("FetchCursorStatementSegment").to_matchable(),
             Ref::new("CloseCursorStatementSegment").to_matchable(),
             Ref::new("DeallocateCursorStatementSegment").to_matchable(),
-            Ref::new("DeclareStatementGrammar").to_matchable(),
+            Ref::new("DeclareStatementSegment").to_matchable(),
             Ref::new("DbccStatementSegment").to_matchable(),
             Ref::new("SetContextInfoSegment").to_matchable(),
             Ref::new("SetLanguageStatementSegment").to_matchable(),

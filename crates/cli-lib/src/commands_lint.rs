@@ -60,7 +60,12 @@ pub(crate) fn run_lint_stdin(
             return 1;
         }
     };
-    if crate::stdin::stdin_filename_is_ignored(stdin_filename, !disregard_ignores, ignorer) {
+    if crate::stdin::stdin_filename_is_ignored(
+        stdin_filename,
+        !disregard_ignores,
+        linter.config().ignore_local_config(),
+        ignorer,
+    ) {
         linter.formatter().unwrap().completion_message(0);
         return 0;
     }

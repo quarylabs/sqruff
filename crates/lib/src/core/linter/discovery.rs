@@ -170,15 +170,18 @@ fn load_ignore_specs(
     path: &Path,
     working_path: &Path,
     ignore_file_name: &str,
+    ignore_local_config: bool,
     ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
 ) -> Vec<IgnoreSpecRecord> {
     let absolute_target = absolute_path(path);
     let absolute_working_path = absolute_path(working_path);
     let mut ignore_paths = Vec::new();
     let mut ignore_file_names = vec![ignore_file_name];
-    for config_file_name in &CONFIG_IGNORE_FILE_NAMES {
-        if !ignore_file_names.contains(config_file_name) {
-            ignore_file_names.push(config_file_name);
+    if !ignore_local_config {
+        for config_file_name in &CONFIG_IGNORE_FILE_NAMES {
+            if !ignore_file_names.contains(config_file_name) {
+                ignore_file_names.push(config_file_name);
+            }
         }
     }
 
@@ -237,14 +240,17 @@ fn matches_file_extension(path: &Path, valid_extensions: &[String]) -> bool {
         .any(|extension| lowercase_path.ends_with(extension))
 }
 
-struct PathDiscoveryOptions<'a> {
-    ignore_file_name: Option<String>,
-    ignore_non_existent_files: Option<bool>,
-    ignore_files: Option<bool>,
-    working_path: Option<String>,
-    target_file_exts: &'a [String],
-    ignorer: Option<&'a (dyn Fn(&Path) -> bool + Send + Sync)>,
-    check_non_existent_file: bool,
+/// Options for SQL file discovery and configuration-derived ignore patterns.
+#[derive(Default)]
+pub struct PathDiscoveryOptions<'a> {
+    pub ignore_file_name: Option<String>,
+    pub ignore_non_existent_files: Option<bool>,
+    pub ignore_files: Option<bool>,
+    pub ignore_local_config: bool,
+    pub working_path: Option<String>,
+    pub target_file_exts: &'a [String],
+    pub ignorer: Option<&'a (dyn Fn(&Path) -> bool + Send + Sync)>,
+    pub check_non_existent_file: bool,
 }
 
 /// Return SQL file paths from a potentially ambiguous path.
@@ -267,6 +273,7 @@ pub fn paths_from_path(
             target_file_exts,
             ignorer,
             check_non_existent_file: false,
+            ignore_local_config: false,
         },
     )
 }
@@ -291,15 +298,20 @@ pub fn paths_from_path_check_non_existent(
             target_file_exts,
             ignorer,
             check_non_existent_file: true,
+            ignore_local_config: false,
         },
     )
 }
 
-fn paths_from_path_with_options(path: PathBuf, options: PathDiscoveryOptions<'_>) -> Vec<String> {
+pub fn paths_from_path_with_options(
+    path: PathBuf,
+    options: PathDiscoveryOptions<'_>,
+) -> Vec<String> {
     let PathDiscoveryOptions {
         ignore_file_name,
         ignore_non_existent_files,
         ignore_files,
+        ignore_local_config,
         working_path,
         target_file_exts,
         ignorer,
@@ -324,7 +336,13 @@ fn paths_from_path_with_options(path: PathBuf, options: PathDiscoveryOptions<'_>
     };
 
     let ignore_specs = if ignore_files {
-        load_ignore_specs(&path, &working_path, &ignore_file_name, ignorer)
+        load_ignore_specs(
+            &path,
+            &working_path,
+            &ignore_file_name,
+            ignore_local_config,
+            ignorer,
+        )
     } else {
         Vec::new()
     };

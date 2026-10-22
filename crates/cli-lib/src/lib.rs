@@ -64,16 +64,13 @@ where
     };
     let config_result = if stdin_input && let Some(filename) = cli.stdin_filename.as_ref() {
         sqruff_lib::core::config::ConfigLoader {}
-            .try_load_config_up_to_path(filename, cli.config.clone(), false)
-            .map(|raw| FluffConfig::new(raw, cli.config.clone(), None))
-    } else if let Some(path) = cli.config.as_ref() {
-        if !Path::new(path).is_file() {
-            eprintln!("The specified config file '{path}' does not exist.");
-            return 1;
-        }
-        FluffConfig::try_from_file(Path::new(path))
+            .try_load_config_up_to_path(filename, cli.config.clone(), cli.ignore_local_config)
+            .map(|raw| {
+                FluffConfig::new(raw, cli.config.clone(), None)
+                    .with_ignore_local_config(cli.ignore_local_config)
+            })
     } else {
-        FluffConfig::from_root(None, false, None)
+        FluffConfig::from_root(cli.config.clone(), cli.ignore_local_config, None)
     };
     let mut config = match config_result {
         Ok(config) => config,
@@ -197,7 +194,10 @@ where
             ),
         },
         Commands::Lsp => {
-            sqruff_lsp::run();
+            sqruff_lsp::run_with_config_options(sqruff_lsp::ConfigOptions {
+                extra_config_path: cli.config,
+                ignore_local_config: cli.ignore_local_config,
+            });
             0
         }
         Commands::Info => {

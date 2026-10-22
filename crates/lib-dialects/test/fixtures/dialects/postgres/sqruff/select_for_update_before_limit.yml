@@ -1,0 +1,190 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+    - for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: SKIP
+      - keyword: LOCKED
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - for_clause:
+      - keyword: FOR
+      - keyword: SHARE
+      - keyword: NOWAIT
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
+      - keyword: OFFSET
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: b
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '1'
+    - for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '10'
+    - for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: SKIP
+      - keyword: LOCKED
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: c
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: a
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: t
+          - orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+              - naked_identifier: a
+          - for_clause:
+            - keyword: FOR
+            - keyword: UPDATE
+            - keyword: SKIP
+            - keyword: LOCKED
+          - limit_clause:
+            - keyword: LIMIT
+            - numeric_literal: '10'
+        - end_bracket: )
+    - update_statement:
+      - keyword: UPDATE
+      - table_reference:
+        - naked_identifier: t
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
+          - column_reference:
+            - naked_identifier: b
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - function:
+            - function_name:
+              - function_name_identifier: now
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: c
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: a
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: a
+      - keyword: RETURNING
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: a
+- statement_terminator: ;

@@ -2759,6 +2759,7 @@ pub fn raw_dialect() -> Dialect {
                 Some(vec![
                     Ref::new("NamedWindowSegment").optional().to_matchable(),
                     Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("ForClauseSegment").optional().to_matchable(),
                     Ref::new("LimitClauseSegment").optional().to_matchable(),
                     Ref::new("OffsetClauseSegment").optional().to_matchable(),
                     Ref::new("FetchClauseSegment").optional().to_matchable(),

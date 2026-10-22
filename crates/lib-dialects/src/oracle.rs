@@ -7867,6 +7867,68 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // ---- ColumnConstraintSegment ----
+    // Extends ANSI to support Oracle's inline `USING INDEX` clause, which Oracle
+    // allows after a column-level `PRIMARY KEY` or `UNIQUE` constraint.
+    oracle.add([(
+        "ColumnConstraintSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("CONSTRAINT").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").optional().to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CHECK").to_matchable(),
+                        Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Ref::new("UsingIndexClauseSegment")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("UniqueKeyGrammar").to_matchable(),
+                        Ref::new("UsingIndexClauseSegment")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("AutoIncrementGrammar").to_matchable(),
+                    Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                    Ref::new("CommentClauseSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COLLATE").to_matchable(),
+                        Ref::new("CollationReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ColumnGeneratedGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // ---- Fix GRANT: add QUERY REWRITE to AccessPermissionSegment ----
     oracle.add([(
         "AccessPermissionSegment".into(),

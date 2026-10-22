@@ -35,7 +35,8 @@ sqruff is a sql formatter and linter
 
 * `-n`, `--nocolor` — Output without ANSI color codes
 * `--color` — Force color output, even when redirected or NO_COLOR is set
-* `--config <CONFIG>` — Path to a configuration file
+* `--config <CONFIG>` — Additional configuration file whose settings override discovered configuration
+* `--ignore-local-config` — Ignore discovered global and project configuration files. Still load --config
 * `--dialect <DIALECT>` — Override the dialect (e.g., bigquery, clickhouse, ansi)
 * `--library-path <LIBRARY_PATH>` — Override the `library_path` value for the jinja templater. Set this to 'none' to disable it entirely. This overrides any values set by users in configuration files or inline directives
 * `--stdin-filename <STDIN_FILENAME>` — Load configuration for stdin as if it came from this file

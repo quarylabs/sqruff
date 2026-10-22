@@ -463,12 +463,50 @@ impl ConfigLoader {
             .unwrap_or_else(|| path.to_path_buf())
     }
 
+    fn user_config_dir(
+        platform: &str,
+        home: Option<&Path>,
+        xdg_config_home: Option<&Path>,
+        local_app_data: Option<&Path>,
+    ) -> Option<PathBuf> {
+        // SQLFluff prefers this portable location on every platform.
+        if let Some(path) = home.map(|home| home.join(".config/sqruff"))
+            && path.is_dir()
+        {
+            return Some(path);
+        }
+
+        let xdg_path = || {
+            xdg_config_home
+                .filter(|path| !path.as_os_str().is_empty())
+                .map(Path::to_path_buf)
+                .or_else(|| home.map(|home| home.join(".config")))
+                .map(|path| path.join("sqruff"))
+        };
+        match platform {
+            "windows" => local_app_data
+                .filter(|path| !path.as_os_str().is_empty())
+                .map(Path::to_path_buf)
+                .or_else(|| home.map(|home| home.join("AppData/Local")))
+                .map(|path| path.join("sqruff").join("sqruff")),
+            "macos" => xdg_path()
+                .filter(|path| path.is_dir())
+                .or_else(|| home.map(|home| home.join("Library/Application Support/sqruff"))),
+            _ => xdg_path(),
+        }
+    }
+
     fn iter_config_locations_up_to_path(
         path: &Path,
         working_path: Option<&Path>,
         home_path: Option<&Path>,
-        _ignore_local_config: bool,
+        user_config_path: Option<&Path>,
+        ignore_local_config: bool,
     ) -> impl Iterator<Item = PathBuf> {
+        if ignore_local_config {
+            return Vec::new().into_iter();
+        }
+
         let mut given_path = std::path::absolute(path).unwrap();
         let working_path = working_path
             .map(|path| std::path::absolute(path).unwrap())
@@ -480,20 +518,26 @@ impl ConfigLoader {
 
         let resolve = |path: &Path| path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
         let mut paths = Vec::new();
+        if let Some(path) = user_config_path.filter(|path| path.is_dir()) {
+            paths.push(resolve(path));
+        }
 
         let home_path = home_path
             .map(|path| std::path::absolute(path).unwrap())
             .or_else(Self::user_home_dir)
             .map(|path| std::path::absolute(path).unwrap());
-        if let Some(home_path) = home_path
-            && let Ok(relative_path) = working_path.strip_prefix(&home_path)
-        {
-            let mut path_to_visit = home_path;
-            paths.push(resolve(&path_to_visit));
-            for component in relative_path.components() {
-                path_to_visit.push(component.as_os_str());
-                if path_to_visit != working_path {
-                    paths.push(resolve(&path_to_visit));
+        if let Some(home_path) = home_path {
+            let home = resolve(&home_path);
+            if paths.last() != Some(&home) {
+                paths.push(home);
+            }
+            if let Ok(relative_path) = working_path.strip_prefix(&home_path) {
+                let mut path_to_visit = home_path;
+                for component in relative_path.components() {
+                    path_to_visit.push(component.as_os_str());
+                    if path_to_visit != working_path {
+                        paths.push(resolve(&path_to_visit));
+                    }
                 }
             }
         }
@@ -550,8 +594,22 @@ impl ConfigLoader {
         let mut config_stack = if ignore_local_config {
             Vec::new()
         } else {
-            let configs =
-                Self::iter_config_locations_up_to_path(path, None, None, ignore_local_config);
+            let home = Self::user_home_dir();
+            let user_config = Self::user_config_dir(
+                std::env::consts::OS,
+                home.as_deref(),
+                std::env::var_os("XDG_CONFIG_HOME")
+                    .as_deref()
+                    .map(Path::new),
+                std::env::var_os("LOCALAPPDATA").as_deref().map(Path::new),
+            );
+            let configs = Self::iter_config_locations_up_to_path(
+                path,
+                None,
+                home.as_deref(),
+                user_config.as_deref(),
+                false,
+            );
             configs
                 .map(|path| self.try_load_config_at_path(path))
                 .collect::<Result<Vec<_>, _>>()?
@@ -1466,6 +1524,7 @@ mod tests {
             &nested.join("query.sql"),
             Some(&root),
             Some(&root),
+            None,
             false,
         )
         .collect::<Vec<_>>();
@@ -1478,6 +1537,209 @@ mod tests {
                 nested.canonicalize().unwrap(),
             ]
         );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_user_config_directory_platform_defaults() {
+        let root = temp_config_dir("appdir-defaults");
+        let home = root.join("home");
+        let xdg = root.join("xdg");
+        let local = root.join("local");
+        for (platform, xdg_path, local_path, expected) in [
+            ("linux", None, None, home.join(".config/sqruff")),
+            ("linux", Some(xdg.as_path()), None, xdg.join("sqruff")),
+            (
+                "macos",
+                None,
+                None,
+                home.join("Library/Application Support/sqruff"),
+            ),
+            (
+                "windows",
+                None,
+                None,
+                home.join("AppData/Local/sqruff/sqruff"),
+            ),
+            (
+                "windows",
+                Some(xdg.as_path()),
+                Some(local.as_path()),
+                local.join("sqruff/sqruff"),
+            ),
+            (
+                "linux",
+                Some(Path::new("")),
+                None,
+                home.join(".config/sqruff"),
+            ),
+        ] {
+            assert_eq!(
+                ConfigLoader::user_config_dir(platform, Some(&home), xdg_path, local_path),
+                Some(expected.clone()),
+                "{platform}"
+            );
+            assert!(
+                !expected.exists(),
+                "discovery should not create directories"
+            );
+        }
+        assert_eq!(
+            ConfigLoader::user_config_dir("linux", None, None, None),
+            None
+        );
+        assert_eq!(
+            ConfigLoader::user_config_dir("linux", None, Some(&xdg), None),
+            Some(xdg.join("sqruff"))
+        );
+        assert_eq!(
+            ConfigLoader::user_config_dir("windows", None, None, Some(&local)),
+            Some(local.join("sqruff/sqruff"))
+        );
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_portable_user_config_directory_takes_precedence() {
+        let root = temp_config_dir("appdir-portable");
+        let home = root.join("home");
+        let portable = home.join(".config/sqruff");
+        let xdg = root.join("xdg");
+        let local = root.join("local");
+        fs::create_dir_all(&portable).unwrap();
+        fs::create_dir_all(xdg.join("sqruff")).unwrap();
+
+        for platform in ["linux", "macos", "windows"] {
+            assert_eq!(
+                ConfigLoader::user_config_dir(platform, Some(&home), Some(&xdg), Some(&local)),
+                Some(portable.clone())
+            );
+        }
+
+        fs::remove_dir_all(&portable).unwrap();
+        assert_eq!(
+            ConfigLoader::user_config_dir("macos", Some(&home), Some(&xdg), None),
+            Some(xdg.join("sqruff"))
+        );
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_global_and_project_config_precedence() {
+        let root = temp_config_dir("global-precedence");
+        let app = root.join("app");
+        let home = root.join("home");
+        let working = root.join("project");
+        let nested = working.join("nested");
+        for path in [&app, &home, &nested] {
+            fs::create_dir_all(path).unwrap();
+        }
+        fs::write(
+            app.join(".sqruff"),
+            "[sqruff]\ndialect = postgres\n[sqruff:bar]\nfoo = app\n\
+             [sqruff:templater:dbt]\nproject_dir = project\n",
+        )
+        .unwrap();
+        fs::write(home.join(".sqruff.ini"), "[sqruff:bar]\nfoo = home\n").unwrap();
+        fs::write(
+            working.join("sqruff.toml"),
+            "[tool.sqlfluff.bar]\nfoo = 'project'\n",
+        )
+        .unwrap();
+        fs::write(nested.join(".sqlfluff"), "[sqlfluff:bar]\nfoo = nested\n").unwrap();
+
+        let locations = ConfigLoader::iter_config_locations_up_to_path(
+            &nested.join("query.sql"),
+            Some(&working),
+            Some(&home),
+            Some(&app),
+            false,
+        )
+        .collect::<Vec<_>>();
+        assert_eq!(
+            locations,
+            [&app, &home, &working, &nested]
+                .map(|path| path.canonicalize().unwrap())
+                .to_vec()
+        );
+        let mut config = HashMap::new();
+        for (location, expected) in locations
+            .into_iter()
+            .zip(["app", "home", "project", "nested"])
+        {
+            config = nested_combine(vec![
+                config,
+                ConfigLoader.try_load_config_at_path(location).unwrap(),
+            ]);
+            assert_eq!(config["bar"]["foo"].as_string(), Some(expected));
+            assert_eq!(config["core"]["dialect"].as_string(), Some("postgres"));
+        }
+        assert_eq!(
+            config["templater"]["dbt"]["project_dir"].as_string(),
+            app.canonicalize().unwrap().join("project").to_str()
+        );
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_ignoring_local_config_skips_global_and_project_locations() {
+        let root = temp_config_dir("ignore-global");
+        let paths = ConfigLoader::iter_config_locations_up_to_path(
+            &root,
+            Some(&root),
+            Some(&root),
+            Some(&root),
+            true,
+        )
+        .collect::<Vec<_>>();
+        assert!(paths.is_empty());
+        fs::write(root.join(".sqruff"), "[sqruff]\ndialect = postgres\n").unwrap();
+        let extra = root.join("extra.cfg");
+        fs::write(&extra, "[sqruff]\nmax_line_length = 91\n").unwrap();
+        let config = ConfigLoader
+            .try_load_config_up_to_path(&root, Some(extra.to_string_lossy().into_owned()), true)
+            .unwrap();
+        assert_eq!(config["core"]["max_line_length"].as_int(), Some(91));
+        assert!(!config["core"].as_map().unwrap().contains_key("dialect"));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_home_config_is_loaded_outside_home_directory() {
+        let root = temp_config_dir("global-home");
+        let home = root.join("home");
+        let working = root.join("project");
+        let nested = working.join("nested");
+        fs::create_dir_all(&home).unwrap();
+        fs::create_dir_all(&nested).unwrap();
+        fs::write(home.join(".sqruff"), "[sqruff]\ndialect = postgres\n").unwrap();
+        fs::write(working.join(".sqruff"), "[sqruff]\nmax_line_length = 91\n").unwrap();
+
+        let locations = ConfigLoader::iter_config_locations_up_to_path(
+            &nested.join("query.sql"),
+            Some(&working),
+            Some(&home),
+            None,
+            false,
+        )
+        .collect::<Vec<_>>();
+        assert_eq!(
+            locations,
+            vec![
+                home.canonicalize().unwrap(),
+                working.canonicalize().unwrap(),
+                nested.canonicalize().unwrap(),
+            ]
+        );
+
+        let configs = locations
+            .into_iter()
+            .map(|path| ConfigLoader.try_load_config_at_path(path).unwrap())
+            .collect();
+        let config = nested_combine(configs);
+        assert_eq!(config["core"]["dialect"].as_string(), Some("postgres"));
+        assert_eq!(config["core"]["max_line_length"].as_int(), Some(91));
 
         fs::remove_dir_all(root).unwrap();
     }
@@ -1502,6 +1764,7 @@ mod tests {
             &working.join("query.sql"),
             Some(&working),
             Some(&home),
+            None,
             false,
         )
         .collect::<Vec<_>>();

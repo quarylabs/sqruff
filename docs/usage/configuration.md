@@ -1,11 +1,49 @@
 # Configuration
 
-Settings for SQL dialect, indentation, capitalization, and other linting and style options are configured in a `.sqruff`, `.sqruff.ini`, `sqruff.toml`, or `pyproject.toml` file.
-Sqruff loads configuration files from the user's home directory and each
-directory down to the directory where sqruff is run. When linting a file in a
-subdirectory, it then loads configuration from each directory down to the
-file. Settings found closer to the file override settings from outer
-directories.
+Settings for SQL dialect, indentation, capitalization, and other linting and style options are configured in a `.sqruff`, `.sqruff.ini`, `sqruff.toml`, or `pyproject.toml` file. SQLFluff's `.sqlfluff` format is also supported.
+
+## Global configuration and precedence
+
+Use `~/.sqruff` to set defaults for all projects, including projects outside
+your home directory. On Windows, `~` refers to your user profile directory.
+You can also put configuration in a user application config directory:
+
+| Platform | Application config directory |
+| --- | --- |
+| Linux and other Unix systems | `$XDG_CONFIG_HOME/sqruff`, or `~/.config/sqruff` when `XDG_CONFIG_HOME` is unset |
+| macOS | `$XDG_CONFIG_HOME/sqruff` when that directory exists, otherwise `~/Library/Application Support/sqruff` |
+| Windows | `%LOCALAPPDATA%\sqruff\sqruff`, or `~\AppData\Local\sqruff\sqruff` when `LOCALAPPDATA` is unset |
+
+On every platform, an existing `~/.config/sqruff` directory takes precedence
+over the platform-specific application config directory, matching SQLFluff's
+discovery behavior. Put a supported configuration file inside that directory,
+for example `~/.config/sqruff/.sqruff`.
+
+Configuration is merged in the following order, with later settings overriding
+earlier values individually:
+
+1. Built-in defaults.
+2. The user application config directory.
+3. The user's home directory.
+4. Directories between home and the working directory, when working beneath home.
+5. The working directory and directories down to the configuration target.
+6. An explicit file passed with `--config`.
+7. Command-line overrides such as `--dialect`.
+
+For stdin, `--stdin-filename` sets the configuration target. Each directory is
+checked for `.sqlfluff`, `.sqruff`, `.sqruff.ini`, `pyproject.toml`, and
+`sqruff.toml`, in that order; later files override earlier files in the same
+directory. Relative paths in settings are resolved from the configuration
+file's directory.
+
+Use `--ignore-local-config` to skip discovery of global and project config
+files. Combine it with `--config` to use only that file and built-in defaults:
+
+```shell
+sqruff lint --ignore-local-config --config /path/to/config.cfg query.sql
+```
+
+Configuration files beside the executable can be selected using `--config`.
 
 The following example highlights a few configuration points: setting the dialect to `sqlite`, turning on all rules except AM01 and AM02, and configuring some indentation settings.
 For a comprehensive list of configuration options, see the [default configuration file](https://github.com/quarylabs/sqruff/blob/main/crates/lib/src/core/default_config.cfg).

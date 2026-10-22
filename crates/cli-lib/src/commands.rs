@@ -18,9 +18,12 @@ pub struct Cli {
     /// Force color output, even when redirected or NO_COLOR is set.
     #[arg(long, global = true, overrides_with = "nocolor")]
     pub color: bool,
-    /// Path to a configuration file.
+    /// Additional configuration file whose settings override discovered configuration.
     #[arg(long, global = true)]
     pub config: Option<String>,
+    /// Ignore discovered global and project configuration files. Still load --config.
+    #[arg(long, global = true)]
+    pub ignore_local_config: bool,
     /// Override the dialect (e.g., bigquery, clickhouse, ansi).
     #[arg(long, global = true)]
     pub dialect: Option<String>,

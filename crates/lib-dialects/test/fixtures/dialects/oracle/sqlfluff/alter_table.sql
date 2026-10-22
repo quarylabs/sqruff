@@ -49,3 +49,11 @@ ALTER TABLE employees ADD CONSTRAINT salary_check CHECK (salary > 0);
 
 ALTER TABLE table_name
 ADD identity_column NUMBER GENERATED ALWAYS AS IDENTITY;
+
+-- add_column_clause with an inline column-level PRIMARY KEY ... USING INDEX
+ALTER TABLE table_name
+ADD (column_name NUMBER CONSTRAINT pk_column_name PRIMARY KEY USING INDEX TABLESPACE idx_ts);
+
+-- modify_column_clause with an inline column-level UNIQUE ... USING INDEX
+ALTER TABLE table_name
+MODIFY (column_name VARCHAR2(10) CONSTRAINT uq_column_name UNIQUE USING INDEX PCTFREE 10);

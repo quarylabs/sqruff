@@ -311,3 +311,64 @@ file:
           - keyword: AS
           - keyword: IDENTITY
   - statement_terminator: ;
+  - statement:
+    - oracle_alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: table_name
+      - alter_table_column_clauses:
+        - keyword: ADD
+        - bracketed:
+          - start_bracket: (
+          - oracle_column_definition:
+            - naked_identifier: column_name
+            - data_type:
+              - data_type_identifier: NUMBER
+            - column_constraint_segment:
+              - keyword: CONSTRAINT
+              - object_reference:
+                - naked_identifier: pk_column_name
+              - keyword: PRIMARY
+              - keyword: KEY
+              - using_index_clause:
+                - keyword: USING
+                - keyword: INDEX
+                - oracle_index_physical_attributes:
+                  - keyword: TABLESPACE
+                  - object_reference:
+                    - naked_identifier: idx_ts
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: table_name
+      - alter_table_column_clauses:
+        - keyword: MODIFY
+        - bracketed:
+          - start_bracket: (
+          - oracle_column_definition:
+            - naked_identifier: column_name
+            - data_type:
+              - data_type_identifier: VARCHAR2
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: CONSTRAINT
+              - object_reference:
+                - naked_identifier: uq_column_name
+              - keyword: UNIQUE
+              - using_index_clause:
+                - keyword: USING
+                - keyword: INDEX
+                - oracle_index_physical_attributes:
+                  - keyword: PCTFREE
+                  - numeric_literal: '10'
+          - end_bracket: )
+  - statement_terminator: ;

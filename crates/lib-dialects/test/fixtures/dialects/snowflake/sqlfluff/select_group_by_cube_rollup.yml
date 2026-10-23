@@ -34,15 +34,17 @@ file:
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - keyword: CUBE
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: name
-        - comma: ','
-        - column_reference:
-          - naked_identifier: age
-        - end_bracket: )
+      - cube_rollup_clause:
+        - keyword: CUBE
+        - bracketed:
+          - start_bracket: (
+          - grouping_expression_list:
+            - column_reference:
+              - naked_identifier: name
+            - comma: ','
+            - column_reference:
+              - naked_identifier: age
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -79,13 +81,15 @@ file:
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - keyword: ROLLUP
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: name
-        - comma: ','
-        - column_reference:
-          - naked_identifier: age
-        - end_bracket: )
+      - cube_rollup_clause:
+        - keyword: ROLLUP
+        - bracketed:
+          - start_bracket: (
+          - grouping_expression_list:
+            - column_reference:
+              - naked_identifier: name
+            - comma: ','
+            - column_reference:
+              - naked_identifier: age
+          - end_bracket: )
 - statement_terminator: ;

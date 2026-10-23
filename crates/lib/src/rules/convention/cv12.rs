@@ -138,6 +138,25 @@ JOIN baz ON bar.id = baz.id;
                 continue;
             }
 
+            // Moving a WHERE predicate into ON changes which null-extended
+            // rows survive an outer join, so retain the diagnostic but
+            // suppress the fix for all outer joins. SEMI and ANTI joins are
+            // filtering joins, not null-extending outer joins.
+            let is_outer_join = join_keywords.iter().any(|keyword| {
+                ["LEFT", "RIGHT", "FULL", "OUTER"]
+                    .iter()
+                    .any(|expected| keyword.raw().eq_ignore_ascii_case(expected))
+            });
+            let is_semi_or_anti_join = join_keywords.iter().any(|keyword| {
+                ["SEMI", "ANTI"]
+                    .iter()
+                    .any(|expected| keyword.raw().eq_ignore_ascii_case(expected))
+            });
+            if is_outer_join && !is_semi_or_anti_join {
+                results.push(LintResult::new(Some(join), Vec::new(), None, None));
+                continue;
+            }
+
             if !where_clause_simplifiable {
                 results.push(LintResult::new(Some(join), Vec::new(), None, None));
                 continue;

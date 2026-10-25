@@ -1644,26 +1644,6 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    postgres.replace_grammar(
-        "TypedArrayLiteralSegment",
-        Sequence::new(vec![
-            Sequence::new(vec![
-                Ref::keyword("VARIADIC").to_matchable(),
-                Sequence::new(vec![
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                    Ref::new("WalrusOperatorSegment").to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Ref::new("ArrayTypeSegment").to_matchable(),
-            Ref::new("ArrayLiteralSegment").to_matchable(),
-        ])
-        .to_matchable(),
-    );
-
     postgres.add([(
         "IndexAccessMethodSegment".into(),
         NodeMatcher::new(SyntaxKind::IndexAccessMethod, |_| {

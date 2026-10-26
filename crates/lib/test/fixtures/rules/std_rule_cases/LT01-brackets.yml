@@ -115,3 +115,11 @@ test_pass_duckdb_array_literal_not_touched:
   configs:
     core:
       dialect: duckdb
+
+# VARIADIC is not part of the array literal, so it keeps its space.
+test_pass_postgres_variadic_array:
+  pass_str: |
+    SELECT concat_ws(',', VARIADIC ARRAY['a', 'b']);
+  configs:
+    core:
+      dialect: postgres

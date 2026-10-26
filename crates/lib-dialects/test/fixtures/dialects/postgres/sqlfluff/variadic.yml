@@ -40,9 +40,9 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
+              - keyword: VARIADIC
               - expression:
                 - typed_array_literal:
-                  - keyword: VARIADIC
                   - array_type:
                     - keyword: ARRAY
                   - array_literal:
@@ -70,10 +70,10 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
+              - keyword: VARIADIC
               - expression:
                 - cast_expression:
                   - typed_array_literal:
-                    - keyword: VARIADIC
                     - array_type:
                       - keyword: ARRAY
                     - array_literal:
@@ -98,25 +98,26 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
-              - expression:
-                - typed_array_literal:
-                  - keyword: VARIADIC
-                  - naked_identifier: arr
-                  - assignment_operator: :=
-                  - array_type:
-                    - keyword: ARRAY
-                  - array_literal:
-                    - start_square_bracket: '['
-                    - numeric_literal: '10'
-                    - comma: ','
-                    - numeric_literal:
-                      - sign_indicator: '-'
-                      - numeric_literal: '1'
-                    - comma: ','
-                    - numeric_literal: '5'
-                    - comma: ','
-                    - numeric_literal: '4.4'
-                    - end_square_bracket: ']'
+              - keyword: VARIADIC
+              - named_argument:
+                - naked_identifier: arr
+                - assignment_operator: :=
+                - expression:
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '10'
+                      - comma: ','
+                      - numeric_literal:
+                        - sign_indicator: '-'
+                        - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '5'
+                      - comma: ','
+                      - numeric_literal: '4.4'
+                      - end_square_bracket: ']'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -282,9 +283,9 @@ file:
                   - data_type:
                     - keyword: json
               - comma: ','
+              - keyword: VARIADIC
               - expression:
                 - typed_array_literal:
-                  - keyword: VARIADIC
                   - array_type:
                     - keyword: ARRAY
                   - array_literal:
@@ -316,9 +317,9 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
+              - keyword: VARIADIC
               - expression:
                 - typed_array_literal:
-                  - keyword: VARIADIC
                   - array_type:
                     - keyword: ARRAY
                   - array_literal:

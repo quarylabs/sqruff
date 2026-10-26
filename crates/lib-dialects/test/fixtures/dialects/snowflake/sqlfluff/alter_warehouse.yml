@@ -464,6 +464,32 @@ file:
 - statement_terminator: ;
 - statement:
   - alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+      - keyword: RESOURCE_MONITOR
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''monitor_name'''
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+      - naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+      - keyword: RESOURCE_MONITOR
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_identifier: '"My Monitor"'
+- statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
     - keyword: ALTER
     - keyword: WAREHOUSE
     - keyword: SUSPEND

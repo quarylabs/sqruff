@@ -203,12 +203,10 @@ pub fn process_spacing(
     }
 
     if last_whitespace.len() >= 2 {
-        let seg = segment_buffer.last().unwrap();
-
         for ws in last_whitespace.iter().skip(1).cloned() {
             removal_buffer.push(ws.clone());
             result_buffer.push(LintResult::new(
-                seg.clone().into(),
+                ws.clone().into(),
                 vec![LintFix::delete(ws)],
                 "Unnecessary trailing whitespace.".to_owned().into(),
                 None,
@@ -818,6 +816,43 @@ mod tests {
             let new_seq = seq.respace(&tables, strip_newlines, filter);
             assert_eq!(new_seq.raw(), raw_sql_out);
         }
+    }
+
+    #[test]
+    fn test_reflow_process_spacing_duplicate_whitespace_fix_anchors() {
+        // Ported from SQLFluff #8419: each duplicate-whitespace fix must anchor
+        // the whitespace it removes. The fixes anchored the last segment of the
+        // buffer instead of each `ws` being removed, so for three adjacent
+        // whitespaces both results pointed at the final segment and the middle
+        // one was never anchored.
+        let tables = Tables::default();
+        let w1 = SegmentBuilder::whitespace(tables.next_id(), " ");
+        let w2 = SegmentBuilder::whitespace(tables.next_id(), " ");
+        let w3 = SegmentBuilder::whitespace(tables.next_id(), " ");
+
+        let (buffer, _, results) =
+            super::process_spacing(&[w1.clone(), w2.clone(), w3.clone()], false);
+
+        // w1 is kept; w2 and w3 are pruned from the returned buffer.
+        assert_eq!(buffer.len(), 1);
+        assert_eq!(buffer[0].id(), w1.id());
+
+        // Each pruned whitespace is the anchor of its own result and delete fix,
+        // and the kept one is never targeted.
+        let anchors: Vec<u32> = results
+            .iter()
+            .flat_map(|result| {
+                result
+                    .anchor
+                    .iter()
+                    .map(|anchor| anchor.id())
+                    .chain(result.fixes.iter().map(|fix| fix.anchor().id()))
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        assert_eq!(anchors.iter().filter(|&&id| id == w2.id()).count(), 2);
+        assert_eq!(anchors.iter().filter(|&&id| id == w3.id()).count(), 2);
+        assert!(anchors.iter().all(|&id| id != w1.id()));
     }
 
     #[test]

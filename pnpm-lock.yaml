@@ -76,8 +76,8 @@ importers:
         specifier: ^3.9.1
         version: 3.9.2(supports-color@8.1.1)
       code-server:
-        specifier: ^4.140.0
-        version: 4.140.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+        specifier: ^4.141.0
+        version: 4.141.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       esbuild:
         specifier: ^0.28.1
         version: 0.28.2
@@ -1516,8 +1516,8 @@ packages:
     resolution: {integrity: sha512-gfrHV6ZPkquExvMh9IOkKsBzNDk6sDuZ6DdBGUBkvFnTCqCxzpuq48RySgP0AnaqQkw2zynOFj9yly6T1Q2G5Q==}
     engines: {node: '>=16'}
 
-  code-server@4.140.0:
-    resolution: {integrity: sha512-yZG+23b4jN78Z5znkBzx0/vSPWXQPwsWkLVljY0osR5LIT+RVRLb9Cw+/BgZAjMS0VC/V9tu8v0QaBtqAeU8og==}
+  code-server@4.141.0:
+    resolution: {integrity: sha512-IvN7k2IADt6KYOifigRzzZSsjxOVZRrB92nB5nyxKIOORo5YMkKP41JFhr1l5kKvikq+eJ+1j4X0fRe/QrtWSQ==}
     engines: {node: '24'}
     hasBin: true
 
@@ -2588,9 +2588,6 @@ packages:
   jszip@3.10.1:
     resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
 
-  just-performance@4.3.0:
-    resolution: {integrity: sha512-L7RjvtJsL0QO8xFs5wEoDDzzJwoiowRw6Rn/GnvldlchS2JQr9wFYPiwZcDfrbbujEKqKN0tvENdbjXdYhDp5Q==}
-
   jwa@2.0.1:
     resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
 
@@ -2788,8 +2785,8 @@ packages:
     resolution: {integrity: sha512-WkUDrojuJs0xkgGf2udWxa3yGBRxPtxUkB79i6aCZLRgc7PM8fZe9TosfPDcvEpQZbuFASnHYmRLBLUbmLOIIA==}
     engines: {node: '>= 12.0.0'}
 
-  limiter@2.1.0:
-    resolution: {integrity: sha512-361TYz6iay6n+9KvUUImqdLuFigK+K79qrUtBsXhJTLdH4rIt/r1y8r1iozwh8KbZNpujbFTSh74mJ7bwbAMOw==}
+  limiter@4.1.0:
+    resolution: {integrity: sha512-dx+FIOmHyJSBT6CTOPrVmhcwhfK2cDjM7d0p6oghDYJeMMfGDIVM/83qX+EM9MgQpRxEwu9QLsScocXIWqz+VA==}
 
   linkify-it@5.0.2:
     resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
@@ -5566,7 +5563,7 @@ snapshots:
 
   cockatiel@3.2.1: {}
 
-  code-server@4.140.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3):
+  code-server@4.141.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3):
     dependencies:
       '@coder/logger': 3.0.1
       argon2: 0.44.0
@@ -5579,7 +5576,7 @@ snapshots:
       httpolyglot: 0.1.2
       i18next: 26.4.2(typescript@6.0.3)
       js-yaml: 5.4.2
-      limiter: 2.1.0
+      limiter: 4.1.0
       pem: 1.14.8
       proxy-agent: 6.5.0(supports-color@8.1.1)
       qs: 6.16.0
@@ -6897,8 +6894,6 @@ snapshots:
       readable-stream: 2.3.8
       setimmediate: 1.0.5
 
-  just-performance@4.3.0: {}
-
   jwa@2.0.1:
     dependencies:
       buffer-equal-constant-time: 1.0.1
@@ -7084,9 +7079,7 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.33.0
       lightningcss-win32-x64-msvc: 1.33.0
 
-  limiter@2.1.0:
-    dependencies:
-      just-performance: 4.3.0
+  limiter@4.1.0: {}
 
   linkify-it@5.0.2:
     dependencies:

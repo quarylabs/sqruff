@@ -4085,6 +4085,27 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "ScopedAccessObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessObject, |_| {
+                one_of(vec![
+                    Ref::keyword("SCHEMAS").to_matchable(),
+                    Ref::keyword("TABLES").to_matchable(),
+                    Ref::keyword("FUNCTIONS").to_matchable(),
+                    Ref::keyword("PROCEDURES").to_matchable(),
+                    Ref::keyword("LANGUAGES").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("JOBS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("TEMPLATES").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "GrantStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::GrantStatement, |_| {
                 let group_targets = Delimited::new(vec![
@@ -4127,6 +4148,28 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("UserReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::new("AccessPermissionsSegment").to_matchable(),
+                                Ref::keyword("ALL").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ALL").to_matchable(),
+                                    Ref::keyword("PRIVILEGES").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            Ref::new("ScopedAccessObjectSegment").to_matchable(),
+                            Ref::keyword("IN").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("SCHEMA").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("ObjectReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
@@ -4158,5 +4201,19 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+    redshift_dialect.replace_grammar(
+        "AccessPermissionSegment",
+        super::ansi::access_permission_segment().copy(
+            Some(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("ALTER").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
     redshift_dialect
 }

@@ -5649,7 +5649,7 @@ fn access_schema_plural_object_segment() -> Matchable {
     .to_matchable()
 }
 
-fn access_permission_segment() -> Matchable {
+pub fn access_permission_segment() -> Matchable {
     one_of(vec![
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),

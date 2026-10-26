@@ -449,6 +449,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterDefaultPrivilegesRevoke
         | AlterIndexStatement
         | ReindexStatementSegment
+        | ReindexStatement
+        | AttachStatement
+        | DetachStatement
         | AnalyzeStatement
         | AlterTrigger
         | OperationClassReference

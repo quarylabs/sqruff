@@ -6444,17 +6444,19 @@ SQLite SQL dialect for embedded database.
 ```
 
 <details>
-<summary>Segment types (174)</summary>
+<summary>Segment types (179)</summary>
 <ul>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
 <li><code>alter_table_statement</code></li>
 <li><code>ampersand</code></li>
+<li><code>analyze_statement</code></li>
 <li><code>array_accessor</code></li>
 <li><code>array_expression</code></li>
 <li><code>array_literal</code></li>
 <li><code>array_type</code></li>
 <li><code>at_sign_literal</code></li>
+<li><code>attach_statement</code></li>
 <li><code>back_quote</code></li>
 <li><code>bare_function</code></li>
 <li><code>binary_operator</code></li>
@@ -6495,6 +6497,7 @@ SQLite SQL dialect for embedded database.
 <li><code>date_part</code></li>
 <li><code>dedent</code></li>
 <li><code>delete_statement</code></li>
+<li><code>detach_statement</code></li>
 <li><code>divide</code></li>
 <li><code>dollar_literal</code></li>
 <li><code>dollar_quote</code></li>
@@ -6573,6 +6576,7 @@ SQLite SQL dialect for embedded database.
 <li><code>quoted_literal</code></li>
 <li><code>raw_comparison_operator</code></li>
 <li><code>referenced_column_list</code></li>
+<li><code>reindex_statement</code></li>
 <li><code>select_clause</code></li>
 <li><code>select_clause_element</code></li>
 <li><code>select_clause_modifier</code></li>
@@ -6608,6 +6612,7 @@ SQLite SQL dialect for embedded database.
 <li><code>unparsable</code></li>
 <li><code>update_statement</code></li>
 <li><code>upsert_clause</code></li>
+<li><code>vacuum_statement</code></li>
 <li><code>values_clause</code></li>
 <li><code>vertical_bar</code></li>
 <li><code>when_clause</code></li>

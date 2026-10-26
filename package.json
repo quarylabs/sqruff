@@ -9,7 +9,7 @@
     "@secretlint/secretlint-formatter-sarif": "^13.0.7",
     "@secretlint/secretlint-rule-no-dotenv": "^13.0.7",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.7",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.10"
   },
   "scripts": {
     "ci": "pnpm run fmt:check && pnpm run lint && pnpm run build && pnpm run test && pnpm run package",

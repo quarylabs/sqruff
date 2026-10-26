@@ -2096,6 +2096,7 @@ pub fn raw_dialect() -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                     Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("IndexReferenceSegment").to_matchable(),
                     Ref::keyword("ON").to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),

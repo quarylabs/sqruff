@@ -133,6 +133,28 @@ file:
     - create_index_statement:
       - keyword: CREATE
       - keyword: INDEX
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - database_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t_ts_idx
+      - keyword: ON
+      - oracle_table_reference:
+        - naked_identifier: s1
+        - dot: .
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+          - naked_identifier: col1
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_index_statement:
+      - keyword: CREATE
+      - keyword: INDEX
       - database_reference:
         - naked_identifier: s1
         - dot: .

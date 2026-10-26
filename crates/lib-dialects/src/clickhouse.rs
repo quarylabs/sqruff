@@ -1133,6 +1133,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("ExpressionSegment").to_matchable(),
                             ])
+                            // The brackets might be empty i.e. `ORDER BY ()`.
+                            .config(|this| this.optional())
                             .to_matchable(),
                         ])
                         .to_matchable(),
@@ -2289,6 +2291,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // ClickHouse's CONSTRAINT clause only supports CHECK and ASSUME
+    // https://clickhouse.com/docs/en/sql-reference/statements/create/table#constraints
+    clickhouse_dialect.replace_grammar(
+        "TableConstraintSegment",
+        Sequence::new(vec![
+            Ref::keyword("CONSTRAINT").to_matchable(),
+            Ref::new("ObjectReferenceSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("CHECK").to_matchable(),
+                Ref::keyword("ASSUME").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // https://clickhouse.com/docs/sql-reference/statements/rename
     clickhouse_dialect.add([(
         "RenameStatementSegment".into(),
@@ -2781,16 +2800,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         one_of(vec![
             // Double parentheses pattern: func(params)(args)
             Sequence::new(vec![
-                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .to_matchable(),
-                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .to_matchable(),
+                // The parameter brackets might be empty
+                // i.e. `studentTTestOneSample()(...)`.
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             // Standard ANSI single parentheses
             Sequence::new(vec![
-                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
         ])

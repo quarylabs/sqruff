@@ -20,6 +20,12 @@ pub struct PythonFluffConfig {
     jinja_apply_dbt_builtins: bool,
     jinja_ignore_templating: Option<bool>,
     jinja_library_paths: Vec<String>,
+    jinja_variable_start_string: Option<String>,
+    jinja_variable_end_string: Option<String>,
+    jinja_block_start_string: Option<String>,
+    jinja_block_end_string: Option<String>,
+    jinja_comment_start_string: Option<String>,
+    jinja_comment_end_string: Option<String>,
 
     dbt_profile: Option<String>,
     dbt_profiles_dir: Option<String>,
@@ -129,6 +135,34 @@ impl From<&FluffConfig> for PythonFluffConfig {
                     })
                     .unwrap_or_default(),
             },
+            // Optional Jinja delimiter overrides. Any that aren't set fall
+            // back to Jinja's defaults ({{ }} for variables, {% %} for
+            // blocks, {# #} for comments) on the Python side.
+            // Ported from SQLFluff #8277.
+            jinja_variable_start_string: value
+                .templater_value(TemplaterKind::Jinja, "variable_start_string")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            jinja_variable_end_string: value
+                .templater_value(TemplaterKind::Jinja, "variable_end_string")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            jinja_block_start_string: value
+                .templater_value(TemplaterKind::Jinja, "block_start_string")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            jinja_block_end_string: value
+                .templater_value(TemplaterKind::Jinja, "block_end_string")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            jinja_comment_start_string: value
+                .templater_value(TemplaterKind::Jinja, "comment_start_string")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            jinja_comment_end_string: value
+                .templater_value(TemplaterKind::Jinja, "comment_end_string")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
             dbt_profile: None,
             dbt_profiles_dir: value
                 .templater_value(TemplaterKind::Dbt, "profiles_dir")
@@ -265,8 +299,49 @@ mod tests {
         assert!(python_fluff_config.jinja_loader_search_path.is_empty());
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
+        assert_eq!(python_fluff_config.jinja_variable_start_string, None);
+        assert_eq!(python_fluff_config.jinja_variable_end_string, None);
+        assert_eq!(python_fluff_config.jinja_block_start_string, None);
+        assert_eq!(python_fluff_config.jinja_block_end_string, None);
+        assert_eq!(python_fluff_config.jinja_comment_start_string, None);
+        assert_eq!(python_fluff_config.jinja_comment_end_string, None);
         assert_eq!(python_fluff_config.dbt_threads, None);
         assert!(python_fluff_config.dbt_skip_compilation_error);
+    }
+
+    #[test]
+    fn test_jinja_custom_delimiters_are_serialized() {
+        let source = r"
+[sqruff]
+templater = jinja
+[sqruff:templater:jinja]
+variable_start_string = <%
+variable_end_string = %>
+block_start_string = <<
+block_end_string = >>
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.jinja_variable_start_string.as_deref(),
+            Some("<%")
+        );
+        assert_eq!(
+            python_fluff_config.jinja_variable_end_string.as_deref(),
+            Some("%>")
+        );
+        assert_eq!(
+            python_fluff_config.jinja_block_start_string.as_deref(),
+            Some("<<")
+        );
+        assert_eq!(
+            python_fluff_config.jinja_block_end_string.as_deref(),
+            Some(">>")
+        );
+        // Unset delimiters fall back to Jinja defaults on the Python side.
+        assert_eq!(python_fluff_config.jinja_comment_start_string, None);
+        assert_eq!(python_fluff_config.jinja_comment_end_string, None);
     }
 
     #[test]

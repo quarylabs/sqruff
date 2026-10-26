@@ -268,6 +268,9 @@ pub fn raw_dialect() -> Dialect {
                                     ])
                                     .to_matchable(),
                                 ])
+                                // The partition list might be empty for
+                                // dynamic partitioning.
+                                .config(|this| this.optional())
                                 .to_matchable(),
                             ])
                             .to_matchable(),
@@ -286,6 +289,9 @@ pub fn raw_dialect() -> Dialect {
                                 Delimited::new(vec![
                                     Ref::new("ListPartitionDefinitionSegment").to_matchable(),
                                 ])
+                                // The partition list might be empty for
+                                // dynamic partitioning.
+                                .config(|this| this.optional())
                                 .to_matchable(),
                             ])
                             .to_matchable(),

@@ -54,7 +54,7 @@ Standard SQL syntax. The default dialect and base for all others.
 ```
 
 <details>
-<summary>Segment types (206)</summary>
+<summary>Segment types (204)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -136,8 +136,6 @@ Standard SQL syntax. The default dialect and base for all others.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -282,7 +280,7 @@ Amazon Athena SQL dialect for querying data in S3.
 ```
 
 <details>
-<summary>Segment types (215)</summary>
+<summary>Segment types (213)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -361,8 +359,6 @@ Amazon Athena SQL dialect for querying data in S3.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -519,7 +515,7 @@ Google BigQuery SQL dialect for analytics and data warehousing.
 ```
 
 <details>
-<summary>Segment types (304)</summary>
+<summary>Segment types (302)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -645,8 +641,6 @@ Google BigQuery SQL dialect for analytics and data warehousing.
 <li><code>drop_vector_index_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -845,7 +839,7 @@ ClickHouse SQL dialect for real-time analytics.
 ```
 
 <details>
-<summary>Segment types (247)</summary>
+<summary>Segment types (244)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -932,8 +926,6 @@ ClickHouse SQL dialect for real-time analytics.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -1014,7 +1006,6 @@ ClickHouse SQL dialect for real-time analytics.
 <li><code>quoted_identifier</code></li>
 <li><code>quoted_literal</code></li>
 <li><code>raw_comparison_operator</code></li>
-<li><code>referenced_column_list</code></li>
 <li><code>rename_table_statement</code></li>
 <li><code>revoke_statement</code></li>
 <li><code>role_reference</code></li>
@@ -1110,7 +1101,7 @@ Databricks SQL dialect for lakehouse analytics.
 ```
 
 <details>
-<summary>Segment types (313)</summary>
+<summary>Segment types (311)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1221,8 +1212,6 @@ Databricks SQL dialect for lakehouse analytics.
 <li><code>drop_view_statement</code></li>
 <li><code>drop_volume_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -1441,7 +1430,7 @@ IBM Db2 SQL dialect.
 ```
 
 <details>
-<summary>Segment types (219)</summary>
+<summary>Segment types (217)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1528,8 +1517,6 @@ IBM Db2 SQL dialect.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -1682,7 +1669,7 @@ Apache Doris SQL dialect, based on MySQL.
 ```
 
 <details>
-<summary>Segment types (273)</summary>
+<summary>Segment types (272)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1790,8 +1777,6 @@ Apache Doris SQL dialect, based on MySQL.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -1822,6 +1807,7 @@ Apache Doris SQL dialect, based on MySQL.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -1977,7 +1963,7 @@ DuckDB SQL dialect for in-process analytical database.
 ```
 
 <details>
-<summary>Segment types (369)</summary>
+<summary>Segment types (367)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -2137,8 +2123,6 @@ DuckDB SQL dialect for in-process analytical database.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -2364,7 +2348,7 @@ Exasol SQL dialect for the Exasol analytics database.
 ```
 
 <details>
-<summary>Segment types (268)</summary>
+<summary>Segment types (266)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -2461,8 +2445,6 @@ Exasol SQL dialect for the Exasol analytics database.
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
 <li><code>emits_segment</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -2654,7 +2636,7 @@ Apache Flink SQL dialect for stream processing and table operations.
 ```
 
 <details>
-<summary>Segment types (211)</summary>
+<summary>Segment types (209)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -2738,8 +2720,6 @@ Apache Flink SQL dialect for stream processing and table operations.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -2883,7 +2863,7 @@ Greenplum SQL dialect, a massively parallel Postgres.
 ```
 
 <details>
-<summary>Segment types (362)</summary>
+<summary>Segment types (360)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3048,8 +3028,6 @@ Greenplum SQL dialect, a massively parallel Postgres.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -3263,7 +3241,7 @@ Apache Hive SQL dialect for data warehousing.
 ```
 
 <details>
-<summary>Segment types (228)</summary>
+<summary>Segment types (226)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3350,8 +3328,6 @@ Apache Hive SQL dialect for data warehousing.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -3509,7 +3485,7 @@ Apache Impala SQL dialect for distributed SQL queries.
 ```
 
 <details>
-<summary>Segment types (227)</summary>
+<summary>Segment types (225)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3597,8 +3573,6 @@ Apache Impala SQL dialect for distributed SQL queries.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -3758,7 +3732,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 ```
 
 <details>
-<summary>Segment types (274)</summary>
+<summary>Segment types (273)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3865,8 +3839,6 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -3895,6 +3867,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -4050,7 +4023,7 @@ Materialize SQL dialect for the streaming data warehouse.
 ```
 
 <details>
-<summary>Segment types (291)</summary>
+<summary>Segment types (289)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4167,8 +4140,6 @@ Materialize SQL dialect for the streaming data warehouse.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -4363,7 +4334,7 @@ MySQL SQL dialect for the popular open-source database.
 ```
 
 <details>
-<summary>Segment types (266)</summary>
+<summary>Segment types (265)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4470,8 +4441,6 @@ MySQL SQL dialect for the popular open-source database.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -4501,6 +4470,7 @@ MySQL SQL dialect for the popular open-source database.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -4647,7 +4617,7 @@ Oracle SQL dialect for Oracle Database.
 ```
 
 <details>
-<summary>Segment types (293)</summary>
+<summary>Segment types (291)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4738,8 +4708,6 @@ Oracle SQL dialect for Oracle Database.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -4976,7 +4944,7 @@ pgvector = true
 ```
 
 <details>
-<summary>Segment types (357)</summary>
+<summary>Segment types (355)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5137,8 +5105,6 @@ pgvector = true
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -5355,7 +5321,7 @@ Amazon Redshift SQL dialect for cloud data warehousing.
 ```
 
 <details>
-<summary>Segment types (382)</summary>
+<summary>Segment types (380)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5533,8 +5499,6 @@ Amazon Redshift SQL dialect for cloud data warehousing.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -5759,7 +5723,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (388)</summary>
+<summary>Segment types (396)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5769,8 +5733,10 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>access_statement</code></li>
 <li><code>access_target</code></li>
 <li><code>aggregate_order_by_clause</code></li>
+<li><code>alert_condition</code></li>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
+<li><code>alter_alert_statement</code></li>
 <li><code>alter_cortex_search_service_statement</code></li>
 <li><code>alter_database_statement</code></li>
 <li><code>alter_dynamic_table_column_action</code></li>
@@ -5858,10 +5824,12 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>copy_into_table_statement</code></li>
 <li><code>copy_on_error_option</code></li>
 <li><code>copy_options</code></li>
+<li><code>create_alert_statement</code></li>
 <li><code>create_authentication_policy_segment</code></li>
 <li><code>create_cast_statement</code></li>
 <li><code>create_clone_statement</code></li>
 <li><code>create_cortex_search_service_statement</code></li>
+<li><code>create_data_metric_function_statement</code></li>
 <li><code>create_database_role_statement</code></li>
 <li><code>create_database_statement</code></li>
 <li><code>create_dbt_project_statement</code></li>
@@ -5934,8 +5902,6 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>dynamic_table_lag_interval_segment</code></li>
 <li><code>dynamic_table_options</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_exclude_bracket</code></li>
@@ -6003,6 +5969,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>literal</code></li>
 <li><code>local_alias</code></li>
 <li><code>log_level_equals</code></li>
+<li><code>loop_statement</code></li>
 <li><code>map_type</code></li>
 <li><code>match_condition_clause</code></li>
 <li><code>match_recognize_clause</code></li>
@@ -6053,6 +6020,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>raw</code></li>
 <li><code>raw_comparison_operator</code></li>
 <li><code>remove_statement</code></li>
+<li><code>repeat_loop_statement</code></li>
 <li><code>resource_constraint</code></li>
 <li><code>return_statement</code></li>
 <li><code>revoke_statement</code></li>
@@ -6063,6 +6031,8 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>scaling_policy</code></li>
 <li><code>schema_object_properties</code></li>
 <li><code>scripting_block_statement</code></li>
+<li><code>scripting_break_statement</code></li>
+<li><code>scripting_case_statement</code></li>
 <li><code>scripting_declare_statement</code></li>
 <li><code>scripting_if_statement</code></li>
 <li><code>scripting_let_statement</code></li>
@@ -6135,10 +6105,12 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>variable</code></li>
 <li><code>vertical_bar</code></li>
 <li><code>walrus_operator</code></li>
+<li><code>warehouse_generation</code></li>
 <li><code>warehouse_object_properties</code></li>
 <li><code>warehouse_size</code></li>
 <li><code>when_clause</code></li>
 <li><code>where_clause</code></li>
+<li><code>while_loop_statement</code></li>
 <li><code>whitespace</code></li>
 <li><code>wildcard_expression</code></li>
 <li><code>wildcard_identifier</code></li>
@@ -6169,7 +6141,7 @@ Apache Spark SQL dialect for big data processing.
 ```
 
 <details>
-<summary>Segment types (283)</summary>
+<summary>Segment types (281)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6267,8 +6239,6 @@ Apache Spark SQL dialect for big data processing.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -6474,17 +6444,19 @@ SQLite SQL dialect for embedded database.
 ```
 
 <details>
-<summary>Segment types (174)</summary>
+<summary>Segment types (179)</summary>
 <ul>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
 <li><code>alter_table_statement</code></li>
 <li><code>ampersand</code></li>
+<li><code>analyze_statement</code></li>
 <li><code>array_accessor</code></li>
 <li><code>array_expression</code></li>
 <li><code>array_literal</code></li>
 <li><code>array_type</code></li>
 <li><code>at_sign_literal</code></li>
+<li><code>attach_statement</code></li>
 <li><code>back_quote</code></li>
 <li><code>bare_function</code></li>
 <li><code>binary_operator</code></li>
@@ -6525,6 +6497,7 @@ SQLite SQL dialect for embedded database.
 <li><code>date_part</code></li>
 <li><code>dedent</code></li>
 <li><code>delete_statement</code></li>
+<li><code>detach_statement</code></li>
 <li><code>divide</code></li>
 <li><code>dollar_literal</code></li>
 <li><code>dollar_quote</code></li>
@@ -6603,6 +6576,7 @@ SQLite SQL dialect for embedded database.
 <li><code>quoted_literal</code></li>
 <li><code>raw_comparison_operator</code></li>
 <li><code>referenced_column_list</code></li>
+<li><code>reindex_statement</code></li>
 <li><code>select_clause</code></li>
 <li><code>select_clause_element</code></li>
 <li><code>select_clause_modifier</code></li>
@@ -6638,6 +6612,7 @@ SQLite SQL dialect for embedded database.
 <li><code>unparsable</code></li>
 <li><code>update_statement</code></li>
 <li><code>upsert_clause</code></li>
+<li><code>vacuum_statement</code></li>
 <li><code>values_clause</code></li>
 <li><code>vertical_bar</code></li>
 <li><code>when_clause</code></li>
@@ -6666,7 +6641,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 ```
 
 <details>
-<summary>Segment types (282)</summary>
+<summary>Segment types (281)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6775,8 +6750,6 @@ StarRocks SQL dialect for real-time analytical workloads.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -6808,6 +6781,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -6966,7 +6940,7 @@ Teradata SQL dialect for the Teradata analytics platform.
 ```
 
 <details>
-<summary>Segment types (222)</summary>
+<summary>Segment types (220)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -7055,8 +7029,6 @@ Teradata SQL dialect for the Teradata analytics platform.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -7210,7 +7182,7 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 ```
 
 <details>
-<summary>Segment types (181)</summary>
+<summary>Segment types (179)</summary>
 <ul>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
@@ -7265,8 +7237,6 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 <li><code>drop_table_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_angle_bracket</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
@@ -7409,7 +7379,7 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 ```
 
 <details>
-<summary>Segment types (332)</summary>
+<summary>Segment types (330)</summary>
 <ul>
 <li><code>action_parameter</code></li>
 <li><code>aggregate_order_by_clause</code></li>
@@ -7544,8 +7514,6 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 <li><code>drop_xml_schema_collection_statement</code></li>
 <li><code>edition</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>
 <li><code>end_of_file</code></li>
@@ -7759,7 +7727,7 @@ Vertica SQL dialect for the columnar analytics database.
 ```
 
 <details>
-<summary>Segment types (234)</summary>
+<summary>Segment types (232)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -7857,8 +7825,6 @@ Vertica SQL dialect for the columnar analytics database.
 <li><code>drop_user_statement</code></li>
 <li><code>drop_view_statement</code></li>
 <li><code>else_clause</code></li>
-<li><code>empty_struct_literal</code></li>
-<li><code>empty_struct_literal_brackets</code></li>
 <li><code>encoding_type</code></li>
 <li><code>end_bracket</code></li>
 <li><code>end_curly_bracket</code></li>

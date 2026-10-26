@@ -401,7 +401,13 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("date_format")
         .extend(["MDY", "DMY", "YMD", "YDM", "MYD", "DYM"]);
 
-    // Add T-SQL specific date functions
+    // Add T-SQL specific date functions. The nullary date functions
+    // (GETDATE, SYSDATETIME, ...) are intentionally omitted: they take no
+    // datetime-unit argument and are called with empty brackets, e.g.
+    // `GETDATE()`. Now that `Bracketed` no longer matches empty brackets
+    // when the content grammar requires content (SQLFluff #8406), they are
+    // parsed as regular functions via the optional `FunctionContentsSegment`
+    // rather than as date-part functions, matching SQLFluff.
     dialect.sets_mut("date_part_function_name").extend([
         "DATEADD",
         "DATEDIFF",
@@ -411,11 +417,6 @@ pub fn raw_dialect() -> Dialect {
         "DAY",
         "MONTH",
         "YEAR",
-        "GETDATE",
-        "GETUTCDATE",
-        "SYSDATETIME",
-        "SYSUTCDATETIME",
-        "SYSDATETIMEOFFSET",
     ]);
 
     // Add T-SQL string functions

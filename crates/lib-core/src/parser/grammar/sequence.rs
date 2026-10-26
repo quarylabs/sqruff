@@ -495,6 +495,23 @@ impl MatchableTrait for Bracketed {
                 self.this.match_segments(segments, content_start, ctx)
             })?;
 
+        // If the content grammar contains required (i.e. non-optional)
+        // elements, then it cannot validly match an empty bracket body. In
+        // that case a zero length content match means the content didn't
+        // match, and we shouldn't continue on to match the end bracket (which
+        // would otherwise allow empty brackets `()` to match regardless of the
+        // content grammar). By returning no match (in *any* parse mode), we
+        // allow any other grammars which *can* match empty brackets to be
+        // tried, or the surrounding grammar to mark the section as unparsable.
+        // https://github.com/sqlfluff/sqlfluff/issues/8368
+        if content_match.span.start == content_match.span.end
+            && self.elements.iter().any(|elem| {
+                elem.as_conditional().is_none() && elem.as_indent().is_none() && !elem.is_optional()
+            })
+        {
+            return Ok(MatchResult::empty_at(idx));
+        }
+
         let gap_start = content_match.span.end;
         let mut end_idx = gap_start;
         if self.allow_gaps {

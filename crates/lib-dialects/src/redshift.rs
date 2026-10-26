@@ -15,6 +15,7 @@ use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
+use sqruff_lib_core::parser::types::ParseMode;
 
 use crate::redshift_keywords::{REDSHIFT_RESERVED_KEYWORDS, REDSHIFT_UNRESERVED_KEYWORDS};
 use sqruff_lib_core::dialects::init::DialectConfig;
@@ -3790,7 +3791,8 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -3817,18 +3819,103 @@ pub fn raw_dialect() -> Dialect {
                 false,
             ),
     );
+    // EXCLUDE follows the full select list (not a wildcard/item suffix):
+    // https://docs.aws.amazon.com/redshift/latest/dg/r_SELECT_synopsis.html
+    // https://docs.aws.amazon.com/redshift/latest/dg/r_EXCLUDE_list.html
+    //
+    // `EXCLUDE` terminates the select list only after the first item, so
+    // `SELECT EXCLUDE` still parses as a column while `SELECT *, a, EXCLUDE x`
+    // is rejected.
     redshift_dialect.replace_grammar(
-        "WildcardExpressionSegment",
-        super::ansi::wildcard_expression_segment().copy(
-            Some(vec![
-                Ref::new("ExcludeClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        ),
+        "SelectClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("SELECT").to_matchable(),
+            Ref::new("SelectClauseModifierSegment")
+                .optional()
+                .to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
+                        .config(|this| {
+                            this.terminators = vec![Ref::keyword("EXCLUDE").to_matchable()];
+                        })
+                        .to_matchable(),
+                    Ref::new("ExcludeClauseSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("SelectClauseElementSegment")
+                        .optional()
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
+                            .config(|this| {
+                                this.optional();
+                                this.allow_trailing = true;
+                                this.terminators = vec![Ref::keyword("EXCLUDE").to_matchable()];
+                            })
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .config(|this| {
+            this.terminators = vec![
+                Ref::keyword("INTO").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::keyword("WHERE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OVERLAPS").to_matchable(),
+                Ref::new("SetOperatorSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("NO").optional().to_matchable(),
+                    Ref::keyword("DATA").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("WithCheckOptionSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("CONFLICT").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("RETURNING").to_matchable(),
+                Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
+            ];
+            this.parse_mode(ParseMode::GreedyOnceStarted);
+        })
+        .to_matchable(),
+    );
+    // Prevent bare `EXCLUDE` from being treated as an implicit column alias so
+    // the select-clause-level `ExcludeClauseSegment` can match. This does not
+    // restrict `EXCLUDE(...)` expressions or `AS EXCLUDE` aliases.
+    redshift_dialect.replace_grammar(
+        "SelectClauseElementSegment",
+        one_of(vec![
+            Ref::new("WildcardExpressionSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                Ref::new("AliasExpressionSegment")
+                    .exclude(Ref::keyword("EXCLUDE"))
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
     );
     redshift_dialect.replace_grammar(
         "MergeStatementSegment",
@@ -3998,6 +4085,27 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "ScopedAccessObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessObject, |_| {
+                one_of(vec![
+                    Ref::keyword("SCHEMAS").to_matchable(),
+                    Ref::keyword("TABLES").to_matchable(),
+                    Ref::keyword("FUNCTIONS").to_matchable(),
+                    Ref::keyword("PROCEDURES").to_matchable(),
+                    Ref::keyword("LANGUAGES").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("JOBS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("TEMPLATES").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "GrantStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::GrantStatement, |_| {
                 let group_targets = Delimited::new(vec![
@@ -4040,6 +4148,28 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("UserReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::new("AccessPermissionsSegment").to_matchable(),
+                                Ref::keyword("ALL").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ALL").to_matchable(),
+                                    Ref::keyword("PRIVILEGES").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            Ref::new("ScopedAccessObjectSegment").to_matchable(),
+                            Ref::keyword("IN").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("SCHEMA").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("ObjectReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
@@ -4071,5 +4201,19 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+    redshift_dialect.replace_grammar(
+        "AccessPermissionSegment",
+        super::ansi::access_permission_segment().copy(
+            Some(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("ALTER").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
     redshift_dialect
 }

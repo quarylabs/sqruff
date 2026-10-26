@@ -141,6 +141,14 @@ library_path = ./my_library
 
 # Legacy alias for the core ignore = templating option
 ignore_templating = False
+
+# Custom Jinja delimiters (optional, defaults shown)
+# variable_start_string = {{
+# variable_end_string = }}
+# block_start_string = {%
+# block_end_string = %}
+# comment_start_string = {#
+# comment_end_string = #}
 ```
 
 ## Jinja Macro Paths
@@ -173,6 +181,27 @@ configured search root:
 
 Macros found only through `loader_search_path` are not loaded into the global
 namespace. Import them explicitly when needed.
+
+## Custom Jinja Delimiters
+
+By default, Jinja uses `{{ }}` for variables, `{% %}` for blocks, and `{# #}`
+for comments. Some tools use different delimiters — for example, Snowflake CLI
+uses `<% varname %>` for variable substitution. The templater exposes Jinja's
+delimiter options so you can lint files that use non-standard delimiters:
+
+```ini
+[sqruff:templater:jinja]
+variable_start_string = <%
+variable_end_string = %>
+```
+
+All six Jinja delimiter options are supported:
+
+- `variable_start_string` / `variable_end_string` (default: `{{ }}`)
+- `block_start_string` / `block_end_string` (default: `{% %}`)
+- `comment_start_string` / `comment_end_string` (default: `{# #}`)
+
+Each can be set independently. Unset options fall back to Jinja defaults.
 
 ## Template Variables (Context)
 

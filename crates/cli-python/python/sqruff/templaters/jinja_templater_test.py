@@ -59,13 +59,18 @@ class ConfigAwareJinjaTemplater(JinjaTemplater):
         return super()._get_jinja_analyzer(raw_str, env, config)
 
 
-def _jinja_config(macro_paths=None, library_paths=None):
+def _jinja_config(
+    macro_paths=None,
+    library_paths=None,
+    apply_dbt_builtins=False,
+    **delimiters,
+):
     return FluffConfig(
         templater_unwrap_wrapped_queries=False,
         jinja_templater_paths=macro_paths or [],
         jinja_exclude_macros_from_path=[],
         jinja_loader_search_path=[],
-        jinja_apply_dbt_builtins=False,
+        jinja_apply_dbt_builtins=apply_dbt_builtins,
         jinja_ignore_templating=False,
         jinja_library_paths=library_paths or [],
         dbt_profile=None,
@@ -74,6 +79,12 @@ def _jinja_config(macro_paths=None, library_paths=None):
         dbt_target_path=None,
         dbt_context=None,
         dbt_project_dir=None,
+        jinja_variable_start_string=delimiters.get("variable_start_string"),
+        jinja_variable_end_string=delimiters.get("variable_end_string"),
+        jinja_block_start_string=delimiters.get("block_start_string"),
+        jinja_block_end_string=delimiters.get("block_end_string"),
+        jinja_comment_start_string=delimiters.get("comment_start_string"),
+        jinja_comment_end_string=delimiters.get("comment_end_string"),
     )
 
 
@@ -2334,3 +2345,81 @@ def test_jinja_undefined_multivar_for_loop_user_friendly_error():
 # #     root_final_slice = final_source_slices[0]
 # #     for additional_final_slice in final_source_slices[1:]:
 # #         assert additional_final_slice == root_final_slice
+
+
+def test_get_jinja_env_kwargs_reads_custom_delimiters():
+    """Delimiter overrides are read from config into env kwargs."""
+    templater = JinjaTemplater()
+    config = _jinja_config(variable_start_string="<%", variable_end_string="%>")
+    kwargs = templater._get_jinja_env_kwargs(config)
+    assert kwargs == {"variable_start_string": "<%", "variable_end_string": "%>"}
+    # Absent config yields no overrides.
+    assert templater._get_jinja_env_kwargs(None) == {}
+    # Unset delimiters fall back to Jinja defaults (no kwarg emitted).
+    assert templater._get_jinja_env_kwargs(_jinja_config()) == {}
+
+
+def test_get_jinja_env_applies_custom_delimiters():
+    """Configured delimiters reach the SandboxedEnvironment."""
+    config = _jinja_config(variable_start_string="<%", variable_end_string="%>")
+    env = JinjaTemplater()._get_jinja_env(config)
+    assert env.variable_start_string == "<%"
+    assert env.variable_end_string == "%>"
+    # Unset delimiters keep Jinja's defaults.
+    assert env.block_start_string == "{%"
+    assert env.comment_start_string == "{#"
+
+
+def test_jinja_custom_variable_delimiters():
+    """Test custom variable delimiters (e.g. Snowflake CLI <% var %>)."""
+    config = _jinja_config(variable_start_string="<%", variable_end_string="%>")
+    templated_file, violations = JinjaTemplater().process(
+        in_str="SELECT * FROM <% table_name %> WHERE id = <% identifier %>\n",
+        fname="test.sql",
+        context={"table_name": "my_table", "identifier": "42"},
+        config=config,
+    )
+    assert templated_file.templated_str == "SELECT * FROM my_table WHERE id = 42\n"
+    assert violations == []
+
+
+def test_jinja_custom_block_delimiters():
+    """Test custom block delimiters for control flow."""
+    config = _jinja_config(
+        block_start_string="<%",
+        block_end_string="%>",
+        variable_start_string="<<",
+        variable_end_string=">>",
+    )
+    templated_file, violations = JinjaTemplater().process(
+        in_str=(
+            "<% for c in cols %> << c >><% if not loop.last %>, <% endif %><% endfor %>"
+        ),
+        fname="test.sql",
+        context={"cols": ["a", "b", "c"]},
+        config=config,
+    )
+    assert templated_file.templated_str == " a,  b,  c"
+    assert violations == []
+
+
+def test_jinja_custom_block_delimiters_variants():
+    """Test variant generation respects custom block delimiters."""
+    config = _jinja_config(
+        block_start_string="<%",
+        block_end_string="%>",
+        variable_start_string="<<",
+        variable_end_string=">>",
+    )
+    variants = list(
+        JinjaTemplater().process_with_variants(
+            in_str="<% if flag %>SELECT 1<% else %>SELECT 2<% endif %>",
+            fname="test.sql",
+            context={"flag": False},
+            config=config,
+        )
+    )
+    assert variants[0][0].templated_str == "SELECT 2"
+    variant_outputs = {v[0].templated_str for v in variants}
+    assert "SELECT 1" in variant_outputs
+    assert "SELECT 2" in variant_outputs

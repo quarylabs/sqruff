@@ -1619,16 +1619,109 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    sqlite_dialect.add([
+        (
+            "AttachStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AttachStatement, |_| {
+                // https://www.sqlite.org/lang_attach.html
+                Sequence::new(vec![
+                    Ref::keyword("ATTACH").to_matchable(),
+                    Ref::keyword("DATABASE").optional().to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DetachStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DetachStatement, |_| {
+                // https://www.sqlite.org/lang_detach.html
+                Sequence::new(vec![
+                    Ref::keyword("DETACH").to_matchable(),
+                    Ref::keyword("DATABASE").optional().to_matchable(),
+                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "VacuumStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::VacuumStatement, |_| {
+                // https://www.sqlite.org/lang_vacuum.html
+                Sequence::new(vec![
+                    Ref::keyword("VACUUM").to_matchable(),
+                    Ref::new("SchemaReferenceSegment").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReindexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ReindexStatement, |_| {
+                // https://www.sqlite.org/lang_reindex.html
+                //
+                // The optional argument is a collation name, or a table or
+                // index name which may be schema-qualified. They are not
+                // distinguishable syntactically, so both are matched as an
+                // object reference.
+                Sequence::new(vec![
+                    Ref::keyword("REINDEX").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AnalyzeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AnalyzeStatement, |_| {
+                // https://www.sqlite.org/lang_analyze.html
+                //
+                // The optional argument is a schema name, or a table or index
+                // name which may be schema-qualified. They are not
+                // distinguishable syntactically, so both are matched as an
+                // object reference.
+                Sequence::new(vec![
+                    Ref::keyword("ANALYZE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     sqlite_dialect.replace_grammar(
         "StatementSegment",
         one_of(vec![
             Ref::new("AlterTableStatementSegment").to_matchable(),
+            Ref::new("AnalyzeStatementSegment").to_matchable(),
+            Ref::new("AttachStatementSegment").to_matchable(),
             Ref::new("CreateIndexStatementSegment").to_matchable(),
             Ref::new("CreateTableStatementSegment").to_matchable(),
             Ref::new("CreateVirtualTableStatementSegment").to_matchable(),
             Ref::new("CreateTriggerStatementSegment").to_matchable(),
             Ref::new("CreateViewStatementSegment").to_matchable(),
             Ref::new("DeleteStatementSegment").to_matchable(),
+            Ref::new("DetachStatementSegment").to_matchable(),
             Ref::new("DropIndexStatementSegment").to_matchable(),
             Ref::new("DropTableStatementSegment").to_matchable(),
             Ref::new("DropTriggerStatementSegment").to_matchable(),
@@ -1636,9 +1729,11 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ExplainStatementSegment").to_matchable(),
             Ref::new("InsertStatementSegment").to_matchable(),
             Ref::new("PragmaStatementSegment").to_matchable(),
+            Ref::new("ReindexStatementSegment").to_matchable(),
             Ref::new("SelectableGrammar").to_matchable(),
             Ref::new("TransactionStatementSegment").to_matchable(),
             Ref::new("UpdateStatementSegment").to_matchable(),
+            Ref::new("VacuumStatementSegment").to_matchable(),
             Bracketed::new(vec![Ref::new("StatementSegment").to_matchable()]).to_matchable(),
         ])
         .to_matchable(),

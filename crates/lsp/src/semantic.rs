@@ -247,6 +247,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DropSequenceStatement
         | DropCastStatement
         | CreateFunctionStatement
+        | CreateDataMetricFunctionStatement
         | DropFunctionStatement
         | CreateModelStatement
         | CreateViewStatement
@@ -344,10 +345,13 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ForInStatement
         | RepeatStatements
         | RepeatStatement
+        | RepeatLoopStatement
         | IfStatements
         | IfStatement
         | LoopStatements
         | LoopStatement
+        | ScriptingBreakStatement
+        | ScriptingCaseStatement
         | WhileStatements
         | WhileStatement
         | SelectExceptClause
@@ -445,6 +449,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterDefaultPrivilegesRevoke
         | AlterIndexStatement
         | ReindexStatementSegment
+        | ReindexStatement
+        | AttachStatement
+        | DetachStatement
         | AnalyzeStatement
         | AlterTrigger
         | OperationClassReference
@@ -538,6 +545,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CopyOptions
         | SchemaObjectProperties
         | CreateTaskStatement
+        | CreateAlertStatement
+        | AlterAlertStatement
+        | AlertCondition
         | SnowflakeTaskExpressionSegment
         | CreateStatement
         | DefineStatement
@@ -702,6 +712,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ColumnSelector
         | ExcludeBracketClose
         | WarehouseSize
+        | WarehouseGeneration
         | ExcludeBracketOpen
         | SymlinkFormatManifest
         | StartExcludeBracket
@@ -996,6 +1007,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | IdentifierClauseSegment
         | IdentityGrammar
         | IfClause
+        | IfStatementList
         | IfThenStatement
         | IndexHintClause
         | IndexOption

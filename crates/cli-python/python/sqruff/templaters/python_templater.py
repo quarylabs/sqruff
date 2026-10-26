@@ -41,6 +41,14 @@ class FluffConfig(NamedTuple):
     sqlmesh_config: Optional[str] = None
     sqlmesh_gateway: Optional[str] = None
     sqlmesh_dialect: Optional[str] = None
+    # Optional Jinja delimiter overrides. When unset they fall back to Jinja's
+    # defaults ({{ }} for variables, {% %} for blocks, {# #} for comments).
+    jinja_variable_start_string: Optional[str] = None
+    jinja_variable_end_string: Optional[str] = None
+    jinja_block_start_string: Optional[str] = None
+    jinja_block_end_string: Optional[str] = None
+    jinja_comment_start_string: Optional[str] = None
+    jinja_comment_end_string: Optional[str] = None
 
 
 def fluff_config_from_json(json_stringified: str) -> FluffConfig:

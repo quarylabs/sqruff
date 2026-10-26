@@ -1541,14 +1541,15 @@ file:
         - naked_identifier: t
       - keyword: USING
       - table_expression:
-        - table_reference:
-          - object_reference:
+        - function:
+          - function_name:
             - naked_identifier: dbo
             - dot: .
-            - naked_identifier: SomeFunction
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+            - function_name_identifier: SomeFunction
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
       - alias_expression:
         - naked_identifier: s
       - join_on_condition:

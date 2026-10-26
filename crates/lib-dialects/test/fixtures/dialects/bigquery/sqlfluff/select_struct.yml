@@ -342,14 +342,13 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
-              - expression:
-                - typed_struct_literal:
-                  - data_type:
-                    - keyword: STRUCT
-                  - struct_literal:
-                    - bracketed:
-                      - start_bracket: (
-                      - end_bracket: )
+              - typed_struct_literal:
+                - data_type:
+                  - keyword: STRUCT
+                - struct_literal:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
               - end_bracket: )
         - alias_expression:
           - alias_operator:

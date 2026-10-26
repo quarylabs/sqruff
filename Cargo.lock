@@ -96,9 +96,9 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
 name = "append-only-vec"
-version = "0.1.8"
+version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2114736faba96bcd79595c700d03183f61357b9fbce14852515e59f3bee4ed4a"
+checksum = "6ed0f3c900b0e6025b120d0ad9b054c4056604dfd5729484aa6b5a7aba1fafd2"
 
 [[package]]
 name = "approx"

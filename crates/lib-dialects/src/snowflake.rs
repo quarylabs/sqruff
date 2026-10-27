@@ -7846,7 +7846,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("RESOURCE_MONITOR").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("QuotedIdentifierSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -13003,7 +13008,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("SET").to_matchable(),
                         Ref::keyword("RESOURCE_MONITOR").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("QuotedIdentifierSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

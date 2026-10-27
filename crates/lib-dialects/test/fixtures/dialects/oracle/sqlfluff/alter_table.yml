@@ -230,7 +230,7 @@ file:
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
-            - keyword: ENABLE
+              - keyword: ENABLE
           - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -268,7 +268,7 @@ file:
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
-            - keyword: ENABLE
+              - keyword: ENABLE
           - end_bracket: )
   - statement_terminator: ;
   - statement:

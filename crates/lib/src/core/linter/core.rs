@@ -7,7 +7,7 @@ use crate::core::config::FluffConfig;
 use crate::core::linter::common::{
     BatchRenderedResult, NewlineMap, ParsedString, ParsedVariant, RenderedFile,
 };
-use crate::core::linter::discovery::paths_from_path;
+use crate::core::linter::discovery::{PathDiscoveryOptions, paths_from_path_with_options};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
@@ -157,14 +157,15 @@ impl Linter {
         let mut expanded_paths = Vec::new();
 
         for path in paths {
-            expanded_paths.extend(paths_from_path(
+            expanded_paths.extend(paths_from_path_with_options(
                 path,
-                None,
-                None,
-                Some(ignore_files),
-                None,
-                self.config.sql_file_exts(),
-                Some(ignorer),
+                PathDiscoveryOptions {
+                    ignore_files: Some(ignore_files),
+                    ignore_local_config: self.config.ignore_local_config(),
+                    target_file_exts: self.config.sql_file_exts(),
+                    ignorer: Some(ignorer),
+                    ..Default::default()
+                },
             ));
         }
 

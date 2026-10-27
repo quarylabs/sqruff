@@ -28,21 +28,28 @@ use sqruff_lib::ignore::IgnoreFile;
 use sqruff_lib::templaters::RAW_TEMPLATER;
 use wasm_bindgen::prelude::*;
 
+/// Configuration discovery policy retained for initialization and reloads.
+#[derive(Default)]
+pub struct ConfigOptions {
+    pub extra_config_path: Option<String>,
+    pub ignore_local_config: bool,
+}
+
 #[cfg(not(target_arch = "wasm32"))]
-fn load_config(root: Option<&Path>) -> FluffConfig {
-    if let Some(root) = root {
-        let loader = ConfigLoader {};
-        loader
-            .try_load_config_at_path(root)
-            .map(|config| FluffConfig::new(config, None, None))
-            .unwrap_or_default()
-    } else {
-        FluffConfig::from_root(None, false, None).unwrap_or_default()
-    }
+fn load_config(root: Option<&Path>, options: &ConfigOptions) -> FluffConfig {
+    ConfigLoader
+        .try_load_config_up_to_path(
+            root.unwrap_or_else(|| Path::new(".")),
+            options.extra_config_path.clone(),
+            options.ignore_local_config,
+        )
+        .map(|raw| FluffConfig::new(raw, options.extra_config_path.clone(), None))
+        .unwrap_or_default()
+        .with_ignore_local_config(options.ignore_local_config)
 }
 
 #[cfg(target_arch = "wasm32")]
-fn load_config(_root: Option<&Path>) -> FluffConfig {
+fn load_config(_root: Option<&Path>, _options: &ConfigOptions) -> FluffConfig {
     FluffConfig::default()
 }
 
@@ -69,6 +76,7 @@ pub struct LanguageServer {
     linter: Linter,
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
     documents: HashMap<Uri, String>,
+    config_options: ConfigOptions,
     #[cfg(not(target_arch = "wasm32"))]
     workspace_root: PathBuf,
     #[cfg(not(target_arch = "wasm32"))]
@@ -138,11 +146,12 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
-        Self::new_with_workspace_root(None, send_diagnostics_callback)
+        Self::new_with_workspace_root(None, ConfigOptions::default(), send_diagnostics_callback)
     }
 
     fn new_with_workspace_root(
         workspace_root: Option<PathBuf>,
+        config_options: ConfigOptions,
         send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static,
     ) -> Self {
         #[cfg(not(target_arch = "wasm32"))]
@@ -150,19 +159,20 @@ impl LanguageServer {
             .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
 
         #[cfg(not(target_arch = "wasm32"))]
-        let config = load_config(Some(&workspace_root));
+        let config = load_config(Some(&workspace_root), &config_options);
 
         #[cfg(target_arch = "wasm32")]
         let _ = workspace_root;
 
         #[cfg(target_arch = "wasm32")]
-        let config = load_config(None);
+        let config = load_config(None, &config_options);
 
         let templater = Linter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
             linter: Linter::new(config, None, Some(templater), false).unwrap(),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
+            config_options,
             #[cfg(not(target_arch = "wasm32"))]
             ignore_file: load_ignore_file(&workspace_root),
             #[cfg(not(target_arch = "wasm32"))]
@@ -364,12 +374,12 @@ impl LanguageServer {
         let new_config = {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                load_config(Some(&self.workspace_root))
+                load_config(Some(&self.workspace_root), &self.config_options)
             }
 
             #[cfg(target_arch = "wasm32")]
             {
-                load_config(None)
+                load_config(None, &self.config_options)
             }
         };
 
@@ -399,6 +409,10 @@ fn load_ignore_file(root: &Path) -> IgnoreFile {
 }
 
 pub fn run() {
+    run_with_config_options(ConfigOptions::default());
+}
+
+pub fn run_with_config_options(config_options: ConfigOptions) {
     let (connection, io_threads) = Connection::stdio();
     let (id, params) = connection.initialize_start().unwrap();
 
@@ -406,18 +420,22 @@ pub fn run() {
     let initialize_result = serde_json::to_value(server_initialize_result()).unwrap();
     connection.initialize_finish(id, initialize_result).unwrap();
 
-    main_loop(connection, init_param);
+    main_loop(connection, init_param, config_options);
 
     io_threads.join().unwrap();
 }
 
-fn main_loop(connection: Connection, init_param: InitializeParams) {
+fn main_loop(connection: Connection, init_param: InitializeParams, config_options: ConfigOptions) {
     let sender = connection.sender.clone();
     let workspace_root = workspace_root_from_initialize(&init_param);
-    let mut lsp = LanguageServer::new_with_workspace_root(workspace_root, move |diagnostics| {
-        let notification = new_notification::<PublishDiagnostics>(diagnostics);
-        sender.send(Message::Notification(notification)).unwrap();
-    });
+    let mut lsp = LanguageServer::new_with_workspace_root(
+        workspace_root,
+        config_options,
+        move |diagnostics| {
+            let notification = new_notification::<PublishDiagnostics>(diagnostics);
+            sender.send(Message::Notification(notification)).unwrap();
+        },
+    );
 
     let params = save_registration_options();
     connection
@@ -665,10 +683,11 @@ mod tests {
     fn diagnostics_lsp(root: &Path) -> (LanguageServer, Arc<Mutex<Vec<PublishDiagnosticsParams>>>) {
         let diagnostics = Arc::new(Mutex::new(Vec::new()));
         let sent_diagnostics = Arc::clone(&diagnostics);
-        let lsp =
-            LanguageServer::new_with_workspace_root(Some(root.to_path_buf()), move |params| {
-                sent_diagnostics.lock().unwrap().push(params)
-            });
+        let lsp = LanguageServer::new_with_workspace_root(
+            Some(root.to_path_buf()),
+            ConfigOptions::default(),
+            move |params| sent_diagnostics.lock().unwrap().push(params),
+        );
 
         (lsp, diagnostics)
     }
@@ -681,6 +700,29 @@ mod tests {
         let (lsp, _) = diagnostics_lsp(&root.path);
 
         assert_eq!(lsp.linter.config().dialect_kind().as_ref(), "postgres");
+    }
+
+    #[test]
+    fn config_reload_retains_discovery_policy_and_explicit_config() {
+        let root = TempRoot::new();
+        fs::write(root.path.join("sqruff.toml"), "invalid toml [").unwrap();
+        let extra = root.path.join("extra.cfg");
+        fs::write(&extra, "[sqruff]\ndialect = postgres\n").unwrap();
+        let mut lsp = LanguageServer::new_with_workspace_root(
+            Some(root.path.clone()),
+            ConfigOptions {
+                extra_config_path: Some(extra.to_string_lossy().into_owned()),
+                ignore_local_config: true,
+            },
+            |_| {},
+        );
+        assert_eq!(lsp.linter.config().dialect_kind().as_ref(), "postgres");
+        assert!(lsp.linter.config().ignore_local_config());
+
+        fs::write(&extra, "[sqruff]\ndialect = sqlite\n").unwrap();
+        assert!(lsp.reload_config());
+        assert_eq!(lsp.linter.config().dialect_kind().as_ref(), "sqlite");
+        assert!(lsp.linter.config().ignore_local_config());
     }
 
     #[test]

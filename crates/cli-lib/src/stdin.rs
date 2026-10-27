@@ -1,7 +1,7 @@
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use sqruff_lib::core::linter::discovery::paths_from_path_check_non_existent;
+use sqruff_lib::core::linter::discovery::{PathDiscoveryOptions, paths_from_path_with_options};
 
 /// Check if the given input is the flag to use stdin as input.
 ///
@@ -32,20 +32,23 @@ pub(crate) fn read_std_in() -> Result<String, String> {
 pub(crate) fn stdin_filename_is_ignored(
     filename: Option<&Path>,
     ignore_files: bool,
+    ignore_local_config: bool,
     ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
 ) -> bool {
     let Some(filename) = filename else {
         return false;
     };
 
-    let paths = paths_from_path_check_non_existent(
+    let paths = paths_from_path_with_options(
         filename.to_path_buf(),
-        None,
-        None,
-        Some(ignore_files),
-        None,
-        &[String::new()],
-        Some(ignorer),
+        PathDiscoveryOptions {
+            ignore_files: Some(ignore_files),
+            ignore_local_config,
+            target_file_exts: &[String::new()],
+            ignorer: Some(ignorer),
+            check_non_existent_file: true,
+            ..Default::default()
+        },
     );
     let ignored = paths.is_empty();
     if ignored {

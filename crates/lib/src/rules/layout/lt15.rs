@@ -20,6 +20,11 @@ enum Scope {
     BetweenBatches,
 }
 
+/// Per-file cache of whether the file's top level contains batch nodes, stored
+/// in [`RuleContext`] memory so the file-level scope check stays O(1) per gap.
+#[derive(Debug, Clone, Copy)]
+struct FileHasBatches(bool);
+
 #[derive(Debug, Clone)]
 pub struct RuleLT15 {
     maximum_empty_lines_between_statements: usize,
@@ -84,15 +89,31 @@ impl RuleLT15 {
 
         // File level: a gap out here separates batches in the dialects that have
         // them, and statements everywhere else.
-        if context
-            .siblings_pre()
-            .iter()
-            .chain(context.siblings_post().iter())
-            .any(is_batch)
-        {
+        if self.file_has_batches(context) {
             return Scope::BetweenBatches;
         }
         Scope::BetweenStatements
+    }
+
+    /// Whether the enclosing node holds any batch child.
+    ///
+    /// At file level every gap shares the same parent (the file root), so
+    /// whether that node contains a batch is a property of the whole file. It
+    /// is computed once and cached: scanning every sibling at every gap — and
+    /// cloning both sibling slices to do it — made the rule quadratic in the
+    /// number of statements, even at the default minimum of zero where scope is
+    /// still resolved for the maximum. The parent's children are scanned by
+    /// reference rather than through the cloning sibling helpers.
+    fn file_has_batches(&self, context: &RuleContext) -> bool {
+        if let Some(FileHasBatches(cached)) = context.try_get::<FileHasBatches>() {
+            return cached;
+        }
+        let has_batches = context
+            .parent_stack
+            .last()
+            .is_some_and(|parent| parent.segments().iter().any(is_batch));
+        context.set(FileHasBatches(has_batches));
+        has_batches
     }
 
     /// Blank lines in the run of newlines ending at the current segment.

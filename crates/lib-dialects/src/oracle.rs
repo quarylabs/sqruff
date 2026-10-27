@@ -1024,6 +1024,84 @@ pub fn raw_dialect() -> Dialect {
             "BatchDelimiterGrammar".into(),
             Ref::new("SlashBufferExecutorSegment").to_matchable().into(),
         ),
+        // OracleDeferrableGrammar
+        (
+            "OracleDeferrableGrammar".into(),
+            one_of(vec![
+                Ref::keyword("DEFERRABLE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
+                    Ref::keyword("DEFERRABLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // OracleInitiallyGrammar
+        (
+            "OracleInitiallyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("INITIALLY").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("IMMEDIATE").to_matchable(),
+                    Ref::keyword("DEFERRED").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // OracleConstraintStateGrammar
+        (
+            "OracleConstraintStateGrammar".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("OracleDeferrableGrammar").to_matchable(),
+                        Ref::new("OracleInitiallyGrammar").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("OracleInitiallyGrammar").to_matchable(),
+                        Ref::new("OracleDeferrableGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("RELY").to_matchable(),
+                    Ref::keyword("NORELY").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("VALIDATE").to_matchable(),
+                    Ref::keyword("NOVALIDATE").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // ElementSpecificationGrammar
         (
             "ElementSpecificationGrammar".into(),
@@ -2123,21 +2201,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                     Ref::new("DatatypeSegment").optional().to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("ColumnConstraintSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::keyword("ENABLE").to_matchable(),
-                                Ref::keyword("DISABLE").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                        ])
+                    AnyNumberOf::new(vec![Ref::new("ColumnConstraintSegment").to_matchable()])
                         .to_matchable(),
-                    ])
-                    .to_matchable(),
                     Ref::new("IdentityClauseGrammar").optional().to_matchable(),
                 ])
                 .to_matchable()
@@ -5671,40 +5736,14 @@ pub fn raw_dialect() -> Dialect {
                             config.optional();
                         })
                         .to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("ColumnConstraintSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("ENABLE").to_matchable(),
-                                    Ref::keyword("DISABLE").to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                                .to_matchable(),
-                            ])
+                        AnyNumberOf::new(vec![Ref::new("ColumnConstraintSegment").to_matchable()])
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
                         Ref::new("IdentityClauseGrammar").optional().to_matchable(),
                     ])
                     .to_matchable(),
                     // Column with only constraints (no data type)
-                    AnyNumberOf::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("ColumnConstraintSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::keyword("ENABLE").to_matchable(),
-                                Ref::keyword("DISABLE").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                        ])
+                    AnyNumberOf::new(vec![Ref::new("ColumnConstraintSegment").to_matchable()])
                         .to_matchable(),
-                    ])
-                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -7835,12 +7874,18 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("UNIQUE").to_matchable(),
                         Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
                         Ref::new("UsingIndexClauseSegment")
+                            .optional()
+                            .to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
                             .optional()
                             .to_matchable(),
                     ])
@@ -7851,12 +7896,18 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("UsingIndexClauseSegment")
                             .optional()
                             .to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::new("ForeignKeyGrammar").to_matchable(),
                         Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
                         Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -7885,11 +7936,17 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("NOT").optional().to_matchable(),
                         Ref::keyword("NULL").to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("CHECK").to_matchable(),
                         Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
                             .to_matchable(),
                     ])
                     .to_matchable(),
@@ -7903,6 +7960,9 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("UsingIndexClauseSegment")
                             .optional()
                             .to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -7910,10 +7970,19 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("UsingIndexClauseSegment")
                             .optional()
                             .to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("AutoIncrementGrammar").to_matchable(),
-                    Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                        Ref::new("OracleConstraintStateGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("CommentClauseSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("COLLATE").to_matchable(),

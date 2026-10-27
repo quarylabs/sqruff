@@ -12,6 +12,36 @@ use crate::utils::reflow::config::{AlignmentCoordinateSpace, Spacing};
 use crate::utils::reflow::helpers::pretty_segment_name;
 use crate::utils::reflow::reindent::IndentUnit;
 
+// The inline comment marker. Every dialect SQLFluff ships lexes "--" this way,
+// so no dialect lookup is needed to know that building one changes meaning.
+const INLINE_COMMENT_MARKER: &str = "--";
+
+/// Would removing the whitespace between these blocks start a comment?
+///
+/// Spacing configs such as `touch` are resolved against segments, but the fix
+/// they produce is applied to the raw file. Deleting the whitespace in
+/// `1 * - - 5` glues the two sign indicators into `--`, which the lexer then
+/// reads as an inline comment - so the rest of the line disappears without the
+/// file ever becoming unparsable.
+fn would_start_comment(prev_block: Option<&ReflowBlock>, next_block: Option<&ReflowBlock>) -> bool {
+    let (Some(prev_block), Some(next_block)) = (prev_block, next_block) else {
+        // A point at the very start or end of the file has nothing to fuse with.
+        return false;
+    };
+    let prev_raw = prev_block.segment().raw();
+    let next_raw = next_block.segment().raw();
+    let (Some(prev_last), Some(next_first)) = (prev_raw.chars().last(), next_raw.chars().next())
+    else {
+        // Zero length blocks (e.g. templated placeholders) have no characters
+        // to fuse, so they can't build a marker on their own.
+        return false;
+    };
+    let mut marker = String::with_capacity(2);
+    marker.push(prev_last);
+    marker.push(next_first);
+    marker == INLINE_COMMENT_MARKER
+}
+
 fn construct_alignment_whitespace(width: usize, indent_unit: IndentUnit) -> String {
     match indent_unit {
         IndentUnit::Tab => "\t".repeat(width),
@@ -147,6 +177,19 @@ pub fn determine_constraints(
             );
         }
         _ => {}
+    }
+
+    // Prohibit stripping a newline which is the only thing keeping an inline
+    // comment marker apart. Both "touch" and "any" leave a point with no
+    // whitespace alone, so once the newline goes there is nothing between the
+    // blocks and `-` `-` fuses into `--`. Keeping the line break is the only
+    // outcome here which preserves the meaning of the file.
+    if strip_newlines
+        && (matches!(pre_constraint, Spacing::Touch | Spacing::Any)
+            || matches!(post_constraint, Spacing::Touch | Spacing::Any))
+        && would_start_comment(prev_block, next_block)
+    {
+        strip_newlines = false;
     }
 
     (pre_constraint, post_constraint, strip_newlines)
@@ -493,6 +536,13 @@ pub fn handle_respace_inline_with_space(
     }
 
     if [pre_constraint, post_constraint].contains(&Spacing::Touch) {
+        if would_start_comment(prev_block, next_block) {
+            // Removing the whitespace would comment out the rest of the line.
+            // Leave it alone and don't raise a violation - there is no edit the
+            // user could make here which would satisfy the constraint.
+            return (segment_buffer, vec![]);
+        }
+
         segment_buffer.remove(ws_idx);
 
         let description = if let Some(next_block) = next_block {
@@ -1105,6 +1155,45 @@ spacing_within = single:inline
         let new_seq = seq.respace(&Tables::default(), false, Filter::All);
 
         assert_eq!(new_seq.raw(), sql);
+    }
+
+    #[test]
+    fn test_reflow_respace_handles_zero_length_blocks() {
+        // Ported from SQLFluff #8395. A zero length block next to a `touch`
+        // constraint must not panic. Templated placeholders can render to an
+        // empty raw, so the check for a would-be `--` comment marker must not
+        // assume that both sides of the point have at least one character to
+        // inspect. (Upstream exercises this through the jinja templater, which
+        // needs Python here; this builds the blocks directly instead.)
+        let tables = Tables::default();
+        let config = FluffConfig::default();
+        let root = parse_ansi_string("select 1");
+        let reference = root.get_raw_segments()[0].clone();
+
+        let minus = SegmentBuilder::token(tables.next_id(), "-", SyntaxKind::Raw).finish();
+        let empty = SegmentBuilder::token(tables.next_id(), "", SyntaxKind::Placeholder).finish();
+
+        let minus_block = make_reflow_block(minus, &reference, &root, &config);
+        let empty_block = make_reflow_block(empty, &reference, &root, &config);
+
+        // Two sign indicators fuse into the "--" comment marker.
+        assert!(super::would_start_comment(
+            Some(&minus_block),
+            Some(&minus_block)
+        ));
+        // A zero length block on either side has no characters to fuse, so it
+        // can't build a marker on its own - and must not panic.
+        assert!(!super::would_start_comment(
+            Some(&minus_block),
+            Some(&empty_block)
+        ));
+        assert!(!super::would_start_comment(
+            Some(&empty_block),
+            Some(&minus_block)
+        ));
+        // A point at the very start or end of the file has nothing to fuse with.
+        assert!(!super::would_start_comment(None, Some(&minus_block)));
+        assert!(!super::would_start_comment(Some(&minus_block), None));
     }
 
     #[test]

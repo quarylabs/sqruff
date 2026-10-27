@@ -90,4 +90,12 @@ impl<'a> RuleContext<'a> {
             Vec::new()
         }
     }
+
+    pub fn siblings_pre(&self) -> Vec<ErasedSegment> {
+        if !self.parent_stack.is_empty() {
+            self.parent_stack.last().unwrap().segments()[..self.segment_idx].to_vec()
+        } else {
+            Vec::new()
+        }
+    }
 }

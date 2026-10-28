@@ -2,6 +2,7 @@
 
 load("@rules_rust//cargo:defs.bzl", "extract_cargo_lints")
 load("@rules_rust//rust:defs.bzl", "rust_clippy_aspect")
+load(":compiler.bzl", "all_features_transition")
 
 _Features = provider(fields = ["entries"])
 
@@ -51,19 +52,6 @@ clippy_feature_flag = rule(
     build_setting = config.bool(flag = True),
 )
 
-def _clippy_transition_impl(settings, _attr):
-    return {
-        "//:clippy_all_features": True,
-        # Keep warnings fatal even when extract_cargo_lints provides lint files.
-        "@rules_rust//rust/settings:clippy_flags": settings["@rules_rust//rust/settings:clippy_flags"] + ["-Dwarnings"],
-    }
-
-_clippy_transition = transition(
-    implementation = _clippy_transition_impl,
-    inputs = ["@rules_rust//rust/settings:clippy_flags"],
-    outputs = ["//:clippy_all_features", "@rules_rust//rust/settings:clippy_flags"],
-)
-
 def _workspace_clippy_impl(ctx):
     check = ctx.attr.check[0]
     inventory = ctx.actions.declare_file(ctx.label.name + ".features.json")
@@ -87,7 +75,7 @@ def _workspace_clippy_impl(ctx):
 workspace_clippy = rule(
     implementation = _workspace_clippy_impl,
     attrs = {
-        "check": attr.label(mandatory = True, cfg = _clippy_transition),
+        "check": attr.label(mandatory = True, cfg = all_features_transition),
         "manifests": attr.label_list(allow_files = True, mandatory = True),
         "_feature_guard": attr.label(
             default = "//:check_clippy_features",

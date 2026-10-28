@@ -10,7 +10,7 @@ test("shows diagnostics for SQL lint errors", async ({
 }) => {
   // Copy fixture project to temp dir
   const projectDir = join(tempDir, "sample_project");
-  cpSync(FIXTURES_DIR, projectDir, { recursive: true });
+  cpSync(FIXTURES_DIR, projectDir, { recursive: true, dereference: true });
 
   // Open code-server with the project
   await openServerPage(page, projectDir, sharedCodeServer);
@@ -38,24 +38,28 @@ test("formats SQL file via Format Document command", async ({
 }) => {
   // Copy fixture project to temp dir
   const projectDir = join(tempDir, "sample_project");
-  cpSync(FIXTURES_DIR, projectDir, { recursive: true });
+  cpSync(FIXTURES_DIR, projectDir, { recursive: true, dereference: true });
 
   // Open code-server with the project
   await openServerPage(page, projectDir, sharedCodeServer);
 
   // Open the SQL file
   await openFile(page, "lint_errors.sql");
-  await page.waitForTimeout(3000);
 
-  // Get the initial editor content
-  await runCommand(page, "Select All");
-  await page.keyboard.press("Escape");
+  // Diagnostics confirm that the language server is ready to format the file.
+  await runCommand(page, "Problems: Focus on Problems View");
+  await expect(
+    page.locator(".markers-panel-container .monaco-list-row").first(),
+  ).toBeVisible({ timeout: 30_000 });
+  await runCommand(page, "View: Focus Active Editor Group");
 
-  // Run Format Document
+  // Formatting is asynchronous. Wait for the changed SQL in the editor.
   await runCommand(page, "Format Document");
-  await page.waitForTimeout(3000);
-
-  // Verify the editor is still open and responsive
-  const editor = page.locator(".monaco-editor");
-  await expect(editor.first()).toBeVisible();
+  const editor = page.locator(".monaco-editor").filter({ visible: true });
+  await expect(editor.locator(".view-line").nth(3)).toHaveText(
+    "FROM my_table",
+    {
+      timeout: 30_000,
+    },
+  );
 });

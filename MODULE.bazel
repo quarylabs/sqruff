@@ -44,6 +44,14 @@ bazel_dep(name = "aspect_rules_lint", version = "2.5.0")
 bazel_dep(name = "rules_go", version = "0.60.0")
 bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "rules_rust", version = "0.68.1")
+# Wrapped tests must preserve already-expanded library environments when
+# constructing metadata actions, just as their normal compilation actions do.
+single_version_override(
+    module_name = "rules_rust",
+    patches = ["//:.hacking/patches/rules_rust_metadata_env.patch"],
+    patch_strip = 1,
+)
+
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
 bazel_dep(name = "rules_rust_pyo3", version = "0.68.1")
 bazel_dep(name = "rules_shell", version = "0.6.1")

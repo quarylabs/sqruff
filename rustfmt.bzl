@@ -47,3 +47,17 @@ rustfmt_sources_test = rule(
     },
     toolchains = [_RUSTFMT_TOOLCHAIN],
 )
+
+def rustfmt_packages(name, packages, config):
+    """Check each crate independently, including its tests and benchmarks."""
+    tests = []
+    for package in packages:
+        test = name + "_" + package.replace("/", "_")
+        rustfmt_sources_test(
+            name = test,
+            size = "small",
+            srcs = ["//" + package + ":compiler_sources"],
+            config = config,
+        )
+        tests.append(":" + test)
+    native.test_suite(name = name, tests = tests)

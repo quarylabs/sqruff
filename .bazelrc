@@ -1,6 +1,16 @@
 # Build with optimizations
 build --compilation_mode=opt
 
+# Release packaging is opt-in locally; CI includes it in the same test command.
+# Both filters are needed to exclude packaging tests and non-test build targets.
+# Custom tag filters replace these defaults; retain -ci-only for local runs.
+build --build_tag_filters=-ci-only
+test --test_tag_filters=-ci-only
+
+# Let dependent Rust libraries compile before their dependencies finish codegen.
+# Opt in for dependency-heavy incremental builds with --config=pipelined.
+build:pipelined --@rules_rust//rust/settings:pipelined_compilation=true
+
 # Use remote cache for CI (can be configured per-environment)
 # build --remote_cache=...
 
@@ -20,6 +30,8 @@ build:lint --@aspect_rules_lint//lint:fail_on_violation
 
 # CI-specific settings
 common:ci --lockfile_mode=error
+build:ci --build_tag_filters=
+test:ci --test_tag_filters=
 build:ci --color=yes
 build:ci --curses=no
 build:ci --show_timestamps

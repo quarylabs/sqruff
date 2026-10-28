@@ -59,6 +59,26 @@ def dependency_closure(packages, root):
     return seen
 
 
+def unchecked_directories(packages):
+    """Omit conventional test-only trees from Cargo's library/binary checks."""
+    result = set()
+    for package in packages:
+        root = Path(package["manifest_path"]).parent
+        # Build scripts can consume arbitrary package files. Keep all inputs for
+        # those packages rather than guessing which files the script reads.
+        if any("custom-build" in target["kind"] for target in package["targets"]):
+            continue
+        for name in ("benches", "tests", "examples"):
+            directory = root / name
+            if not any(
+                not set(target["kind"]) & {"bench", "test", "example"}
+                and Path(target["src_path"]).is_relative_to(directory)
+                for target in package["targets"]
+            ):
+                result.add(directory)
+    return result
+
+
 def prepare(specification, cargo, rustc, hack):
     outputs = {
         package: Path(path).resolve()
@@ -119,11 +139,14 @@ def prepare(specification, cargo, rustc, hack):
             plans[package] = argv
         verify_matrix(expected, actual)
 
+        unchecked = unchecked_directories(packages)
         for package, output in outputs.items():
             closure = dependency_closure(packages, str(workspace / package))
             output.mkdir(parents=True, exist_ok=True)
             for source in specification["sources"]:
                 path = workspace / source
+                if any(path.is_relative_to(directory) for directory in unchecked):
+                    continue
                 if (
                     Path(source).parent == Path(".")
                     or Path(source).name == "Cargo.toml"
@@ -132,8 +155,9 @@ def prepare(specification, cargo, rustc, hack):
                     destination = output / source
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(path, destination)
-            # Cargo parses every workspace manifest, even outside the dependency
-            # closure. Preserve its discovered target inventory with empty roots.
+            # Cargo still discovers tests, benches, examples and unrelated
+            # packages. Preserve their target inventory with empty roots; their
+            # real sources are checked by compiler_check and runtime tests.
             for item in packages:
                 for target in item["targets"]:
                     destination = output / Path(target["src_path"]).relative_to(

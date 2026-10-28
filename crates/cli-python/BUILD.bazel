@@ -18,6 +18,22 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Match the matrix's API-test exclusion in its declared inputs as well.
+filegroup(
+    name = "templater_test_srcs",
+    srcs = glob(["python/**/*.py"], exclude = ["python/tests/**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "sqlmesh_test_srcs",
+    srcs = [
+        ":python_runtime_srcs",
+        "python/sqruff/templaters/sqlmesh_templater_test.py",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 # Include Python modules and their bundled license in release distributions.
 filegroup(
     name = "package_srcs",
@@ -84,11 +100,11 @@ sh_test(
     srcs = ["//:.hacking/scripts/pytest_uv.sh"],
     args = ["crates/cli-python/python/tests/test_api.py"],
     data = [
-        ":python_srcs",
+        ":python_runtime_srcs",
         ":sqruff-extension",
         "//:native_test_python",
         "@rules_python//python:current_py_toolchain",
-    ],
+    ] + glob(["python/tests/**/*.py"]),
     env = {
         "PYTHON_INTERPRETER": "$(PYTHON3_ROOTPATH)",
         "PYTHON_VENV": "$(rlocationpath //:native_test_python)",
@@ -134,7 +150,7 @@ test_suite(
 
 filegroup(
     name = "python_runtime_srcs",
-    srcs = glob(["python/**/*.py"], exclude = ["python/**/*_test.py", "python/**/*_benchmark.py"]),
+    srcs = glob(["python/**/*.py"], exclude = ["python/tests/**", "python/**/*_test.py", "python/**/*_benchmark.py"]),
     visibility = ["//visibility:public"],
 )
 

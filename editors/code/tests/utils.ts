@@ -16,18 +16,8 @@ export async function openServerPage(
   await page.waitForLoadState("networkidle");
   await page.waitForSelector('[role="application"]', { timeout: 30_000 });
 
-  // Dismiss the "Do you trust the authors?" dialog if it appears
-  const trustButton = page.locator(
-    'button:has-text("Yes, I trust the authors")',
-  );
-  try {
-    await trustButton.click({ timeout: 5000 });
-  } catch {
-    // Dialog may not appear if workspace trust is disabled
-  }
-
-  // Give extensions time to activate
-  await page.waitForTimeout(3000);
+  // startCodeServer disables workspace trust. Each test waits for the extension
+  // behavior it exercises, rather than imposing an activation delay here.
 }
 
 export async function runCommand(page: Page, command: string): Promise<void> {

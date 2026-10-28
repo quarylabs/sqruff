@@ -1,19 +1,32 @@
-"""Compile Cargo's target inventory with native Bazel rules and check coverage."""
+"""Type-check Cargo's target inventory with native Bazel rules and check coverage."""
 
 load("@rules_rust//rust:defs.bzl", "rust_common")
 
-def _compiler_configuration(_settings, _attr):
+def _all_features_configuration(settings, _attr):
     # Cargo check uses the dev profile: opt-level 0 and debug assertions enabled.
     # fastbuild also omits debug information, matching CARGO_PROFILE_DEV_DEBUG=0.
+    # Share this configuration with Clippy so both checks reuse compiled deps.
+    flags = settings["@rules_rust//rust/settings:clippy_flags"]
+    if not flags or flags[-1] != "-Dwarnings":
+        flags = flags + ["-Dwarnings"]
     return {
         "//:clippy_all_features": True,
         "//command_line_option:compilation_mode": "fastbuild",
+        # Cargo check validates metadata without generating unused executables.
+        "@rules_rust//rust/settings:always_enable_metadata_output_groups": True,
+        # Keep warnings fatal even when extract_cargo_lints provides lint files.
+        "@rules_rust//rust/settings:clippy_flags": flags,
     }
 
-_compiler_transition = transition(
-    implementation = _compiler_configuration,
-    inputs = [],
-    outputs = ["//:clippy_all_features", "//command_line_option:compilation_mode"],
+all_features_transition = transition(
+    implementation = _all_features_configuration,
+    inputs = ["@rules_rust//rust/settings:clippy_flags"],
+    outputs = [
+        "//:clippy_all_features",
+        "//command_line_option:compilation_mode",
+        "@rules_rust//rust/settings:always_enable_metadata_output_groups",
+        "@rules_rust//rust/settings:clippy_flags",
+    ],
 )
 
 _Compilation = provider(fields = ["entries"])
@@ -37,8 +50,16 @@ def _inventory_impl(target, ctx):
 _inventory = aspect(implementation = _inventory_impl)
 
 def _targets_impl(ctx):
+    checks = []
+    for target in ctx.attr.deps:
+        if OutputGroupInfo not in target or not hasattr(target[OutputGroupInfo], "build_metadata"):
+            fail("Expected compiler metadata for {}".format(target.label))
+        metadata = target[OutputGroupInfo].build_metadata
+        if not metadata.to_list():
+            fail("Empty compiler metadata for {}".format(target.label))
+        checks.append(metadata)
     return [
-        DefaultInfo(files = depset(transitive = [dep[DefaultInfo].files for dep in ctx.attr.deps])),
+        DefaultInfo(files = depset(transitive = checks)),
         _Compilation(entries = [entry for dep in ctx.attr.deps for entry in dep[_Compilation].entries]),
     ]
 
@@ -48,7 +69,7 @@ _targets = rule(
 )
 
 def compiler_targets(libraries):
-    """Include all declared Rust tests, even compile-only benchmarks tagged manual."""
+    """Type-check all declared Rust tests, including benchmarks tagged manual."""
     _targets(
         name = "compiler_targets",
         testonly = True,
@@ -94,7 +115,7 @@ def _workspace_compile_impl(ctx):
 workspace_compile = rule(
     implementation = _workspace_compile_impl,
     attrs = {
-        "targets": attr.label_list(cfg = _compiler_transition),
+        "targets": attr.label_list(cfg = all_features_transition),
         "srcs": attr.label_list(allow_files = True),
         "_guard": attr.label(default = "//:check_cargo_targets", executable = True, cfg = "exec"),
         "_allowlist_function_transition": attr.label(

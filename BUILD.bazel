@@ -13,13 +13,14 @@ load(":compiler.bzl", "workspace_compile")
 load(":cargo_hack.bzl", "cargo_hack_packages")
 load(":linters.bzl", "keep_sorted_test")
 load(":python_dist.bzl", "python_dist")
-load(":rustfmt.bzl", "rustfmt_sources_test")
+load(":rustfmt.bzl", "rustfmt_packages")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
 
 # Prettier configuration and pnpm workspace files
 exports_files([
+    ".hacking/patches/rules_rust_metadata_env.patch",
     ".prettierrc.json",
     "Cargo.toml",
     "package.json",
@@ -323,12 +324,11 @@ python_venv_provider(
     venv = ":pytest_py312_python",
 )
 
-# Format the same Rust files as the Cargo wrapper, including tests and benches
-# that are not part of RUST_TARGETS. Only Rust sources enter the test's runfiles.
-rustfmt_sources_test(
+# Format each crate's Rust files independently, including tests and benches
+# that are not part of RUST_TARGETS. A source edit only reruns its crate's check.
+rustfmt_packages(
     name = "rustfmt_check",
-    size = "small",
-    srcs = [":cargo_srcs"],
+    packages = subpackages(include = ["crates/*", "editors/zed"]),
     config = "rustfmt.toml",
 )
 
@@ -473,10 +473,10 @@ sh_binary(
     ],
 )
 
-# Preserve the old command without running the formatting check twice.
-alias(
+# Preserve the old command for the package-level formatting suite.
+test_suite(
     name = "cargo_fmt_check",
-    actual = ":rustfmt_check",
+    tests = [":rustfmt_check"],
 )
 
 # Compatibility entry point: all workspace runtime tests now build natively.
@@ -622,11 +622,13 @@ PYTEST_VENVS = {
         args = ["--ignore=crates/cli-python/python/tests"],
         data = [
             PYTEST_VENVS[version],
-            "//crates/cli-python:python_srcs",
+            "//crates/cli-python:templater_test_srcs",
             "//crates/cli-python:dbt_test_fixtures",
             "//crates/cli-python:sqlmesh_test_fixtures",
         ],
         env = {
+            # Each pytest session has a disposable cache; keep imports in memory.
+            "PYTHONDONTWRITEBYTECODE": "1",
             "PYTHON_VENV": "$(rlocationpath {})".format(PYTEST_VENVS[version]),
         },
     )
@@ -654,12 +656,13 @@ sh_test(
     ],
     data = [
         ":sqlmesh_test_venv",
-        "//crates/cli-python:python_srcs",
+        "//crates/cli-python:sqlmesh_test_srcs",
         "//crates/cli-python:sqlmesh_test_fixtures",
     ],
     env = {
         # Bazel schedules test concurrency; avoid SQLMesh forking a second pool.
         "MAX_FORK_WORKERS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
         "PYTHON_VENV": "$(rlocationpath :sqlmesh_test_venv)",
         "SQRUFF_REQUIRE_SQLMESH": "1",
     },
@@ -670,8 +673,11 @@ exports_files([
     ".hacking/scripts/python_rust_test.sh",
 ])
 
-# Match python-ci.yml's installed-wheel checks on the host platform. Release
-# CI retains the cross-platform/manylinux matrix and publishing steps.
+# Release packaging is included by --config=ci and filtered out locally:
+# bazelisk test --config=ci //:python_wheel_check
+# Tag every packaging-only entry point: `bazel test //...` also builds non-test
+# targets, so filtering only the tests would still build release wheels.
+# python-ci.yml retains the cross-platform/manylinux matrix and publishing.
 PYTHON_WHEEL_RUNTIMES = {
     "3.14": ":pytest_py314_python",
     "3.14t": ":wheel_py314t_python",
@@ -684,6 +690,7 @@ PYTHON_WHEEL_RUNTIMES = {
         name = "wheel_py{}_python".format(version.replace(".", "")),
         python_version = version,
         uv = ["@uv//:uv"],
+        tags = ["ci-only"],
     )
     for version in ["3.14t", "3.15t"]
 ]
@@ -695,13 +702,14 @@ uv_python_venv(
     locked = True,
     python = [":pytest_py312_python"],
     uv = ["@uv//:uv"],
+    tags = ["ci-only"],
 )
 
 py_binary(
     name = "build_python_dist",
     srcs = [".hacking/scripts/build_python_dist.py"],
     main = ".hacking/scripts/build_python_dist.py",
-    tags = ["manual"],
+    tags = ["ci-only"],
 )
 
 py_test(
@@ -717,6 +725,7 @@ py_test(
 
 python_dist(
     name = "python_dist",
+    tags = ["ci-only"],
     srcs = [
         ":cargo_srcs",
         "LICENSE",
@@ -735,18 +744,21 @@ filegroup(
     name = "python_wheels",
     srcs = [":python_dist"],
     output_group = "wheels",
+    tags = ["ci-only"],
 )
 
 filegroup(
     name = "python_sdist",
     srcs = [":python_dist"],
     output_group = "sdist",
+    tags = ["ci-only"],
 )
 
 [
     sh_test(
         name = "python_wheel_check_py{}".format(version.replace(".", "")),
         size = "small",
+        tags = ["ci-only"],
         srcs = [".hacking/scripts/check_python_wheel.sh"],
         data = [
             ":python_wheels",
@@ -765,6 +777,7 @@ filegroup(
 test_suite(
     name = "python_wheel_check",
     tests = [":python_wheel_check_py{}".format(version.replace(".", "")) for version in PYTHON_WHEEL_RUNTIMES],
+    tags = ["ci-only"],
 )
 
 filegroup(

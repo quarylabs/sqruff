@@ -67,9 +67,7 @@ jobs:
           fi
       - name: Install native build dependencies
         run: sudo apt-get update --yes && sudo apt-get install --yes libkrb5-dev lld
-      - name: Build all targets
-        run: bazelisk build --config=ci //...
-      - name: Run all tests
+      - name: Build and test all targets
         run: bazelisk test --config=ci //...
       - name: Upload website visual test failures
         if: failure()

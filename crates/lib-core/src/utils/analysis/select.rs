@@ -467,15 +467,23 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
         return Vec::new();
     };
 
-    if !matches!(
+    // Dialects whose grammar has a dedicated lambda function, so that a lambda
+    // always parses as a `lambda_function` holding a `lambda_arrow`. In these
+    // dialects a plain `->` binary operator is something else - duckdb and trino
+    // also use it for JSON extraction - and must not be read as a lambda.
+    let uses_lambda_function = matches!(
         dialect.name,
-        DialectKind::Athena
-            | DialectKind::Sparksql
-            | DialectKind::Duckdb
-            | DialectKind::Trino
-            | DialectKind::Databricks
-            | DialectKind::Snowflake
-    ) {
+        DialectKind::Duckdb | DialectKind::Trino | DialectKind::Snowflake
+    );
+    // Dialects that parse a lambda as an ordinary expression with a `->` binary
+    // operator.
+    let uses_lambda_expression = matches!(
+        dialect.name,
+        DialectKind::Athena | DialectKind::Sparksql | DialectKind::Databricks
+    );
+
+    if !uses_lambda_function && !uses_lambda_expression {
+        // Dialects without lambda expressions have zero lambda columns.
         return Vec::new();
     }
 
@@ -486,9 +494,17 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
         &SyntaxSet::EMPTY,
         true,
     ) {
-        let Some(potential_arrow) = potential_lambda.child(
-            const { &SyntaxSet::new(&[SyntaxKind::BinaryOperator, SyntaxKind::LambdaArrow]) },
-        ) else {
+        let potential_arrow = if uses_lambda_function {
+            // A bare expression with a `->` is not a lambda in these dialects.
+            if !potential_lambda.is_type(SyntaxKind::LambdaFunction) {
+                continue;
+            }
+            potential_lambda.child(const { &SyntaxSet::single(SyntaxKind::LambdaArrow) })
+        } else {
+            potential_lambda.child(const { &SyntaxSet::single(SyntaxKind::BinaryOperator) })
+        };
+
+        let Some(potential_arrow) = potential_arrow else {
             continue;
         };
 
@@ -506,7 +522,11 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                 })
                 .collect_vec();
 
-            assert_eq!(argument_segments.len(), 1);
+            if argument_segments.len() != 1 {
+                // Not a shape we recognise as a lambda parameter list.
+                // Contribute no columns rather than crashing the whole analyzer.
+                continue;
+            }
             let child_segment = argument_segments.pop().unwrap();
 
             match child_segment.get_type() {

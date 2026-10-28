@@ -6520,84 +6520,69 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "ExceptionBlockStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::ExceptionBlockStatement, |_| {
+                // A single `WHEN ... THEN` handler and the statements it runs.
+                // The handler body is a level of its own, below the `WHEN` that
+                // introduces it.
+                let when_handler = || {
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("WHEN").to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                AnyNumberOf::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("OR").to_matchable(),
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("THEN").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WHEN").to_matchable(),
+                                Ref::keyword("OTHER").to_matchable(),
+                                Ref::keyword("THEN").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("StatementSegment").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("DelimiterGrammar").to_matchable(),
+                                // Exclude ExceptionBlockStatementSegment to prevent
+                                // greedy consumption of the next EXCEPTION block as a
+                                // statement body.
+                                Ref::new("StatementSegment")
+                                    .exclude(Ref::new("ExceptionBlockStatementSegment"))
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .to_matchable()
+                };
                 Sequence::new(vec![
                     Ref::keyword("EXCEPTION").to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("WHEN").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                            AnyNumberOf::new(vec![
-                                Sequence::new(vec![
-                                    Ref::keyword("OR").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("THEN").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("WHEN").to_matchable(),
-                            Ref::keyword("OTHER").to_matchable(),
-                            Ref::keyword("THEN").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("StatementSegment").to_matchable(),
+                    // As in the oracle dialect, `AnyNumberOf(min_times=1)` isn't
+                    // greedy enough to pick up every handler, so match one and then
+                    // any more.
+                    when_handler(),
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
                             Ref::new("DelimiterGrammar").to_matchable(),
-                            Ref::new("StatementSegment")
-                                .exclude(Ref::new("ExceptionBlockStatementSegment"))
-                                .to_matchable(),
+                            when_handler(),
                         ])
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("DelimiterGrammar").to_matchable(),
-                            one_of(vec![
-                                Sequence::new(vec![
-                                    Ref::keyword("WHEN").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                    AnyNumberOf::new(vec![
-                                        Sequence::new(vec![
-                                            Ref::keyword("OR").to_matchable(),
-                                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Ref::keyword("THEN").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("WHEN").to_matchable(),
-                                    Ref::keyword("OTHER").to_matchable(),
-                                    Ref::keyword("THEN").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("StatementSegment").to_matchable(),
-                            AnyNumberOf::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("DelimiterGrammar").to_matchable(),
-                                    Ref::new("StatementSegment")
-                                        .exclude(Ref::new("ExceptionBlockStatementSegment"))
-                                        .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -6614,7 +6599,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
                             Ref::new("DelimiterGrammar").to_matchable(),
-                            Ref::new("StatementSegment").to_matchable(),
+                            // Exclude ExceptionBlockStatementSegment so that the
+                            // EXCEPTION section is matched below as a section of this
+                            // block rather than as one of the statements inside it.
+                            Ref::new("StatementSegment")
+                                .exclude(Ref::new("ExceptionBlockStatementSegment"))
+                                .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -6653,6 +6643,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Ref::new("DelimiterGrammar").to_matchable(),
                     MetaSegment::dedent().to_matchable(),
+                    // The EXCEPTION handler is a section of the block and not a
+                    // statement within it, so it comes after the statement body has
+                    // been closed and lines up with `BEGIN`.
+                    // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/exception
+                    Sequence::new(vec![
+                        Ref::new("ExceptionBlockStatementSegment").to_matchable(),
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::keyword("END").to_matchable(),
                 ])
                 .to_matchable()

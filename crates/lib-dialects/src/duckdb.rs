@@ -66,6 +66,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "COMPRESSION");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "COMPRESSION_LEVEL");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "GLOB");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "INSTALL");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MACRO");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MAP");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "OVERWRITE");
@@ -287,7 +288,35 @@ pub fn raw_dialect() -> Dialect {
             "LoadStatementSegment".into(),
             Sequence::new(vec![
                 Ref::keyword("LOAD").to_matchable(),
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "InstallStatementSegment".into(),
+            Sequence::new(vec![
+                Ref::keyword("FORCE").optional().to_matchable(),
+                Ref::keyword("INSTALL").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FROM").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -2069,6 +2098,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("SimplifiedPivotExpressionSegment").to_matchable(),
                 Ref::new("SimplifiedUnpivotExpressionSegment").to_matchable(),
                 Ref::new("LoadStatementSegment").to_matchable(),
+                Ref::new("InstallStatementSegment").to_matchable(),
                 Ref::new("SummarizeStatementSegment").to_matchable(),
                 Ref::new("DescribeStatementSegment").to_matchable(),
             ]),

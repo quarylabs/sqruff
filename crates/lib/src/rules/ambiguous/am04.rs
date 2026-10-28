@@ -2,7 +2,7 @@ use hashbrown::HashMap;
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
-use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source};
+use sqruff_lib_core::utils::analysis::query::{Query, Source};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -74,7 +74,7 @@ SELECT a, b FROM t
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
         let query = Query::from_segment(&rule_cx.segment, rule_cx.dialect, None);
 
-        let result = self.analyze_result_columns(query);
+        let result = self.analyze_result_columns(query, None);
         match result {
             Ok(_) => {
                 vec![]
@@ -94,7 +94,17 @@ SELECT a, b FROM t
 
 impl RuleAM04 {
     /// returns an anchor to the rule
-    fn analyze_result_columns(&self, query: Query<'_>) -> Result<(), ErasedSegment> {
+    ///
+    /// `anchor` is the wildcard which started the analysis, and is what any
+    /// resulting violation is reported against. It is threaded through the
+    /// recursion so that a wildcard resolving to an ambiguous CTE is still
+    /// reported against the wildcard the user can act on, rather than against
+    /// whichever nested query the walk happened to terminate in.
+    fn analyze_result_columns(
+        &self,
+        query: Query<'_>,
+        anchor: Option<ErasedSegment>,
+    ) -> Result<(), ErasedSegment> {
         if query.inner.borrow().selectables.is_empty() {
             return Ok(());
         }
@@ -102,28 +112,35 @@ impl RuleAM04 {
         let selectables = query.inner.borrow().selectables.clone();
         for selectable in selectables {
             for wildcard in selectable.wildcard_info() {
+                // Anchor on the star itself. It is the reason for the
+                // violation, so it is also the right thing to report against -
+                // and, for templated files, the right thing to judge the
+                // violation's actionability by.
+                let wildcard_anchor = anchor
+                    .clone()
+                    .unwrap_or_else(|| wildcard_anchor(&wildcard.segment));
                 if !wildcard.tables.is_empty() {
                     for wildcard_table in wildcard.tables {
                         if let Some(alias_info) = selectable.find_alias(&wildcard_table) {
-                            self.handle_alias(&selectable, alias_info, &query)?;
+                            self.handle_alias(alias_info, &query, wildcard_anchor.clone())?;
                         } else {
                             let Some(cte) = query.lookup_cte(&wildcard_table, true) else {
-                                return Err(selectable.selectable);
+                                return Err(wildcard_anchor);
                             };
 
-                            self.analyze_result_columns(cte)?;
+                            self.analyze_result_columns(cte, Some(wildcard_anchor.clone()))?;
                         }
                     }
                 } else {
                     let branch_selectable = selectable.selectable.clone();
                     for source in query.crawl_sources(branch_selectable.clone(), false, true) {
                         if let Source::Query(query) = source {
-                            self.analyze_result_columns(query)?;
+                            self.analyze_result_columns(query, Some(wildcard_anchor.clone()))?;
                             return Ok(());
                         }
                     }
 
-                    return Err(branch_selectable);
+                    return Err(wildcard_anchor);
                 }
             }
         }
@@ -133,9 +150,9 @@ impl RuleAM04 {
 
     fn handle_alias(
         &self,
-        selectable: &Selectable,
         alias_info: AliasInfo,
         query: &Query<'_>,
+        anchor: ErasedSegment,
     ) -> Result<(), ErasedSegment> {
         let select_info_target = query
             .crawl_sources(alias_info.from_expression_element, false, true)
@@ -143,8 +160,30 @@ impl RuleAM04 {
             .next()
             .unwrap();
         match select_info_target {
-            Source::TableReference(_) => Err(selectable.selectable.clone()),
-            Source::Query(query) => self.analyze_result_columns(query),
+            Source::TableReference(_) => Err(anchor),
+            Source::Query(query) => self.analyze_result_columns(query, Some(anchor)),
         }
     }
+}
+
+/// The `*` within a wildcard select target, or the target if it has none.
+///
+/// Only the star is guaranteed to be part of the SQL the user wrote. In
+/// `{{ alias }}.*` the qualifier is templated while the star is not, so
+/// anchoring on the whole target would hand the templated-section filter a
+/// span which is not literal and the violation would be discarded.
+///
+/// Dialects which structure wildcards without a `star` child fall back to the
+/// target itself.
+fn wildcard_anchor(select_target: &ErasedSegment) -> ErasedSegment {
+    select_target
+        .recursive_crawl(
+            const { &SyntaxSet::single(SyntaxKind::Star) },
+            true,
+            &SyntaxSet::EMPTY,
+            true,
+        )
+        .into_iter()
+        .next()
+        .unwrap_or_else(|| select_target.clone())
 }

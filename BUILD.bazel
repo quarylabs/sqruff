@@ -157,6 +157,7 @@ sh_test(
     size = "small",
     srcs = [".hacking/scripts/verify_action_shas.sh"],
     data = glob([".github/workflows/*.yml"]),
+    env_inherit = ["GITHUB_TOKEN"],
     tags = ["requires-network"],
 )
 
@@ -567,6 +568,7 @@ sh_test(
     size = "small",
     srcs = [".hacking/scripts/verify_sqlfluff_sha.sh"],
     data = [".sqlfluff-sha"],
+    env_inherit = ["GITHUB_TOKEN"],
     tags = ["requires-network"],
 )
 

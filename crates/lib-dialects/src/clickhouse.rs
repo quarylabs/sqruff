@@ -760,7 +760,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("JoinTypeKeywords").optional().to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Ref::new("FromExpressionElementSegment").to_matchable(),
+                Ref::new("JoinTargetGrammar").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
                 Conditional::new(MetaSegment::indent())
                     .indented_using_on()

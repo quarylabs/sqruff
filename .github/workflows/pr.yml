@@ -68,6 +68,8 @@ jobs:
       - name: Install native build dependencies
         run: sudo apt-get update --yes && sudo apt-get install --yes libkrb5-dev lld
       - name: Build and test all targets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: bazelisk test --config=ci //...
       - name: Upload website visual test failures
         if: failure()

@@ -169,20 +169,14 @@ impl SQLParseError {
 
 impl From<SQLParseError> for SQLBaseError {
     fn from(value: SQLParseError) -> Self {
-        let (mut line_no, mut line_pos) = Default::default();
-
-        let pos_marker = value
-            .segment
-            .as_ref()
-            .and_then(|segment| segment.get_position_marker());
-
-        if let Some(pos_marker) = pos_marker {
-            (line_no, line_pos) = pos_marker.source_position();
-        }
-
         Self::default().config(|this| {
-            this.line_no = line_no;
-            this.line_pos = line_pos;
+            if let Some(marker) = value
+                .segment
+                .as_ref()
+                .and_then(|segment| segment.get_position_marker())
+            {
+                this.set_position_marker(marker.clone());
+            }
             this.description = value.description;
         })
     }

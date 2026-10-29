@@ -14,6 +14,7 @@ use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]
 use crate::docs::codegen_docs;
 use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
+use crate::formatters::gitlab::GitlabFormatter;
 use crate::formatters::json::JsonFormatter;
 use crate::formatters::sarif::SarifFormatter;
 use crate::formatters::{NullFormatter, OutputStreamFormatter};
@@ -49,10 +50,11 @@ where
 {
     let _ = logger::init();
     let cli = Cli::parse_from(args);
-    // `fix` must retain parser and templater errors so that it can explain why
-    // fixes were not applied to an unparsable file. Keep the explicit flag for
-    // commands such as `lint`, where collecting parse errors remains opt-in.
-    let collect_parse_errors = cli.parsing_errors || matches!(&cli.command, Commands::Fix(_));
+    // Fixing must explain why unparsable files were skipped, and GitLab reports
+    // include parse errors. Other lint formats retain the explicit opt-in flag.
+    let collect_parse_errors = cli.parsing_errors
+        || matches!(&cli.command, Commands::Fix(_))
+        || matches!(&cli.command, Commands::Lint(args) if matches!(args.format, Format::Gitlab));
 
     let stdin_input = match &cli.command {
         Commands::Lint(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),
@@ -169,11 +171,9 @@ where
             Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
             Ok(true) => commands_lint::run_lint_stdin(
                 config,
-                args.format,
-                args.quiet,
+                args,
                 stdin_filename.as_deref(),
                 &ignorer,
-                args.disregard_sqruffignores,
                 collect_parse_errors,
             ),
         },
@@ -244,6 +244,10 @@ pub(crate) fn linter(
             let formatter = GithubAnnotationNativeFormatter::new(output_stream);
             Arc::new(formatter)
         }
+        Format::Gitlab => Arc::new(
+            GitlabFormatter::new(commands::AnnotationLevel::Warning, None)
+                .map_err(|err| err.to_string())?,
+        ),
         Format::Json => {
             let formatter = JsonFormatter::default();
             Arc::new(formatter)

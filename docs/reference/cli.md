@@ -72,11 +72,19 @@ Lint SQL files via passing a list of files or using stdin
   Possible values:
   - `human`
   - `github-annotation-native`
+  - `gitlab`
   - `json`
   - `sarif`
   - `none`:
     Produce no output. Used mostly for testing
 
+* `--annotation-level <ANNOTATION_LEVEL>` — Severity for GitLab Code Quality findings. Configured warnings remain info
+
+  Default value: `warning`
+
+  Possible values: `notice`, `warning`, `failure`, `error`
+
+* `--write-output <PATH>` — Write the GitLab Code Quality report to this file instead of stdout
 
 
 
@@ -102,6 +110,7 @@ Fix SQL files via passing a list of files or using stdin
   Possible values:
   - `human`
   - `github-annotation-native`
+  - `gitlab`
   - `json`
   - `sarif`
   - `none`:

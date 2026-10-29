@@ -94,6 +94,12 @@ pub struct LintArgs {
     pub paths: Vec<PathBuf>,
     #[arg(default_value_t, short, long)]
     pub format: Format,
+    /// Severity for GitLab Code Quality findings. Configured warnings remain info.
+    #[arg(long, value_enum, default_value_t, ignore_case = true)]
+    pub annotation_level: AnnotationLevel,
+    /// Write the GitLab Code Quality report to this file instead of stdout.
+    #[arg(long, value_name = "PATH")]
+    pub write_output: Option<PathBuf>,
 }
 
 #[derive(Debug, Parser)]
@@ -132,10 +138,21 @@ pub struct ParseArgs {
 pub enum Format {
     Human,
     GithubAnnotationNative,
+    Gitlab,
     Json,
     Sarif,
     /// Produce no output. Used mostly for testing.
     None,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum, Display, Default)]
+#[strum(serialize_all = "kebab-case")]
+pub enum AnnotationLevel {
+    Notice,
+    #[default]
+    Warning,
+    Failure,
+    Error,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum, Display, Default)]

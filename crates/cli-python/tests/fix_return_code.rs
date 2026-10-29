@@ -123,7 +123,7 @@ fn fix_return_code() {
     assert_eq!(stdout_str, "SELECT foo AS bar, * FROM tabs");
     assert_eq!(
         stderr_str,
-        "== [<string>] FAIL\nL:   1 | P:   1 | AM04 | Outermost query should produce known number of columns.\n                       | [ambiguous.column_count]\nL:   1 | P:  12 | AL02 | Implicit/explicit aliasing of columns.\n                       | [aliasing.column]\n"
+        "== [<string>] FAIL\nL:   1 | P:  12 | AL02 | Implicit/explicit aliasing of columns.\n                       | [aliasing.column]\nL:   1 | P:  17 | AM04 | Outermost query should produce known number of columns.\n                       | [ambiguous.column_count]\n"
     );
     assert_eq!(output.status.code().unwrap(), 1);
 }

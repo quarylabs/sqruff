@@ -1423,6 +1423,10 @@ SELECT
 FROM foo;
 ```
 
+MySQL, MariaDB, Doris, and StarRocks use `CONVERT(expr, type)`, while T-SQL
+uses `CONVERT(type, expr)`. Rewrites preserve each dialect's argument order.
+`CONVERT(expr USING charset)` performs character set transcoding and is left unchanged.
+
 **Dialects where this rule is skipped:** `athena`, `teradata`, `trino`
 
 ### convention.join_condition

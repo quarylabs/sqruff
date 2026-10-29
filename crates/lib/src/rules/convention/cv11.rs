@@ -141,6 +141,10 @@ SELECT
     CAST(10 AS text) AS coo
 FROM foo;
 ```
+
+MySQL, MariaDB, Doris, and StarRocks use `CONVERT(expr, type)`, while T-SQL
+uses `CONVERT(type, expr)`. Rewrites preserve each dialect's argument order.
+`CONVERT(expr USING charset)` performs character set transcoding and is left unchanged.
 "
     }
 
@@ -167,6 +171,7 @@ FROM foo;
             return Vec::new();
         }
 
+        let functional_context = FunctionalContext::new(context);
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
             let Some(function_name) = context
                 .segment
@@ -177,12 +182,21 @@ FROM foo;
             if function_name.raw().eq_ignore_ascii_case("CAST") {
                 TypeCastingStyle::Cast
             } else if function_name.raw().eq_ignore_ascii_case("CONVERT") {
-                // On the dialects whose CONVERT takes its arguments the other
-                // way round, rewriting to CAST swaps them and produces valid SQL
-                // that means something else: CONVERT(b, SIGNED) would become
-                // cast(SIGNED as b). Leave CONVERT alone there rather than
-                // corrupt it silently. CAST and :: are still linted as usual.
-                if is_reversed_convert_dialect(context.dialect.name) {
+                // USING performs character set transcoding, not a type cast.
+                let bracketed = functional_context
+                    .segment()
+                    .children_where(|segment: &ErasedSegment| {
+                        segment.is_type(SyntaxKind::FunctionContents)
+                    })
+                    .children_where(|segment: &ErasedSegment| {
+                        segment.is_type(SyntaxKind::Bracketed)
+                    });
+                if bracketed.iter().any(|bracketed| {
+                    bracketed.segments().iter().any(|segment| {
+                        segment.is_type(SyntaxKind::Keyword)
+                            && segment.raw().eq_ignore_ascii_case("USING")
+                    })
+                }) {
                     return Vec::new();
                 }
                 TypeCastingStyle::Convert
@@ -204,7 +218,6 @@ FROM foo;
             TypeCastingStyle::None
         };
 
-        let functional_context = FunctionalContext::new(context);
         match self.preferred_type_casting_style {
             TypeCastingStyle::Consistent => {
                 // If current is None, it's not a cast operation (e.g., STRING_AGG, or
@@ -239,12 +252,14 @@ FROM foo;
                                 return Vec::new();
                             }
 
+                            let (value, data_type) =
+                                convert_arguments(&convert_content, context.dialect.name);
                             fixes = cast_fix_list(
                                 context.tables,
                                 context.dialect.name,
                                 context.segment.clone(),
-                                &[convert_content[1].clone()],
-                                convert_content[0].clone(),
+                                &[value],
+                                data_type,
                                 None,
                             );
                         }
@@ -343,11 +358,13 @@ FROM foo;
                                 return Vec::new();
                             }
 
+                            let (value, data_type) =
+                                convert_arguments(&convert_content, context.dialect.name);
                             fixes = shorthand_fix_list(
                                 context.tables,
                                 context.segment.clone(),
-                                convert_content[1].clone(),
-                                convert_content[0].clone(),
+                                value,
+                                data_type,
                             );
                         }
                     }
@@ -380,12 +397,14 @@ FROM foo;
                                     it.is_type(SyntaxKind::Bracketed)
                                 });
                             let segments = get_children(bracketed);
+                            let (value, data_type) =
+                                convert_arguments(&segments, context.dialect.name);
                             fixes = cast_fix_list(
                                 context.tables,
                                 context.dialect.name,
                                 context.segment.clone(),
-                                &[segments[1].clone()],
-                                segments[0].clone(),
+                                &[value],
+                                data_type,
                                 None,
                             );
                             convert_content = Some(segments);
@@ -475,11 +494,13 @@ FROM foo;
                                 });
                             let segments = get_children(bracketed);
 
+                            let (value, data_type) =
+                                convert_arguments(&segments, context.dialect.name);
                             fixes = shorthand_fix_list(
                                 context.tables,
                                 context.segment.clone(),
-                                segments[1].clone(),
-                                segments[0].clone(),
+                                value,
+                                data_type,
                             );
 
                             convert_content = Some(segments);
@@ -574,13 +595,22 @@ fn build_function(
 }
 
 /// MySQL spells this `CONVERT(expr, type)`, the opposite way round from the
-/// T-SQL `CONVERT(type, expr)` that this rule assumes. mariadb, doris and
+/// T-SQL `CONVERT(type, expr)`. MariaDB, Doris and
 /// starrocks all inherit the mysql dialect and so inherit the order too.
 fn is_reversed_convert_dialect(dialect: DialectKind) -> bool {
     matches!(
         dialect,
         DialectKind::Mysql | DialectKind::Mariadb | DialectKind::Doris | DialectKind::Starrocks
     )
+}
+
+/// Return CONVERT's (value, datatype), respecting the dialect's order.
+fn convert_arguments(content: &Segments, dialect: DialectKind) -> (ErasedSegment, ErasedSegment) {
+    if is_reversed_convert_dialect(dialect) {
+        (content[0].clone(), content[1].clone())
+    } else {
+        (content[1].clone(), content[0].clone())
+    }
 }
 
 fn convert_fix_list(
@@ -591,39 +621,24 @@ fn convert_fix_list(
     convert_arg_2: &[ErasedSegment],
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    // Return no fixes on the dialects whose CONVERT takes its arguments the
-    // other way round. The rewrite below emits the T-SQL order, so applying it
-    // there would turn CAST(b AS SIGNED) into convert(SIGNED, b): valid SQL
-    // that means something else. The violation is still reported by the caller,
-    // it just cannot be auto-fixed.
-    if is_reversed_convert_dialect(dialect) {
-        return Vec::new();
-    }
-
-    // The value being converted can span more than one segment (e.g. the
-    // array subscript `a[1]`), so splice all of its segments in rather than a
-    // single one.
-    let mut contents = vec![
-        convert_arg_1,
-        SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
-        SegmentBuilder::whitespace(tables.next_id(), " "),
-    ];
-    contents.extend(convert_arg_2.iter().cloned());
-    let mut function = build_function(tables, dialect, "convert", contents);
-
+    let build_convert = |data_type: ErasedSegment, value: Vec<ErasedSegment>| {
+        // Keep every segment of the value, including array subscripts.
+        let (mut contents, trailing) = if is_reversed_convert_dialect(dialect) {
+            (value, vec![data_type])
+        } else {
+            (vec![data_type], value)
+        };
+        contents.extend([
+            SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+        ]);
+        contents.extend(trailing);
+        build_function(tables, dialect, "convert", contents)
+    };
+    let mut function = build_convert(convert_arg_1, convert_arg_2.to_vec());
     if let Some(later_types) = later_types {
         for data_type in later_types.base {
-            function = build_function(
-                tables,
-                dialect,
-                "convert",
-                vec![
-                    data_type,
-                    SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
-                    SegmentBuilder::whitespace(tables.next_id(), " "),
-                    function,
-                ],
-            );
+            function = build_convert(data_type, vec![function]);
         }
     }
 

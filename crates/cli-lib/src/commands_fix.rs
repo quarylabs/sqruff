@@ -52,7 +52,7 @@ pub(crate) fn run_fix(
             Format::Human if !quiet => {
                 println!("{} files processed, nothing to fix.", result.len())
             }
-            Format::Json | Format::Sarif | Format::GithubAnnotationNative => {
+            Format::Json | Format::Sarif | Format::GithubAnnotationNative | Format::Gitlab => {
                 linter.formatter().unwrap().completion_message(result.len());
             }
             _ => {}

@@ -37,3 +37,24 @@ available tree is printed on stdout.
 
 See the collapsed segment types lists in the [dialect reference](../reference/dialects.md)
 for automatically generated names used in layout configuration.
+
+## GitLab CI Code Quality reports
+
+Use `sqruff lint --format gitlab` to produce a GitLab Code Quality JSON report.
+Write it to a file and publish it as a `codequality` artifact in GitLab CI:
+
+```yaml
+lint-sql:
+  script:
+    - sqruff lint --format gitlab --write-output gl-code-quality-report.json sql/
+  artifacts:
+    when: always
+    reports:
+      codequality: gl-code-quality-report.json
+```
+
+The report contains rule codes, descriptions, source positions, and stable
+fingerprints. `--annotation-level notice` produces `info` findings, `warning`
+(the default) produces `major`, and `failure` or `error` produces `critical`.
+Rules configured as warnings always produce `info` findings. Findings retain
+sqruff's normal exit status, so a report with lint errors exits nonzero.

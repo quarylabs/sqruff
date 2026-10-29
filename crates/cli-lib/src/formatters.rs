@@ -1,4 +1,5 @@
 pub(crate) mod github_annotation_native_formatter;
+pub(crate) mod gitlab;
 pub(crate) mod json;
 pub(crate) mod json_types;
 pub(crate) mod rules;

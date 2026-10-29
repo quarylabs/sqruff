@@ -36,3 +36,17 @@ file:
       - create_sequence_options_segment:
         - keyword: NOCYCLE
   - statement_terminator: ;
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: MY_SEQ
+      - create_sequence_options_segment:
+        - keyword: ORDER
+      - create_sequence_options_segment:
+        - keyword: NOCACHE
+  - statement_terminator: ;

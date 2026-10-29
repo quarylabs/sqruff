@@ -1280,3 +1280,26 @@ fn test_lt12_ignores_rendered_newlines_before_trailing_jinja_block() {
         .collect();
     assert!(lt12.is_empty(), "unexpected LT12 violations: {lt12:?}");
 }
+
+/// Port SQLFluff #8687's autofix fixtures, including the EOF case without a newline.
+#[test]
+fn test_lt05_long_order_by_final_semicolon_autofix() {
+    let config = FluffConfig::from_source("[sqruff]\ndialect = ansi\nrules = LT05\n", None);
+    let mut linter = Linter::new(config, None, None, true).unwrap();
+
+    for (fixture, final_newline) in [
+        ("035_long_order_by_with_semicolon", true),
+        ("036_long_order_by_semicolon_without_final_newline", false),
+    ] {
+        let directory = format!("test/fixtures/linter/autofix/ansi/{fixture}");
+        let before = std::fs::read_to_string(format!("{directory}/before.sql")).unwrap();
+        let expected = std::fs::read_to_string(format!("{directory}/after.sql")).unwrap();
+        assert_eq!(before.ends_with('\n'), final_newline, "{fixture}");
+        assert_eq!(expected.ends_with('\n'), final_newline, "{fixture}");
+        let linted = linter.lint_string_wrapped(&before, true).unwrap();
+        assert_eq!(linted.fix_string(), expected, "{fixture}");
+
+        let relinted = linter.lint_string_wrapped(&expected, false).unwrap();
+        assert!(relinted.violations().is_empty(), "{fixture}");
+    }
+}

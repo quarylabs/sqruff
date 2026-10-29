@@ -1701,6 +1701,25 @@ fn increment_balance(
     (balance, matched_indents)
 }
 
+fn is_point_before_final_statement_terminator(
+    elements: &[ReflowElement],
+    point_idx: usize,
+) -> bool {
+    let mut found_terminator = false;
+    for element in &elements[point_idx + 1..] {
+        for segment in element.segments() {
+            if segment.is_type(SyntaxKind::StatementTerminator) {
+                found_terminator = true;
+            } else if segment.is_type(SyntaxKind::Newline) {
+                return found_terminator;
+            } else if segment.is_code() {
+                return false;
+            }
+        }
+    }
+    found_terminator
+}
+
 fn match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: HashMap<usize, usize>,
@@ -1727,6 +1746,9 @@ fn match_indents(
 
         let nmi;
         (balance, nmi) = increment_balance(balance, indent_stats, e_idx);
+        if is_point_before_final_statement_terminator(&line_elements, idx) {
+            continue;
+        }
         for (b, indices) in nmi {
             matched_indents.entry(b).or_default().extend(indices);
         }

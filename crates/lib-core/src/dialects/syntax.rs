@@ -37,6 +37,7 @@ pub enum SyntaxKind {
     AggregateOrderByClause,
     AlertCondition,
     AlgorithmOption,
+    AliasColumnList,
     AliasExpression,
     AliasOperator,
     AllowConnections,

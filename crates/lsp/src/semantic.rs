@@ -305,6 +305,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | BracketedArguments
         | DataType
         | IntervalDataType
+        | AliasColumnList
         | AliasExpression
         | ArrayAccessor
         | ArrayLiteral

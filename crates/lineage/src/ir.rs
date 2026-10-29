@@ -474,8 +474,11 @@ pub(crate) fn lower_inner(
                     let mut alias = from_expression
                         .child(const { &SyntaxSet::single(SyntaxKind::AliasExpression) })
                         .map(|alias| {
-                            if let Some(bracketed) =
-                                alias.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+                            let column_list = alias
+                                .child(const { &SyntaxSet::single(SyntaxKind::AliasColumnList) })
+                                .unwrap_or_else(|| alias.clone());
+                            if let Some(bracketed) = column_list
+                                .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
                             {
                                 let naked_identifier = alias
                                     .child(

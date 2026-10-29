@@ -7063,6 +7063,36 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     dialect.add([(
+        "AliasColumnListSegment".into(),
+        NodeMatcher::new(SyntaxKind::AliasColumnList, |_| {
+            Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
+                .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    // Keep this in sync with ANSI's alias grammar, using a dedicated column
+    // list node so its spacing can be configured independently of aliases.
+    dialect.replace_grammar(
+        "AliasExpressionSegment",
+        Sequence::new(vec![
+            MetaSegment::indent().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("AliasColumnListSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    dialect.add([(
         "AltAliasExpressionSegment".into(),
         NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
             Sequence::new(vec![

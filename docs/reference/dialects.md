@@ -7390,10 +7390,11 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 ```
 
 <details>
-<summary>Segment types (330)</summary>
+<summary>Segment types (331)</summary>
 <ul>
 <li><code>action_parameter</code></li>
 <li><code>aggregate_order_by_clause</code></li>
+<li><code>alias_column_list</code></li>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
 <li><code>allow_connections</code></li>

@@ -10465,8 +10465,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("DEFAULT_SECONDARY_ROLES").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
-                            Bracketed::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                                .to_matchable(),
+                            Bracketed::new(vec![
+                                Ref::new("QuotedLiteralSegment").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -13696,12 +13698,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
                             Delimited::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("ParameterNameSegment").to_matchable(),
-                                    Ref::new("EqualsSegment").to_matchable(),
-                                    one_of(vec![
-                                        Ref::new("LiteralGrammar").to_matchable(),
-                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("DEFAULT_SECONDARY_ROLES").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        Bracketed::new(vec![
+                                            Ref::new("QuotedLiteralSegment")
+                                                .optional()
+                                                .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::new("ParameterNameSegment").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        one_of(vec![
+                                            Ref::new("LiteralGrammar").to_matchable(),
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])

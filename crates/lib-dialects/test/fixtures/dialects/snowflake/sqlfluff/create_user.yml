@@ -247,3 +247,34 @@ file:
       - quoted_literal: '''ALL'''
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: create
+    - keyword: user
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+      - naked_identifier: my_service_user
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: service
+    - keyword: default_role
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_role
+    - keyword: default_secondary_roles
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''service user'''
+- statement_terminator: ;

@@ -89,3 +89,32 @@ file:
     - object_reference:
       - quoted_identifier: '"Foo"'
 - statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: SET
+    - keyword: DEFAULT_SECONDARY_ROLES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: SET
+    - keyword: DEFAULT_SECONDARY_ROLES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''ALL'''
+      - end_bracket: )
+- statement_terminator: ;

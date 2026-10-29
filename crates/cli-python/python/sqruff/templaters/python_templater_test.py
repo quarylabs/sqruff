@@ -415,15 +415,22 @@ def test__templater_python_split_uniques_coalesce_rest(
             "SELECT * FROM {obj.schema}.{obj.table}",
             "SELECT * FROM my_schema.my_table",
         ),
+        ("SELECT {foo!r}", "SELECT 'bar'"),
+        ("SELECT {foo.bar!s}", "SELECT foobar"),
+        ("SELECT {foo.bar!r}", "SELECT 'foobar'"),
+        ("SELECT {foo.label!a}", r"SELECT 'caf\xe9'"),
+        ("SELECT {foo.bar!r:>10}", "SELECT   'foobar'"),
+        ("SELECT {self.number!s:0>4}", "SELECT 0042"),
     ],
 )
-def test__templater_python_dot_notation_variables(raw_str, result) -> None:
+def test__templater_python_dot_notation_variables(raw_str: str, result: str) -> None:
     """Test template variables that contain a dot character (`.`)."""
     context = {
         "foo": "bar",
         "num": 123,
         "sqlfluff": {
             "foo.bar": "foobar",
+            "foo.label": "café",
             "self.number": 42,
             "obj.schema": "my_schema",
             "obj.table": "my_table",
@@ -472,11 +479,42 @@ def test__templater_python_dot_notation_fail(context, error_string) -> None:
         ("SELECT * FROM {start_date}", False, {}, None, True),
         ("SELECT * FROM {start_date}", True, {}, "SELECT * FROM start_date", False),
         ("SELECT * FROM {foo.bar}", True, {}, "SELECT * FROM foo_bar", False),
+        ("SELECT * FROM {foo.bar!s}", True, {}, "SELECT * FROM foo_bar", False),
+        ("SELECT * FROM {foo.bar!r}", True, {}, "SELECT * FROM foo_bar", False),
+        ("SELECT * FROM {foo.bar!a}", True, {}, "SELECT * FROM foo_bar", False),
         (
             "SELECT * FROM {foo.bar}",
             True,
             {"sqlfluff": {"existing.key": "val"}},
             "SELECT * FROM foo_bar",
+            False,
+        ),
+        (
+            "SELECT * FROM {foo.bar!r}",
+            True,
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM foo_bar",
+            False,
+        ),
+        (
+            "SELECT * FROM {foo.bar!a}",
+            True,
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM foo_bar",
+            False,
+        ),
+        (
+            "SELECT * FROM {foo.bar!r:>10}",
+            True,
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM    foo_bar",
+            False,
+        ),
+        (
+            "SELECT * FROM {foo.bar!a:>10}",
+            True,
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM    foo_bar",
             False,
         ),
     ],

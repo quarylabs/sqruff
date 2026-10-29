@@ -7890,6 +7890,40 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    let merge_statement = postgres
+        .grammar("MergeStatementSegment")
+        .match_grammar(&postgres)
+        .unwrap()
+        .copy(
+            Some(vec![
+                Sequence::new(vec![
+                    Ref::keyword("RETURNING").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    one_of(vec![
+                        Ref::new("StarSegment").to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("ExpressionSegment").to_matchable(),
+                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        );
+    postgres.replace_grammar("MergeStatementSegment", merge_statement);
+
     postgres.replace_grammar(
         "MergeMatchedClauseSegment",
         Sequence::new(vec![

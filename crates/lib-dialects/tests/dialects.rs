@@ -561,6 +561,7 @@ fn redshift_rejects_postgres_merge_extensions() {
         "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED THEN DO NOTHING;",
         "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED BY TARGET THEN INSERT VALUES (s.id);",
         "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED BY SOURCE THEN DELETE;",
+        "MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN DELETE RETURNING *;",
     ] {
         let (tokens, lex_errors) = lexer.lex(&tables, sql);
         assert!(lex_errors.is_empty(), "{sql}");

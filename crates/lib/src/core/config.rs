@@ -209,6 +209,7 @@ impl FluffConfig {
         normalize_implicit_indents_map(&mut configs, "configuration")
             .expect("invalid implicit_indents configuration");
         normalize_max_line_length_map(&mut configs, "configuration");
+        normalize_semicolon_newline_map(&mut configs, "configuration");
         normalize_max_parse_depth_map(&mut configs, "configuration")
             .expect("invalid max_parse_depth configuration");
         normalize_max_parse_nodes_map(&mut configs, "configuration")
@@ -408,6 +409,7 @@ impl FluffConfig {
         let mut elems = vec![(parts, value)];
         normalize_implicit_indents_elems(&mut elems, "inline configuration")?;
         normalize_max_line_length_elems(&mut elems, "inline configuration", false);
+        normalize_semicolon_newline_elems(&mut elems, "inline configuration");
         normalize_max_parse_depth_elems(&mut elems, "inline configuration")?;
         normalize_max_parse_nodes_elems(&mut elems, "inline configuration")?;
         for key in ["render_variant_limit", "runaway_limit"] {
@@ -746,6 +748,7 @@ impl ConfigLoader {
             &config_reference(config_path),
             is_toml_config(config_path),
         );
+        normalize_semicolon_newline_elems(&mut elems, &config_reference(config_path));
         normalize_max_parse_depth_elems(&mut elems, &config_reference(config_path))?;
         normalize_max_parse_nodes_elems(&mut elems, &config_reference(config_path))?;
         for key in ["render_variant_limit", "runaway_limit"] {
@@ -1010,6 +1013,78 @@ fn normalize_max_line_length_map(configs: &mut HashMap<String, Value>, logging_r
     warn_max_line_length_migration(logging_reference, new_exists, false);
     if !new_exists {
         core.insert("max_line_length".into(), old_value);
+    }
+}
+
+fn warn_semicolon_newline_migration(logging_reference: &str, rule: &str, duplicate: bool) {
+    if duplicate {
+        log::warn!(
+            "Config file {logging_reference} sets deprecated `rules:{rule}:semicolon_newline` \
+             and `rules:convention.terminator:multiline_newline`; the new value takes precedence."
+        );
+    } else {
+        log::warn!(
+            "Config file {logging_reference} uses deprecated `rules:{rule}:semicolon_newline`; \
+             migrate it to `rules:convention.terminator:multiline_newline`."
+        );
+    }
+}
+
+fn normalize_semicolon_newline_elems(
+    elems: &mut Vec<(Vec<String>, Value)>,
+    logging_reference: &str,
+) {
+    for rule in ["L052", "l052", "convention.terminator"] {
+        let is_old = |path: &[String]| path == ["rules", rule, "semicolon_newline"];
+        if elems.iter().any(|(path, _)| is_old(path)) {
+            let new_exists = elems
+                .iter()
+                .any(|(path, _)| path == &["rules", "convention.terminator", "multiline_newline"]);
+            warn_semicolon_newline_migration(logging_reference, rule, new_exists);
+            if new_exists {
+                elems.retain(|(path, _)| !is_old(path));
+            } else {
+                for (path, _) in elems.iter_mut().filter(|(path, _)| is_old(path)) {
+                    *path = vec![
+                        "rules".into(),
+                        "convention.terminator".into(),
+                        "multiline_newline".into(),
+                    ];
+                }
+            }
+        }
+    }
+}
+
+fn normalize_semicolon_newline_map(configs: &mut HashMap<String, Value>, logging_reference: &str) {
+    let Some(rules) = configs.get_mut("rules").and_then(Value::as_map_mut) else {
+        return;
+    };
+    for rule in ["L052", "l052", "convention.terminator"] {
+        let Some(old_value) = rules
+            .get_mut(rule)
+            .and_then(Value::as_map_mut)
+            .and_then(|options| options.remove("semicolon_newline"))
+        else {
+            continue;
+        };
+        if rules
+            .get(rule)
+            .and_then(Value::as_map)
+            .is_some_and(HashMap::is_empty)
+        {
+            rules.remove(rule);
+        }
+        let options = rules
+            .entry("convention.terminator".into())
+            .or_insert_with(|| Value::Map(HashMap::new()))
+            .as_map_mut()
+            .expect("rule config must be a map");
+        let new_exists = options.contains_key("multiline_newline");
+        warn_semicolon_newline_migration(logging_reference, rule, new_exists);
+        options
+            .entry("multiline_newline".into())
+            .or_insert(old_value);
     }
 }
 
@@ -2625,6 +2700,114 @@ capitalisation_policy = "upper"
                 .get("max_line_length")
                 .is_none()
         );
+    }
+
+    fn assert_semicolon_newline_migrated(config: &FluffConfig, expected: bool) {
+        let rules = config.raw["rules"].as_map().unwrap();
+        assert_eq!(
+            rules["convention.terminator"]["multiline_newline"].as_bool(),
+            Some(expected)
+        );
+        assert!(
+            !rules["convention.terminator"]
+                .as_map()
+                .unwrap()
+                .contains_key("semicolon_newline")
+        );
+        assert!(!rules.contains_key("L052"));
+        assert!(!rules.contains_key("l052"));
+    }
+
+    #[test]
+    fn test_semicolon_newline_migrates_from_ini_and_toml() {
+        for rule in ["L052", "convention.terminator"] {
+            for namespace in ["sqruff", "sqlfluff"] {
+                for value in [true, false] {
+                    let ini = format!("[{namespace}:rules:{rule}]\nsemicolon_newline = {value}\n");
+                    let toml = format!(
+                        "[tool.{namespace}.rules.\"{rule}\"]\nsemicolon_newline = {value}\n"
+                    );
+                    for (source, path) in [(&ini, None), (&toml, Some(Path::new("pyproject.toml")))]
+                    {
+                        let config = FluffConfig::from_source(source, path);
+                        assert_semicolon_newline_migrated(&config, value);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_semicolon_newline_migrates_raw_config_and_prefers_modern_value() {
+        for rule in ["L052", "convention.terminator"] {
+            for value in [true, false] {
+                for modern in [None, Some(!value)] {
+                    let mut rules = HashMap::from([(
+                        rule.to_string(),
+                        Value::Map(HashMap::from([(
+                            "semicolon_newline".into(),
+                            Value::Bool(value),
+                        )])),
+                    )]);
+                    if let Some(modern) = modern {
+                        rules
+                            .entry("convention.terminator".into())
+                            .or_insert_with(|| Value::Map(HashMap::new()))
+                            .as_map_mut()
+                            .unwrap()
+                            .insert("multiline_newline".into(), Value::Bool(modern));
+                    }
+                    let config = FluffConfig::new(
+                        HashMap::from([("rules".into(), Value::Map(rules))]),
+                        None,
+                        None,
+                    );
+                    assert_semicolon_newline_migrated(&config, modern.unwrap_or(value));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_semicolon_newline_migrates_inline_config() {
+        for rule in ["L052", "convention.terminator"] {
+            let mut config = FluffConfig::default();
+            for value in [true, false] {
+                config
+                    .process_inline_config(&format!(
+                        "-- sqlfluff:rules:{rule}:semicolon_newline:{value}"
+                    ))
+                    .unwrap();
+                assert_semicolon_newline_migrated(&config, value);
+            }
+        }
+    }
+
+    #[test]
+    fn test_modern_semicolon_newline_option_wins_in_config_files() {
+        for rule in ["L052", "convention.terminator"] {
+            for (source, path) in [
+                (
+                    format!(
+                        "[sqruff:rules:convention.terminator]\nmultiline_newline = false\n[sqruff:rules:{rule}]\nsemicolon_newline = true\n"
+                    ),
+                    None,
+                ),
+                (
+                    format!(
+                        "[tool.sqruff.rules.\"convention.terminator\"]\nmultiline_newline = false\n{}semicolon_newline = true\n",
+                        if rule == "L052" {
+                            "[tool.sqruff.rules.L052]\n"
+                        } else {
+                            ""
+                        }
+                    ),
+                    Some(Path::new("pyproject.toml")),
+                ),
+            ] {
+                assert_semicolon_newline_migrated(&FluffConfig::from_source(&source, path), false);
+            }
+        }
     }
 
     #[test]

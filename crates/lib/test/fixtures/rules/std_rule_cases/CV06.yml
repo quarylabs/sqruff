@@ -751,3 +751,29 @@ test_fail_bigquery_procedure_missing_semicolon:
     rules:
       convention.terminator:
         require_final_semicolon: true
+
+test_fail_deprecated_semicolon_newline_legacy_rule:
+  fail_str: |
+    SELECT a
+    FROM foo;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      L052:
+        semicolon_newline: true
+
+test_fail_deprecated_semicolon_newline_named_rule:
+  fail_str: |
+    SELECT a
+    FROM foo;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        semicolon_newline: true

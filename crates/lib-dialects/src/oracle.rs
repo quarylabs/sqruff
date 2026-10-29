@@ -5977,6 +5977,27 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Oracle 19.28+ supports IF NOT EXISTS for CREATE SEQUENCE.
+    oracle.add([(
+        "CreateSequenceStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateSequenceStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("SEQUENCE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("SequenceReferenceSegment").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Ref::new("CreateSequenceOptionsSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // ---- CreateUserStatementSegment ----
     // SQLFluff: CREATE USER with IDENTIFIED BY/EXTERNALLY/GLOBALLY
     oracle.add([(

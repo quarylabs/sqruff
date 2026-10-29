@@ -443,13 +443,14 @@ file:
               - alias_operator:
                 - keyword: AS
               - naked_identifier: Document
-              - bracketed:
-                - start_bracket: (
-                - identifier_list:
-                  - naked_identifier: column1
-                  - comma: ','
-                  - naked_identifier: column2
-                - end_bracket: )
+              - alias_column_list:
+                - bracketed:
+                  - start_bracket: (
+                  - identifier_list:
+                    - naked_identifier: column1
+                    - comma: ','
+                    - naked_identifier: column2
+                  - end_bracket: )
   - statement_terminator: ;
   - go_statement:
     - keyword: GO

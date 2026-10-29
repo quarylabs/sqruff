@@ -499,13 +499,14 @@ file:
         - alias_operator:
           - keyword: as
         - naked_identifier: src
-        - bracketed:
-          - start_bracket: (
-          - identifier_list:
-            - naked_identifier: UnitMeasureCode
-            - comma: ','
-            - naked_identifier: Name
-          - end_bracket: )
+        - alias_column_list:
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: UnitMeasureCode
+              - comma: ','
+              - naked_identifier: Name
+            - end_bracket: )
       - join_on_condition:
         - keyword: ON
         - bracketed:
@@ -685,13 +686,14 @@ file:
         - alias_operator:
           - keyword: as
         - naked_identifier: src
-        - bracketed:
-          - start_bracket: (
-          - identifier_list:
-            - naked_identifier: ProductID
-            - comma: ','
-            - naked_identifier: OrderQty
-          - end_bracket: )
+        - alias_column_list:
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: ProductID
+              - comma: ','
+              - naked_identifier: OrderQty
+            - end_bracket: )
       - join_on_condition:
         - keyword: ON
         - bracketed:
@@ -894,13 +896,14 @@ file:
         - alias_operator:
           - keyword: AS
         - naked_identifier: src
-        - bracketed:
-          - start_bracket: (
-          - identifier_list:
-            - naked_identifier: ProductID
-            - comma: ','
-            - naked_identifier: OrderQty
-          - end_bracket: )
+        - alias_column_list:
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: ProductID
+              - comma: ','
+              - naked_identifier: OrderQty
+            - end_bracket: )
       - join_on_condition:
         - keyword: ON
         - expression:
@@ -1154,13 +1157,14 @@ file:
         - alias_operator:
           - keyword: as
         - naked_identifier: src
-        - bracketed:
-          - start_bracket: (
-          - identifier_list:
-            - naked_identifier: UnitMeasureCode
-            - comma: ','
-            - naked_identifier: Name
-          - end_bracket: )
+        - alias_column_list:
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: UnitMeasureCode
+              - comma: ','
+              - naked_identifier: Name
+            - end_bracket: )
       - join_on_condition:
         - keyword: ON
         - bracketed:
@@ -1356,13 +1360,14 @@ file:
         - alias_operator:
           - keyword: AS
         - naked_identifier: src
-        - bracketed:
-          - start_bracket: (
-          - identifier_list:
-            - naked_identifier: ProductID
-            - comma: ','
-            - naked_identifier: OrderQty
-          - end_bracket: )
+        - alias_column_list:
+          - bracketed:
+            - start_bracket: (
+            - identifier_list:
+              - naked_identifier: ProductID
+              - comma: ','
+              - naked_identifier: OrderQty
+            - end_bracket: )
       - join_on_condition:
         - keyword: ON
         - expression:

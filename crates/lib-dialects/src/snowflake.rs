@@ -14039,16 +14039,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("EXECUTE").to_matchable(),
                     Ref::keyword("IMMEDIATE").to_matchable(),
-                    Ref::keyword("FROM").optional().to_matchable(),
                     one_of(vec![
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                        Ref::new("ReferencedVariableNameSegment").to_matchable(),
-                        Ref::new("StorageLocation").to_matchable(),
                         Sequence::new(vec![
-                            Ref::new("ColonPrefixSegment").to_matchable(),
-                            Ref::new("LocalVariableNameSegment").to_matchable(),
+                            Ref::keyword("FROM").to_matchable(),
+                            one_of(vec![
+                                Ref::new("StorageLocation").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
+                        // A string literal, session/local variable, or any expression
+                        // that evaluates to a SQL statement string (e.g. built up via
+                        // concatenation with `||`).
+                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

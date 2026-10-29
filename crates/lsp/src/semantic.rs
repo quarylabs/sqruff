@@ -571,6 +571,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | GcsExternalStageParameters
         | AzureBlobStorageExternalStageParameters
         | CreateStageStatement
+        | DefinePipeStatement
         | DefineStageStatement
         | AlterStageStatement
         | CreateStreamStatement

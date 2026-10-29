@@ -643,6 +643,50 @@ fn snowflake_materialized_view_rejects_invalid_cluster_and_unset_tag() {
 }
 
 #[test]
+fn snowflake_define_stage_binds_options_to_cloud() {
+    let dialect = kind_to_dialect(&DialectKind::Snowflake, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for (sql, valid) in [
+        (
+            "DEFINE STAGE s URL = 's3://bucket/' DIRECTORY = (ENABLE = TRUE NOTIFICATION_INTEGRATION = notifications);",
+            false,
+        ),
+        (
+            "DEFINE STAGE s URL = 'gcs://bucket/' CREDENTIALS = (AWS_ROLE = 'role');",
+            false,
+        ),
+        (
+            "DEFINE STAGE s URL = 'azure://account.blob.core.windows.net/container/' CREDENTIALS = (AWS_ROLE = 'role');",
+            false,
+        ),
+        (
+            "DEFINE STAGE s URL = $STAGE_URL CREDENTIALS = (AWS_ROLE = 'role');",
+            true,
+        ),
+        (
+            "DEFINE STAGE s URL = $STAGE_URL DIRECTORY = (ENABLE = TRUE NOTIFICATION_INTEGRATION = notifications);",
+            true,
+        ),
+        (
+            "DEFINE STAGE s URL = $STAGE_URL CREDENTIALS = (AZURE_SAS_TOKEN = 'token');",
+            true,
+        ),
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert_eq!(
+            check_no_unparsable_segments(&tree).is_empty(),
+            valid,
+            "{sql}"
+        );
+    }
+}
+
+#[test]
 fn ansi_partial_greedy_select_preserves_keyword() {
     let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
     let tables = Tables::default();

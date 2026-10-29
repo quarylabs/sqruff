@@ -692,6 +692,163 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     snowflake_dialect.add([
         (
+            "PipePropertiesGrammar".into(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("AUTO_INGEST").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ERROR_INTEGRATION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AWS_SNS_TOPIC").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INTEGRATION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "S3ExternalStageOptionsGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("S3ExternalStageParameters")
+                    .optional()
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DIRECTORY").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ENABLE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AUTO_REFRESH").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "GCSExternalStageOptionsGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("GCSExternalStageParameters")
+                    .optional()
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DIRECTORY").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ENABLE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AUTO_REFRESH").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NOTIFICATION_INTEGRATION").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AzureBlobStorageExternalStageOptionsGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("AzureBlobStorageExternalStageParameters")
+                    .optional()
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DIRECTORY").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ENABLE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AUTO_REFRESH").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NOTIFICATION_INTEGRATION").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterOrReplaceGrammar".into(),
             one_of(vec![
                 Sequence::new(vec![
@@ -2867,6 +3024,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateExternalFunctionStatementSegment").to_matchable(),
                 Ref::new("CreateStageSegment").to_matchable(),
                 Ref::new("DefineStageSegment").to_matchable(),
+                Ref::new("DefinePipeSegment").to_matchable(),
                 Ref::new("AlterStageSegment").to_matchable(),
                 Ref::new("CreateStreamStatementSegment").to_matchable(),
                 Ref::new("CreateStreamlitStatementSegment").to_matchable(),
@@ -9939,42 +10097,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("AUTO_INGEST").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("ERROR_INTEGRATION").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("AWS_SNS_TOPIC").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("INTEGRATION").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                                Ref::new("ObjectReferenceSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("PipePropertiesGrammar").optional().to_matchable(),
                     Sequence::new(vec![
                         Sequence::new(vec![Ref::keyword("WITH").to_matchable()])
                             .config(|this| this.optional())
@@ -10819,14 +10942,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "CreateFileFormatSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateFileFormatSegment, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("CREATE").to_matchable(),
-                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("FILE").to_matchable(),
-                        Ref::keyword("FORMAT").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CREATE").to_matchable(),
+                            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("FILE").to_matchable(),
+                                Ref::keyword("FORMAT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DEFINE").to_matchable(),
+                            Ref::keyword("FILE").to_matchable(),
+                            Ref::keyword("FORMAT").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     one_of(vec![
                         Ref::new("CsvFileFormatTypeParameters").to_matchable(),
@@ -12448,119 +12583,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable();
 
-                let s3_external_stage_parameters = Sequence::new(vec![
-                    Ref::new("S3ExternalStageParameters")
-                        .optional()
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("DIRECTORY").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("ENABLE").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("AUTO_REFRESH").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable();
-
-                let gcs_external_stage_parameters = Sequence::new(vec![
-                    Ref::new("GCSExternalStageParameters")
-                        .optional()
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("DIRECTORY").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("ENABLE").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("AUTO_REFRESH").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("NOTIFICATION_INTEGRATION").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable();
-
-                let azure_external_stage_parameters = Sequence::new(vec![
-                    Ref::new("AzureBlobStorageExternalStageParameters")
-                        .optional()
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("DIRECTORY").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("ENABLE").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("AUTO_REFRESH").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("NOTIFICATION_INTEGRATION").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable();
-
                 let external_stage_parameters = one_of(vec![
-                    s3_external_stage_parameters,
-                    gcs_external_stage_parameters,
-                    azure_external_stage_parameters,
+                    Ref::new("S3ExternalStageOptionsGrammar").to_matchable(),
+                    Ref::new("GCSExternalStageOptionsGrammar").to_matchable(),
+                    Ref::new("AzureBlobStorageExternalStageOptionsGrammar").to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable();
@@ -12645,6 +12671,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DefinePipeSegment".into(),
+            NodeMatcher::new(SyntaxKind::DefinePipeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DEFINE").to_matchable(),
+                    Ref::keyword("PIPE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("PipePropertiesGrammar").optional().to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::new("CopyIntoTableStatementSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DefineStageSegment".into(),
             NodeMatcher::new(SyntaxKind::DefineStageStatement, |_| {
                 Sequence::new(vec![
@@ -12652,21 +12699,66 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("STAGE").to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    Sequence::new(vec![
-                        Ref::new("InternalStageParameters")
-                            .optional()
-                            .to_matchable(),
+                    one_of(vec![
                         Sequence::new(vec![
-                            Ref::keyword("DIRECTORY").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Bracketed::new(vec![
-                                Ref::keyword("ENABLE").to_matchable(),
+                            Ref::new("InternalStageParameters")
+                                .optional()
+                                .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DIRECTORY").to_matchable(),
                                 Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                Bracketed::new(vec![
+                                    Ref::keyword("ENABLE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
+                            .config(|this| this.optional())
                             .to_matchable(),
                         ])
                         .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("URL").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::new("S3Path").to_matchable(),
+                                    Ref::new("S3ExternalStageOptionsGrammar")
+                                        .optional()
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("GCSPath").to_matchable(),
+                                    Ref::new("GCSExternalStageOptionsGrammar")
+                                        .optional()
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("AzureBlobStoragePath").to_matchable(),
+                                    Ref::new("AzureBlobStorageExternalStageOptionsGrammar")
+                                        .optional()
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("S3ExternalStageOptionsGrammar").to_matchable(),
+                                        Ref::new("GCSExternalStageOptionsGrammar").to_matchable(),
+                                        Ref::new("AzureBlobStorageExternalStageOptionsGrammar")
+                                            .to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
                         .to_matchable(),
                     ])
                     .config(|this| this.optional())

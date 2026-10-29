@@ -1,0 +1,52 @@
+file:
+- statement:
+  - create_file_format_segment:
+    - keyword: DEFINE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_json_format
+    - json_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: '''JSON'''
+      - keyword: COMPRESSION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - compression_type: NONE
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''uncompressed JSON file format for raw ingestion'''
+- statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: DEFINE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_csv_format
+    - csv_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: '''CSV'''
+      - keyword: FIELD_DELIMITER
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: ''','''
+      - keyword: SKIP_HEADER
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - integer_literal: '1'
+- statement_terminator: ;

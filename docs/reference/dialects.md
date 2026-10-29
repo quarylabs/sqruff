@@ -5723,7 +5723,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (407)</summary>
+<summary>Segment types (408)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5868,6 +5868,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>date_constructor_literal</code></li>
 <li><code>date_part</code></li>
 <li><code>dedent</code></li>
+<li><code>define_pipe_statement</code></li>
 <li><code>define_stage_statement</code></li>
 <li><code>define_statement</code></li>
 <li><code>delete_statement</code></li>

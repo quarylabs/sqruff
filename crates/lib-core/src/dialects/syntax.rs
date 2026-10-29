@@ -457,6 +457,7 @@ pub enum SyntaxKind {
     DeclareStatement,
     Dedent,
     DefaultCollate,
+    DefinePipeStatement,
     DefineStageStatement,
     DefineStatement,
     DefinerSegment,

@@ -18,8 +18,7 @@ file:
                   - start_bracket: (
                   - tsql_variable: '@iDoc'
                   - comma: ','
-                  - naked_identifier: N
-                  - quoted_literal: '''root/search'''
+                  - quoted_literal: N'root/search'
                   - comma: ','
                   - numeric_literal: '1'
                   - end_bracket: )
@@ -42,8 +41,7 @@ file:
                   - start_bracket: (
                   - tsql_variable: '@iDoc'
                   - comma: ','
-                  - naked_identifier: N
-                  - quoted_literal: '''root/search'''
+                  - quoted_literal: N'root/search'
                   - comma: ','
                   - numeric_literal: '1'
                   - end_bracket: )

@@ -53,8 +53,7 @@ file:
           - keyword: LOCATION
           - comparison_operator:
             - raw_comparison_operator: =
-          - naked_identifier: N
-          - quoted_literal: '''/path/to/folder/'''
+          - quoted_literal: N'/path/to/folder/'
         - comma: ','
         - keyword: DATA_SOURCE
         - comparison_operator:
@@ -136,8 +135,7 @@ file:
           - keyword: LOCATION
           - comparison_operator:
             - raw_comparison_operator: =
-          - naked_identifier: N
-          - quoted_literal: '''/path/to/folder/'''
+          - quoted_literal: N'/path/to/folder/'
         - comma: ','
         - keyword: DATA_SOURCE
         - comparison_operator:

@@ -136,8 +136,7 @@ file:
             - keyword: LANGUAGE
             - comparison_operator:
               - raw_comparison_operator: =
-            - naked_identifier: N
-            - quoted_literal: '''us_english'''
+            - quoted_literal: N'us_english'
             - end_bracket: )
           - statement:
             - return_segment:

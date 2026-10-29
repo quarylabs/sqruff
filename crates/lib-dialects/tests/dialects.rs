@@ -839,6 +839,29 @@ fn mysql_family_rejects_schema_qualified_dual() {
 }
 
 #[test]
+fn tsql_unicode_strings_are_single_tokens() {
+    let dialect = kind_to_dialect(&DialectKind::Tsql, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+
+    for literal in [
+        "N'abc'",
+        "N''",
+        "N'It''s'",
+        "N'Michél ☃'",
+        "N'one\ntwo'",
+        "N'C:\\path\\'",
+    ] {
+        let (tokens, errors) = lexer.lex(&tables, literal);
+        assert!(errors.is_empty(), "{literal}");
+        let code = tokens.iter().filter(|token| token.is_code()).collect_vec();
+        assert_eq!(code.len(), 1, "{literal}");
+        assert!(code[0].is_type(SyntaxKind::SingleQuoteWithN), "{literal}");
+        assert_eq!(code[0].raw().as_str(), literal);
+    }
+}
+
+#[test]
 fn tsql_cursor_rejects_disallowed_select_clauses() {
     let dialect = kind_to_dialect(&DialectKind::Tsql, None).unwrap();
     let tables = Tables::default();

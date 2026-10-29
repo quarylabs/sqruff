@@ -176,8 +176,7 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''id'''
+        - quoted_literal: N'id'
       - comma: ','
       - tsql_variable: '@id_value'
       - data_type:

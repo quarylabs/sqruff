@@ -134,8 +134,7 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''MS_Description'''
+        - quoted_literal: N'MS_Description'
       - comma: ','
       - tsql_variable: '@value'
       - comparison_operator:
@@ -147,29 +146,25 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''SCHEMA'''
+        - quoted_literal: N'SCHEMA'
       - comma: ','
       - tsql_variable: '@level0name'
       - comparison_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''my_schema_name'''
+        - quoted_literal: N'my_schema_name'
       - comma: ','
       - tsql_variable: '@level1type'
       - comparison_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''my_object_type'''
+        - quoted_literal: N'my_object_type'
       - comma: ','
       - tsql_variable: '@level1name'
       - comparison_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''my_object_name'''
+        - quoted_literal: N'my_object_name'
   - statement:
     - execute_script_statement:
       - keyword: EXEC

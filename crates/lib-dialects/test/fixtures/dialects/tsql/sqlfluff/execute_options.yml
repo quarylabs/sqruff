@@ -129,8 +129,7 @@ file:
       - keyword: EXEC
       - bracketed:
         - start_bracket: (
-        - naked_identifier: N
-        - quoted_literal: '''SELECT ?'''
+        - quoted_literal: N'SELECT ?'
         - binary_operator: +
         - tsql_variable: '@sql'
         - comma: ','
@@ -159,6 +158,5 @@ file:
       - comparison_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''Unicode value'''
+        - quoted_literal: N'Unicode value'
   - statement_terminator: ;

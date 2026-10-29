@@ -113,8 +113,7 @@ file:
                     - keyword: xml
                   - comma: ','
                   - expression:
-                    - naked_identifier: N
-                    - quoted_literal: '''<r></r>'''
+                    - quoted_literal: N'<r></r>'
                   - end_bracket: )
             - datatype_method:
               - dot: .
@@ -152,8 +151,7 @@ file:
                               - keyword: xml
                             - comma: ','
                             - expression:
-                              - naked_identifier: N
-                              - quoted_literal: '''<r></r>'''
+                              - quoted_literal: N'<r></r>'
                             - end_bracket: )
               - end_bracket: )
             - datatype_method:

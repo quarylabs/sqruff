@@ -26,8 +26,7 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: N
-                      - quoted_literal: '''[1,2,3,4]'''
+                      - quoted_literal: N'[1,2,3,4]'
                     - end_bracket: )
               - alias_expression:
                 - alias_operator:

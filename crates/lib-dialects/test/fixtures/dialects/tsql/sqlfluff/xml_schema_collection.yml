@@ -12,9 +12,8 @@ file:
         - naked_identifier: SomeXmlSchemaCollection
       - keyword: AS
       - expression:
-        - naked_identifier: N
         - quoted_literal: |-
-            '<?xml version="1.0" encoding="UTF-16"?>
+            N'<?xml version="1.0" encoding="UTF-16"?>
             <xsd:schema targetNamespace="https://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions"
                xmlns          ="https://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions"
                elementFormDefault="qualified"

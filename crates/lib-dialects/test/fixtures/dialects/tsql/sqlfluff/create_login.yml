@@ -179,8 +179,7 @@ file:
       - keyword: PASSWORD
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: N
-      - quoted_literal: '''$trongPassw0rd'''
+      - quoted_literal: N'$trongPassw0rd'
       - comma: ','
       - keyword: DEFAULT_DATABASE
       - comparison_operator:

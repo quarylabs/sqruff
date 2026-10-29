@@ -46,8 +46,7 @@ file:
     - set_segment:
       - keyword: SET
       - keyword: DATEFORMAT
-      - naked_identifier: N
-      - quoted_literal: '''dmy'''
+      - quoted_literal: N'dmy'
   - statement_terminator: ;
   - statement:
     - set_segment:

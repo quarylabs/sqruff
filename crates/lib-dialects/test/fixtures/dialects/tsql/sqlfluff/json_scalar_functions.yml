@@ -1149,8 +1149,7 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''{"name":"John","age":30}'''
+        - quoted_literal: N'{"name":"John","age":30}'
   - statement_terminator: ;
   - statement:
     - declare_segment:
@@ -1166,8 +1165,7 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''$.name'''
+        - quoted_literal: N'$.name'
   - statement_terminator: ;
   - statement:
     - select_statement:

@@ -11721,11 +11721,222 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
+    snowflake_dialect.add([
+        (
+            "SemanticViewObjectReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewObjectReference, |_| {
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DotSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .allow_gaps(false)
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.max_times(2))
+                    .to_matchable(),
+                ])
+                .allow_gaps(false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewFieldReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewFieldReference, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("StarSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .allow_gaps(false)
+                    .to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewExpression, |_| {
+                one_of(vec![
+                    Ref::new("SemanticViewFieldReferenceSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewMetricSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewMetric, |_| {
+                Sequence::new(vec![
+                    Ref::new("SemanticViewExpressionSegment").to_matchable(),
+                    Ref::new("AliasExpressionSegment")
+                        .exclude(one_of(vec![
+                            Ref::keyword("METRICS").to_matchable(),
+                            Ref::keyword("FACTS").to_matchable(),
+                            Ref::keyword("DIMENSIONS").to_matchable(),
+                            Ref::keyword("WHERE").to_matchable(),
+                        ]))
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewDimensionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewDimension, |_| {
+                Sequence::new(vec![
+                    Ref::new("SemanticViewExpressionSegment").to_matchable(),
+                    Ref::new("AliasExpressionSegment")
+                        .exclude(one_of(vec![
+                            Ref::keyword("METRICS").to_matchable(),
+                            Ref::keyword("FACTS").to_matchable(),
+                            Ref::keyword("DIMENSIONS").to_matchable(),
+                            Ref::keyword("WHERE").to_matchable(),
+                        ]))
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewFactSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewFact, |_| {
+                Ref::new("SemanticViewExpressionSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewMetricsClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewMetricsClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("METRICS").to_matchable(),
+                    Delimited::new(vec![Ref::new("SemanticViewMetricSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewFactsClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewFactsClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FACTS").to_matchable(),
+                    Delimited::new(vec![Ref::new("SemanticViewFactSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewDimensionsClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewDimensionsClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DIMENSIONS").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("SemanticViewDimensionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewWhereClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticViewWhereClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WHERE").to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SemanticViewSegment".into(),
+            NodeMatcher::new(SyntaxKind::SemanticView, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("SEMANTIC_VIEW").to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::new("SemanticViewObjectReferenceSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("SemanticViewMetricsClauseSegment").to_matchable(),
+                            Ref::new("SemanticViewFactsClauseSegment").to_matchable(),
+                            Ref::new("SemanticViewDimensionsClauseSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("SemanticViewMetricsClauseSegment").to_matchable(),
+                                Ref::new("SemanticViewDimensionsClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("SemanticViewDimensionsClauseSegment").to_matchable(),
+                                Ref::new("SemanticViewMetricsClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("SemanticViewFactsClauseSegment").to_matchable(),
+                                Ref::new("SemanticViewDimensionsClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("SemanticViewDimensionsClauseSegment").to_matchable(),
+                                Ref::new("SemanticViewFactsClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("SemanticViewWhereClauseSegment")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     snowflake_dialect.replace_grammar(
         "TableExpressionSegment",
         one_of(vec![
+            Ref::new("SemanticViewSegment").to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
-            Ref::new("FunctionSegment").to_matchable(),
+            Ref::new("FunctionSegment")
+                .exclude(Sequence::new(vec![
+                    Ref::keyword("SEMANTIC_VIEW").to_matchable(),
+                    Ref::new("StartBracketSegment").to_matchable(),
+                ]))
+                .to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             Ref::new("ValuesClauseSegment").to_matchable(),

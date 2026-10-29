@@ -281,6 +281,7 @@ impl RuleRF01 {
             ref_path.iter().any(|ps| {
                 ps.segment.is_type(SyntaxKind::IntoTableClause)
                     || ps.segment.is_type(SyntaxKind::ContainstableSegment)
+                    || ps.segment.is_type(SyntaxKind::SemanticView)
             })
         } else {
             false

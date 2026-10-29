@@ -234,8 +234,7 @@ file:
                 - assignment_operator:
                   - raw_comparison_operator: =
                 - expression:
-                  - naked_identifier: N
-                  - quoted_literal: '''Missing control type.'''
+                  - quoted_literal: N'Missing control type.'
             - statement_terminator: ;
             - statement:
               - set_local_variable_segment:
@@ -247,8 +246,7 @@ file:
                   - parameterized_expression:
                     - tsql_variable: '@v_vchMsg'
                   - binary_operator: +
-                  - naked_identifier: N
-                  - quoted_literal: ''' SQL Error = '''
+                  - quoted_literal: N' SQL Error = '
                   - binary_operator: +
                   - function:
                     - function_name:

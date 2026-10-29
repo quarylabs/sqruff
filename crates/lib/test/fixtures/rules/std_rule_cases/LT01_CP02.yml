@@ -1,0 +1,29 @@
+rule: LT01,CP02
+
+test_tsql_unicode_prefix_does_not_set_identifier_case:
+  pass_str: SELECT N'abc' AS a;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_unicode_literals_with_lowercase_identifiers:
+  pass_str: |
+    SELECT N'' AS empty, N'It''s' AS escaped, N'Michél ☃' AS unicode;
+    SELECT name FROM dbo.t WHERE name = N'abc' AND other = N'It''s';
+    DECLARE @v NVARCHAR(10) = N'abc';
+    SET @v = N'def';
+    EXEC dbo.example @value = N'abc';
+    PRINT N'abc';
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: lower
+
+test_tsql_unicode_literals_keep_spacing_around_operators:
+  fail_str: SELECT N'It''s'+N'' AS a;
+  fix_str: SELECT N'It''s' + N'' AS a;
+  configs:
+    core:
+      dialect: tsql

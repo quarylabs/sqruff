@@ -723,15 +723,13 @@ file:
               - keyword: NAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''BlobStore1'''
+              - quoted_literal: N'BlobStore1'
             - file_spec_file_name:
               - comma: ','
               - keyword: FILENAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''C:\BlobStore\BlobStore1.mdf'''
+              - quoted_literal: N'C:\BlobStore\BlobStore1.mdf'
             - file_spec_size:
               - comma: ','
               - keyword: SIZE
@@ -765,15 +763,13 @@ file:
               - keyword: NAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''FS1'''
+              - quoted_literal: N'FS1'
             - file_spec_file_name:
               - comma: ','
               - keyword: FILENAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''C:\BlobStore\FS1'''
+              - quoted_literal: N'C:\BlobStore\FS1'
             - file_spec_max_size:
               - comma: ','
               - keyword: MAXSIZE
@@ -790,15 +786,13 @@ file:
               - keyword: NAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''FS2'''
+              - quoted_literal: N'FS2'
             - file_spec_file_name:
               - comma: ','
               - keyword: FILENAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''C:\BlobStore\FS2'''
+              - quoted_literal: N'C:\BlobStore\FS2'
             - file_spec_max_size:
               - comma: ','
               - keyword: MAXSIZE
@@ -816,15 +810,13 @@ file:
               - keyword: NAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''BlobStore1_log'''
+              - quoted_literal: N'BlobStore1_log'
             - file_spec_file_name:
               - comma: ','
               - keyword: FILENAME
               - comparison_operator:
                 - raw_comparison_operator: =
-              - naked_identifier: N
-              - quoted_literal: '''C:\BlobStore\BlobStore1_log.ldf'''
+              - quoted_literal: N'C:\BlobStore\BlobStore1_log.ldf'
             - file_spec_size:
               - comma: ','
               - keyword: SIZE

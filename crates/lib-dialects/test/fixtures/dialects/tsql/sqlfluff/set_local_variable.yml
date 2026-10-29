@@ -51,8 +51,7 @@ file:
       - assignment_operator:
         - raw_comparison_operator: =
       - expression:
-        - naked_identifier: N
-        - quoted_literal: '''Oregon'''
+        - quoted_literal: N'Oregon'
   - statement_terminator: ;
   - statement:
     - select_statement:

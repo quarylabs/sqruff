@@ -188,8 +188,7 @@ file:
         - keyword: VALUES
         - bracketed:
           - start_bracket: (
-          - naked_identifier: N
-          - quoted_literal: '''Operator error'''
+          - quoted_literal: N'Operator error'
           - comma: ','
           - expression:
             - function:
@@ -225,8 +224,7 @@ file:
         - keyword: VALUES
         - bracketed:
           - start_bracket: (
-          - naked_identifier: N
-          - quoted_literal: '''Operator error'''
+          - quoted_literal: N'Operator error'
           - comma: ','
           - expression:
             - function:

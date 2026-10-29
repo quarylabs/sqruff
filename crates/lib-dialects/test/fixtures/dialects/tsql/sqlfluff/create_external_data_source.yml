@@ -73,8 +73,7 @@ file:
           - keyword: LOCATION
           - comparison_operator:
             - raw_comparison_operator: =
-          - naked_identifier: N
-          - quoted_literal: '''oracle://XE'''
+          - quoted_literal: N'oracle://XE'
         - comma: ','
         - keyword: CREDENTIAL
         - comparison_operator:
@@ -85,7 +84,6 @@ file:
         - keyword: CONNECTION_OPTIONS
         - comparison_operator:
           - raw_comparison_operator: =
-        - naked_identifier: N
-        - quoted_literal: '''TNSNamesFile=C:\Temp\tnsnames.ora;ServerName=XE'''
+        - quoted_literal: N'TNSNamesFile=C:\Temp\tnsnames.ora;ServerName=XE'
         - end_bracket: )
   - statement_terminator: ;

@@ -127,8 +127,7 @@ file:
                     - quoted_literal: '''ISABOUT (frame WEIGHT (.8), wheel WEIGHT (.4), tire WEIGHT (.2))'''
                     - comma: ','
                     - keyword: LANGUAGE
-                    - naked_identifier: N
-                    - quoted_literal: '''English'''
+                    - quoted_literal: N'English'
                     - comma: ','
                     - numeric_literal: '5'
                     - end_bracket: )

@@ -7391,7 +7391,7 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 ```
 
 <details>
-<summary>Segment types (331)</summary>
+<summary>Segment types (332)</summary>
 <ul>
 <li><code>action_parameter</code></li>
 <li><code>aggregate_order_by_clause</code></li>
@@ -7676,6 +7676,7 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 <li><code>set_segment</code></li>
 <li><code>sign_indicator</code></li>
 <li><code>single_quote</code></li>
+<li><code>single_quote_with_n</code></li>
 <li><code>size_literal</code></li>
 <li><code>slice</code></li>
 <li><code>sqlcmd_command_segment</code></li>

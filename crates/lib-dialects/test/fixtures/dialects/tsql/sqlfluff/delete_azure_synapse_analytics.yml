@@ -119,8 +119,7 @@ file:
             - keyword: LABEL
             - comparison_operator:
               - raw_comparison_operator: =
-            - naked_identifier: N
-            - quoted_literal: '''label1'''
+            - quoted_literal: N'label1'
           - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -203,8 +202,7 @@ file:
             - keyword: LABEL
             - comparison_operator:
               - raw_comparison_operator: =
-            - naked_identifier: N
-            - quoted_literal: '''CustomJoin'''
+            - quoted_literal: N'CustomJoin'
           - comma: ','
           - query_hint_segment:
             - keyword: HASH

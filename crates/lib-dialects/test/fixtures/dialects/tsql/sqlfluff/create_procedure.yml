@@ -192,8 +192,7 @@ file:
               - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: =
-        - naked_identifier: N
-        - quoted_literal: '''foo'''
+        - quoted_literal: N'foo'
         - keyword: READONLY
         - comma: ','
         - tsql_variable: '@bar'
@@ -425,8 +424,7 @@ file:
             - keyword: LANGUAGE
             - comparison_operator:
               - raw_comparison_operator: =
-            - naked_identifier: N
-            - quoted_literal: '''us_english'''
+            - quoted_literal: N'us_english'
             - comma: ','
             - keyword: TRANSACTION
             - keyword: ISOLATION
@@ -565,8 +563,7 @@ file:
             - keyword: LANGUAGE
             - comparison_operator:
               - raw_comparison_operator: =
-            - naked_identifier: N
-            - quoted_literal: '''us_english'''
+            - quoted_literal: N'us_english'
             - comma: ','
             - keyword: DELAYED_DURABILITY
             - comparison_operator:

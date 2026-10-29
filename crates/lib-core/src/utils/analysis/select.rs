@@ -153,6 +153,7 @@ fn get_hint_refs(segment: &ErasedSegment) -> HashSet<u32> {
 fn get_object_references_excluding(
     segment: &ErasedSegment,
     exclude_ids: Option<&HashSet<u32>>,
+    recurse_into: bool,
 ) -> Vec<ObjectReferenceSegment> {
     segment
         .recursive_crawl(
@@ -163,7 +164,7 @@ fn get_object_references_excluding(
                     SyntaxKind::WildcardIdentifier,
                 ])
             },
-            true,
+            recurse_into,
             const { &SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::MergeStatement]) },
             true,
         )
@@ -174,7 +175,7 @@ fn get_object_references_excluding(
 }
 
 pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
-    get_object_references_excluding(segment, None)
+    get_object_references_excluding(segment, None, true)
 }
 
 pub fn get_select_statement_info(
@@ -192,7 +193,7 @@ pub fn get_select_statement_info(
     let mut exclude_ref_ids = get_struct_alias_refs(&sc);
     exclude_ref_ids.extend(get_select_except_refs(&sc));
     exclude_ref_ids.extend(get_hint_refs(&sc));
-    let mut reference_buffer = get_object_references_excluding(&sc, Some(&exclude_ref_ids));
+    let mut reference_buffer = get_object_references_excluding(&sc, Some(&exclude_ref_ids), true);
     let mut table_reference_buffer = Vec::new();
     for potential_clause in [
         SyntaxKind::WhereClause,
@@ -233,7 +234,20 @@ pub fn get_select_statement_info(
         ) {
             for seg in table_expression.segments() {
                 if !seg.is_type(SyntaxKind::TableReference) {
-                    reference_buffer.extend(get_object_references(seg));
+                    // TSQL wraps an object_reference in a table_reference.
+                    // Stop at the outer reference so its inner node cannot
+                    // leak back into the column-reference buffer.
+                    for reference in get_object_references_excluding(seg, None, false) {
+                        // Tables declared inside a bracketed join or a table
+                        // function are declarations, rather than columns.
+                        if reference.0.is_type(SyntaxKind::TableReference) {
+                            if reference.is_qualified() {
+                                table_reference_buffer.push(reference);
+                            }
+                        } else {
+                            reference_buffer.push(reference);
+                        }
+                    }
                 } else if seg.reference().is_qualified() {
                     table_reference_buffer.extend(get_object_references(seg));
                 }

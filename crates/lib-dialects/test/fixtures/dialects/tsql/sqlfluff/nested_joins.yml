@@ -33,9 +33,9 @@ file:
             - keyword: LEFT
             - keyword: OUTER
             - keyword: JOIN
-            - bracketed:
-              - start_bracket: (
-              - from_expression:
+            - from_expression_element:
+              - bracketed:
+                - start_bracket: (
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
@@ -74,7 +74,7 @@ file:
                         - naked_identifier: fltr1
                         - dot: .
                         - naked_identifier: Id
-              - end_bracket: )
+                - end_bracket: )
             - join_on_condition:
               - keyword: ON
               - expression:

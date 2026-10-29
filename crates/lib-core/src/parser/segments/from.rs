@@ -67,22 +67,47 @@ impl FromExpressionElementSegment {
     pub fn eventual_aliases(&self) -> Vec<AliasInfo> {
         let mut tbl_expression = self
             .0
-            .child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
-            .or_else(|| {
-                self.0
-                    .child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) })
-                    .and_then(|bracketed| {
-                        bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) })
-                    })
-            });
-
-        if let Some(tbl_expression_inner) = &tbl_expression
-            && tbl_expression_inner
-                    .child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })
-                    .is_none()
-                    && let Some(bracketed) = tbl_expression_inner.child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }) {
-                        tbl_expression = bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) });
+            .child(const { &SyntaxSet::single(SyntaxKind::TableExpression) });
+        if tbl_expression.is_none()
+            && let Some(bracketed) = self
+                .0
+                .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+        {
+            tbl_expression =
+                bracketed.child(const { &SyntaxSet::single(SyntaxKind::TableExpression) });
+            if tbl_expression.is_none() {
+                // The alias belongs to the element inside any redundant
+                // bracket layers, rather than to the bracketed join target.
+                let mut bracketed = Some(bracketed);
+                while let Some(layer) = bracketed {
+                    if let Some(inner) =
+                        layer.child(const { &SyntaxSet::single(SyntaxKind::FromExpressionElement) })
+                    {
+                        return FromExpressionElementSegment(inner).eventual_aliases();
                     }
+                    bracketed = layer.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) });
+                }
+            }
+        }
+
+        // TSQL nests a table expression under each bracket pair, so unwrap
+        // until the first table reference is reached.
+        while let Some(inner) = &tbl_expression {
+            if inner
+                .child(const {
+                    &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference])
+                })
+                .is_some()
+            {
+                break;
+            }
+            let Some(bracketed) = inner.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+            else {
+                break;
+            };
+            tbl_expression =
+                bracketed.child(const { &SyntaxSet::single(SyntaxKind::TableExpression) });
+        }
 
         let reference = tbl_expression.and_then(|tbl_expression| {
             tbl_expression.child(const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::TableReference]) })

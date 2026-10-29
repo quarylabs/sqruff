@@ -456,7 +456,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Ref::new("FromExpressionElementSegment").to_matchable(),
+                Ref::new("JoinTargetGrammar").to_matchable(),
                 AnyNumberOf::new(vec![Ref::new("NestedJoinGrammar").to_matchable()]).to_matchable(),
                 MetaSegment::dedent().to_matchable(),
                 Sequence::new(vec![
@@ -493,14 +493,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("UnconditionalJoinKeywordsGrammar").to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Ref::new("FromExpressionElementSegment").to_matchable(),
+                Ref::new("JoinTargetGrammar").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![
                 Ref::new("ExtendedNaturalJoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Ref::new("FromExpressionElementSegment").to_matchable(),
+                Ref::new("JoinTargetGrammar").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
             ])
             .to_matchable(),
@@ -508,7 +508,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("ASOF").to_matchable(),
                 Ref::keyword("JOIN").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Ref::new("FromExpressionElementSegment").to_matchable(),
+                Ref::new("JoinTargetGrammar").to_matchable(),
                 AnyNumberOf::new(vec![Ref::new("NestedJoinGrammar").to_matchable()]).to_matchable(),
                 MetaSegment::dedent().to_matchable(),
                 MetaSegment::indent().to_matchable(),

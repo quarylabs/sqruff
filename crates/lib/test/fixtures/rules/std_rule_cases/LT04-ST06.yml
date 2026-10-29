@@ -1,0 +1,15 @@
+rule: LT04,ST06
+
+test_fail_rebreak_commas_without_detaching_target_comment:
+  fail_str: |-
+    SELECT COALESCE(a, 0) AS b--comment
+
+        , COALESCE(c, 0) AS d
+        , e
+    FROM t
+  fix_str: |-
+    SELECT COALESCE(a, 0) AS b,--comment
+
+        COALESCE(c, 0) AS d,
+        e
+    FROM t

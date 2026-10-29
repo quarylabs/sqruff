@@ -1360,8 +1360,9 @@ fn collect_toml_config_elems(
                 collect_toml_config_elems(table, section_path, config_path, buff);
             }
             value => {
-                let mut value = toml_value_to_config_value(value);
                 let key = toml_config_key_path(&section_path, name);
+                let mut value =
+                    toml_value_to_config_value(value, is_typed_templater_context_key_path(&key));
                 if !is_jinja_context_key_path(&key) {
                     if matches!(
                         name.as_str(),
@@ -1402,7 +1403,41 @@ fn toml_config_key_path(section_path: &[String], key: &str) -> Vec<String> {
     }
 }
 
-fn toml_value_to_config_value(value: &toml::Value) -> Value {
+fn is_typed_templater_context_key_path(key_path: &[String]) -> bool {
+    matches!(key_path, [section, templater, context, ..]
+        if section == "templater" && context == "context"
+            && matches!(templater.as_str(), "jinja" | "python" | "dbt"))
+}
+
+/// Match Python's string representation of TOML dates and times, including
+/// its space separator, UTC offset, and microsecond precision.
+fn toml_datetime_to_string(value: &toml::value::Datetime) -> String {
+    let mut result = value.date.map(|date| date.to_string()).unwrap_or_default();
+    if let Some(time) = value.time {
+        if value.date.is_some() {
+            result.push(' ');
+        }
+        result.push_str(&format!(
+            "{:02}:{:02}:{:02}",
+            time.hour,
+            time.minute,
+            time.second.unwrap_or(0)
+        ));
+        let microseconds = time.nanosecond.unwrap_or(0) / 1_000;
+        if microseconds > 0 {
+            result.push_str(&format!(".{microseconds:06}"));
+        }
+    }
+    if let Some(offset) = value.offset {
+        result.push_str(&match offset {
+            toml::value::Offset::Z => "+00:00".to_owned(),
+            offset => offset.to_string(),
+        });
+    }
+    result
+}
+
+fn toml_value_to_config_value(value: &toml::Value, preserve_array_types: bool) -> Value {
     match value {
         toml::Value::String(value) => Value::String(value.clone().into()),
         toml::Value::Integer(value) => {
@@ -1410,8 +1445,14 @@ fn toml_value_to_config_value(value: &toml::Value) -> Value {
         }
         toml::Value::Float(value) => Value::Float(*value),
         toml::Value::Boolean(value) => Value::Bool(*value),
-        toml::Value::Datetime(value) => Value::String(value.to_string().into()),
-        // Config arrays contain strings, matching values loaded from INI files.
+        toml::Value::Datetime(value) => Value::String(toml_datetime_to_string(value).into()),
+        toml::Value::Array(values) if preserve_array_types => Value::Array(
+            values
+                .iter()
+                .map(|value| toml_value_to_config_value(value, true))
+                .collect(),
+        ),
+        // Ordinary config arrays retain INI-compatible string coercion.
         toml::Value::Array(values) => Value::Array(
             values
                 .iter()
@@ -1420,6 +1461,7 @@ fn toml_value_to_config_value(value: &toml::Value) -> Value {
                         toml::Value::String(value) => value.clone(),
                         toml::Value::Boolean(true) => "True".to_owned(),
                         toml::Value::Boolean(false) => "False".to_owned(),
+                        toml::Value::Datetime(value) => toml_datetime_to_string(value),
                         value => value.to_string(),
                     };
                     Value::String(value.into())
@@ -1429,7 +1471,12 @@ fn toml_value_to_config_value(value: &toml::Value) -> Value {
         toml::Value::Table(values) => Value::Map(
             values
                 .iter()
-                .map(|(key, value)| (key.clone(), toml_value_to_config_value(value)))
+                .map(|(key, value)| {
+                    (
+                        key.clone(),
+                        toml_value_to_config_value(value, preserve_array_types),
+                    )
+                })
                 .collect(),
         ),
     }
@@ -2806,6 +2853,92 @@ capitalisation_policy = "upper"
                 ),
             ] {
                 assert_semicolon_newline_migrated(&FluffConfig::from_source(&source, path), false);
+            }
+        }
+    }
+
+    #[test]
+    fn test_toml_nested_templater_context_arrays() {
+        for templater in ["jinja", "python", "dbt"] {
+            let source = format!(
+                r#"[tool.sqlfluff.core]
+dialect = "ansi"
+rules = [1, 2]
+[tool.sqlfluff.templater.{templater}]
+ordinary_list = [1, 2]
+[tool.sqlfluff.templater.{templater}.context]
+bundle = {{metrics = [{{name = "count", enabled = true, weight = 2}}]}}
+values = [1, "123", true, [2, 3], {{name = "nested"}}]
+"#
+            );
+            let loaded = ConfigLoader::from_source(&source, Some(Path::new("pyproject.toml")));
+            let context = &loaded["templater"][templater]["context"];
+            let expected_bundle: Value = serde_json::from_value(serde_json::json!({
+                "metrics": [{"name": "count", "enabled": true, "weight": 2}]
+            }))
+            .unwrap();
+            assert_eq!(context["bundle"], expected_bundle, "{templater}");
+            let expected_values: Value = serde_json::from_value(serde_json::json!(
+                [1, "123", true, [2, 3], {"name": "nested"}]
+            ))
+            .unwrap();
+            assert_eq!(context["values"], expected_values, "{templater}");
+            let strings = Value::Array(vec![Value::String("1".into()), Value::String("2".into())]);
+            assert_eq!(loaded["core"]["rules"], strings);
+            assert_eq!(loaded["templater"][templater]["ordinary_list"], strings);
+
+            let patch: Value = serde_json::from_value(serde_json::json!({
+                "templater": {templater: {"context": {"bundle": {"extra": "kept"}}}}
+            }))
+            .unwrap();
+            let merged = nested_combine(vec![loaded, patch.as_map().unwrap().clone()]);
+            let bundle = &merged["templater"][templater]["context"]["bundle"];
+            assert_eq!(bundle["metrics"], expected_bundle["metrics"]);
+            assert_eq!(bundle["extra"].as_string(), Some("kept"));
+        }
+    }
+
+    #[test]
+    fn test_toml_other_templater_context_lists_remain_strings() {
+        for templater in ["sqlmesh", "custom"] {
+            let source = format!("[tool.sqruff.templater.{templater}.context]\nvalues = [1, 2]\n");
+            let loaded = ConfigLoader::from_source(&source, Some(Path::new("sqruff.toml")));
+            assert_eq!(
+                loaded["templater"][templater]["context"]["values"],
+                Value::Array(vec![Value::String("1".into()), Value::String("2".into())])
+            );
+        }
+    }
+
+    #[test]
+    fn test_toml_templater_context_temporal_arrays() {
+        for templater in ["jinja", "python", "dbt"] {
+            for (literal, expected) in [
+                ("2026-09-12", "2026-09-12"),
+                ("12:34:56", "12:34:56"),
+                ("2026-09-12T12:34:56", "2026-09-12 12:34:56"),
+                ("2026-09-12T12:34:56Z", "2026-09-12 12:34:56+00:00"),
+                ("12:34:56.12", "12:34:56.120000"),
+                (
+                    "2026-09-12T12:34:56.123456789-05:30",
+                    "2026-09-12 12:34:56.123456-05:30",
+                ),
+            ] {
+                let source = format!(
+                    "[tool.sqlfluff.templater.{templater}.context]\nscalar = {literal}\nvalues = [{literal}, [{literal}], {{value = {literal}}}]\nbundle = {{values = [{literal}]}}\n"
+                );
+                let loaded = ConfigLoader::from_source(&source, Some(Path::new("pyproject.toml")));
+                let context = &loaded["templater"][templater]["context"];
+                assert_eq!(context["scalar"].as_string(), Some(expected));
+                let expected_values: Value = serde_json::from_value(serde_json::json!(
+                    [expected, [expected], {"value": expected}]
+                ))
+                .unwrap();
+                assert_eq!(context["values"], expected_values, "{templater}: {literal}");
+                assert_eq!(
+                    context["bundle"]["values"],
+                    Value::Array(vec![Value::String(expected.into())])
+                );
             }
         }
     }

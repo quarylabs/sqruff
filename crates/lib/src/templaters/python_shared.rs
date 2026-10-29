@@ -280,6 +280,75 @@ mod tests {
     }
 
     #[test]
+    fn test_toml_ini_nested_context_rendering_equivalence() {
+        use crate::core::linter::core::Linter;
+        use std::path::Path;
+
+        let bundle_literal = "{'safe_name': 'test_metric', 'base_sql': 'select 1', 'join_key': 'user_id', 'selected_metrics': [{'name': 'logged_days', 'definition': 'COUNT(*)'}]}";
+        let expected_bundle: Value = serde_json::from_value(serde_json::json!({
+            "safe_name": "test_metric",
+            "base_sql": "select 1",
+            "join_key": "user_id",
+            "selected_metrics": [{"name": "logged_days", "definition": "COUNT(*)"}]
+        }))
+        .unwrap();
+
+        for (name, kind, class_name, sql) in [
+            (
+                "jinja",
+                TemplaterKind::Jinja,
+                "JinjaTemplater",
+                "SELECT {% for m in bundle.selected_metrics %}{{ m.definition }} AS {{ m.name }}{% endfor %}",
+            ),
+            (
+                "python",
+                TemplaterKind::Python,
+                "PythonTemplater",
+                "SELECT {bundle[selected_metrics][0][definition]} AS {bundle[selected_metrics][0][name]}",
+            ),
+        ] {
+            let ini = format!(
+                "[sqruff]\ntemplater = {name}\ndialect = snowflake\n[sqruff:templater:{name}:context]\nbundle = {bundle_literal}\n"
+            );
+            let toml = format!(
+                "[tool.sqlfluff.core]\ntemplater = '{name}'\ndialect = 'snowflake'\n[tool.sqlfluff.templater.{name}.context]\nbundle = {{safe_name = 'test_metric', base_sql = 'select 1', join_key = 'user_id', selected_metrics = [{{name = 'logged_days', definition = 'COUNT(*)'}}]}}\n"
+            );
+
+            for (source, filename) in [(&ini, ".sqruff"), (&toml, "pyproject.toml")] {
+                let config = FluffConfig::from_source(source, Some(Path::new(filename)));
+                Python::attach(|py| {
+                    let module = py
+                        .import(format!("sqruff.templaters.{name}_templater"))
+                        .unwrap();
+                    let renderer = module.getattr(class_name).unwrap().call0().unwrap();
+                    let context = config.to_python_context(py, kind).unwrap();
+                    let context = renderer
+                        .call_method1("get_context", (py.None(), py.None(), context))
+                        .unwrap();
+                    let expected = config_value_to_python(py, &expected_bundle).unwrap();
+                    assert!(
+                        context.get_item("bundle").unwrap().eq(expected).unwrap(),
+                        "{name}: {filename}"
+                    );
+                });
+
+                let templater = Linter::get_templater(&config).unwrap();
+                let rendered = templater
+                    .process(&[(sql, "test.sql")], &config, &None)
+                    .into_iter()
+                    .next()
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(
+                    rendered.templated(),
+                    "SELECT COUNT(*) AS logged_days",
+                    "{name}: {filename}"
+                );
+            }
+        }
+    }
+
+    #[test]
     fn test_fluff_base_config() {
         let config = FluffConfig::from_source("", None);
 

@@ -1,5 +1,46 @@
 rule: CP02
 
+test_pass_unquoted_unicode_identifier_duckdb:
+  pass_str: |
+    SELECT
+        日本語
+    FROM
+        's3://some.parquet';
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_unquoted_unicode_identifier_postgres:
+  pass_str: SELECT 日本語
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_uppercase_unicode_identifiers:
+  pass_str: SELECT ÉCOLE, ΑΛΦΑ, МОСКВА
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_capitalise_unicode_identifiers:
+  fail_str: SELECT école, ÉCOLE, foo日本語, äÖ, ΑΛΦΑ, ΟΣ, ǆABC, ßABC, _FOO
+  fix_str: SELECT École, École, Foo日本語, Äö, Αλφα, Ος, ǅabc, Ssabc, _foo
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: capitalise
+
+test_pass_capitalise_unicode_identifiers:
+  pass_str: SELECT 日本語, Ος, ǅabc, Ssabc, _foo
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      capitalisation.identifiers:
+        extended_capitalisation_policy: capitalise
+
 issues_670:
   ignored: "code is not parsing"
   pass_str: SELECT a FROM ${ref("SHUTDOWN_DATES_ALL_PLANTS")}

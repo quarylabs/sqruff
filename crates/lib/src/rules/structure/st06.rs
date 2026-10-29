@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use itertools::{Itertools, enumerate};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -69,7 +69,17 @@ from x
                 Validate::Types(
                     const { SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
                 ),
-                Validate::Types(const { SyntaxSet::new(&[SyntaxKind::Literal]) }),
+                Validate::Types(
+                    const {
+                        SyntaxSet::new(&[
+                            SyntaxKind::Literal,
+                            SyntaxKind::NumericLiteral,
+                            SyntaxKind::QuotedLiteral,
+                            SyntaxKind::BooleanLiteral,
+                            SyntaxKind::NullLiteral,
+                        ])
+                    },
+                ),
                 Validate::Types(const { SyntaxSet::new(&[SyntaxKind::CastExpression]) }),
                 Validate::Function,
                 Validate::Expression {
@@ -251,6 +261,22 @@ from x
             let ordered_select_target_elements =
                 seen_band_elements.into_iter().flatten().collect_vec();
 
+            let moved_targets = select_target_elements
+                .iter()
+                .zip(&ordered_select_target_elements)
+                .filter_map(|(original, replacement)| {
+                    (!original.is(replacement)).then_some(original.addr())
+                })
+                .collect::<HashSet<_>>();
+            if has_comments_on_moved_targets(context, &moved_targets) {
+                return vec![LintResult::new(
+                    select_clause_segment.into(),
+                    Vec::new(),
+                    None,
+                    None,
+                )];
+            }
+
             let fixes = zip(select_target_elements, ordered_select_target_elements)
                 .filter_map(
                     |(initial_select_target_element, replace_select_target_element)| {
@@ -285,6 +311,81 @@ from x
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
     }
+}
+
+/// Sibling comments stay in place when targets are replaced; nested comments
+/// travel with their target and do not prevent reordering.
+fn has_comments_on_moved_targets(context: &RuleContext, moved_targets: &HashSet<usize>) -> bool {
+    let is_moved = |target: Option<&ErasedSegment>| {
+        target.is_some_and(|target| moved_targets.contains(&target.addr()))
+    };
+    let segments = context.segment.segments();
+    let mut previous_target: Option<&ErasedSegment> = None;
+    for (index, segment) in segments.iter().enumerate() {
+        if segment.is_type(SyntaxKind::SelectClauseElement) {
+            previous_target = Some(segment);
+        } else if segment.is_comment() {
+            let next_target = segments[index + 1..]
+                .iter()
+                .find(|target| target.is_type(SyntaxKind::SelectClauseElement));
+            let comment_position = segment.get_position_marker().unwrap();
+            if let Some(previous) = previous_target {
+                let previous_end_line = previous
+                    .get_position_marker()
+                    .unwrap()
+                    .working_loc_after(previous.raw())
+                    .0;
+                if previous_end_line == comment_position.working_line_no {
+                    if is_moved(previous_target) {
+                        return true;
+                    }
+                    // Inline comments belong to the preceding target. A block
+                    // comment can also describe the next target on that line.
+                    if segment.is_type(SyntaxKind::InlineComment) || next_target.is_none() {
+                        continue;
+                    }
+                    if comment_position.working_loc_after(segment.raw()).0
+                        < next_target
+                            .unwrap()
+                            .get_position_marker()
+                            .unwrap()
+                            .working_line_no
+                    {
+                        continue;
+                    }
+                }
+            }
+            if is_moved(previous_target) || is_moved(next_target) {
+                return true;
+            }
+        }
+    }
+    if !is_moved(previous_target) {
+        return false;
+    }
+
+    // The final target's trailing comment can sit outside the select clause,
+    // including beside a CTE's closing bracket. Stop at the first code/newline
+    // so an enclosing expression's comment cannot block a nested SELECT.
+    let mut child = &context.segment;
+    for parent in context.parent_stack.iter().rev() {
+        if let Some(index) = parent
+            .segments()
+            .iter()
+            .position(|segment| segment.is(child))
+        {
+            for segment in &parent.segments()[index + 1..] {
+                if segment.is_type(SyntaxKind::Newline) || segment.is_code() {
+                    return false;
+                }
+                if segment.is_comment() {
+                    return true;
+                }
+            }
+        }
+        child = parent;
+    }
+    false
 }
 
 fn is_simple_function(segment: &ErasedSegment) -> bool {

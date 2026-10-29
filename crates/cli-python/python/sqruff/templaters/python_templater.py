@@ -410,8 +410,8 @@ class PythonTemplater:
             """
             # Hack to allow template variables with dot notation (e.g. foo.bar)
             raw_str_with_dot_notation_hack = re.sub(
-                r"{([^:}]*\.[^:}]*)(:\S*)?}",
-                r"{sqlfluff[\1]\2}",
+                r"{([^:!}]*\.[^:!}]*)(![ars])?(:\S*)?}",
+                r"{sqlfluff[\1]\2\3}",
                 raw_str,
             )
             templater_logger.debug(
@@ -429,11 +429,14 @@ class PythonTemplater:
                     def __str__(self) -> str:
                         return self.name
 
+                    def __repr__(self) -> str:
+                        return self.name
+
                     def __format__(self, format_spec: str) -> str:
                         return str(self)
 
-                    def __getitem__(self, key: str) -> str:
-                        return key.replace(".", "_")
+                    def __getitem__(self, key: str) -> "_FallbackValue":
+                        return _FallbackValue(key.replace(".", "_"))
 
                 class _FallbackDict(dict[str, Any]):
                     @classmethod

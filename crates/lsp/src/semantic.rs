@@ -696,6 +696,17 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | UnicodeEscapeValue
         | At
         | FileKeyword
+        | SemanticView
+        | SemanticViewDimension
+        | SemanticViewDimensionsClause
+        | SemanticViewExpression
+        | SemanticViewFact
+        | SemanticViewFactsClause
+        | SemanticViewFieldReference
+        | SemanticViewMetric
+        | SemanticViewMetricsClause
+        | SemanticViewObjectReference
+        | SemanticViewWhereClause
         | SemiStructuredElement
         | BytesDoubleQuote
         | BytesSingleQuote

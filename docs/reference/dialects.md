@@ -5723,7 +5723,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (396)</summary>
+<summary>Segment types (407)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6046,6 +6046,17 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>select_rename_clause</code></li>
 <li><code>select_replace_clause</code></li>
 <li><code>select_statement</code></li>
+<li><code>semantic_view</code></li>
+<li><code>semantic_view_dimension</code></li>
+<li><code>semantic_view_dimensions_clause</code></li>
+<li><code>semantic_view_expression</code></li>
+<li><code>semantic_view_fact</code></li>
+<li><code>semantic_view_facts_clause</code></li>
+<li><code>semantic_view_field_reference</code></li>
+<li><code>semantic_view_metric</code></li>
+<li><code>semantic_view_metrics_clause</code></li>
+<li><code>semantic_view_object_reference</code></li>
+<li><code>semantic_view_where_clause</code></li>
 <li><code>semi_structured_element</code></li>
 <li><code>semi_structured_expression</code></li>
 <li><code>semicolon</code></li>

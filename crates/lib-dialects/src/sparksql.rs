@@ -3987,6 +3987,15 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+            // Delta introspection statements can also supply a relation.
+            Bracketed::new(vec![
+                one_of(vec![
+                    Ref::new("DescribeHistoryStatementSegment").to_matchable(),
+                    Ref::new("DescribeDetailStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );

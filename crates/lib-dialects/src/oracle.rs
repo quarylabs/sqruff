@@ -4660,6 +4660,47 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Oracle can limit the fetched rows by a percentage. Keep PERCENT
+    // unreserved so it can also be the row-count expression.
+    oracle.replace_grammar(
+        "FetchClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("FETCH").to_matchable(),
+            one_of(vec![
+                Ref::keyword("FIRST").to_matchable(),
+                Ref::keyword("NEXT").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("ExpressionSegment")
+                        .exclude(Ref::keyword("ROW"))
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("PERCENT").optional().to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("ROW").to_matchable(),
+                Ref::keyword("ROWS").to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("ONLY").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("TIES").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // ---- Override SelectStatementSegment ----
     // SQLFluff adds FOR UPDATE, ORDER BY, FETCH, LIMIT on top of the unordered grammar.
     oracle.replace_grammar(

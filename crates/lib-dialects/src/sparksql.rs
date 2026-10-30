@@ -4257,7 +4257,11 @@ pub fn raw_dialect() -> Dialect {
             "DescribeHistoryStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DescribeHistoryStatement, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("DESCRIBE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DESCRIBE").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("HISTORY").to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
@@ -4276,7 +4280,11 @@ pub fn raw_dialect() -> Dialect {
             "DescribeDetailStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DescribeDetailStatement, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("DESCRIBE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DESCRIBE").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("DETAIL").to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),

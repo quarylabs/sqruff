@@ -241,7 +241,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("NotebookStart").optional().to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
-                            Ref::new("MagicStartGrammar").optional().to_matchable(),
+                            // A directive may carry content on its opening line and
+                            // still be followed by additional magic body lines.
+                            one_of(vec![
+                                Ref::new("MagicStartGrammar").to_matchable(),
+                                Ref::new("MagicSingleLineGrammar").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
                             AnyNumberOf::new(vec![Ref::new("MagicLineGrammar").to_matchable()])
                                 .config(|config| {
                                     config.optional();
@@ -249,7 +258,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("MagicSingleLineGrammar").optional().to_matchable(),
                         AnyNumberOf::new(vec![Ref::new("BareMagicCellGrammar").to_matchable()])
                             .to_matchable(),
                     ])

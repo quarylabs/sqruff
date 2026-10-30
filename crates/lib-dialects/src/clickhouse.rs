@@ -1946,6 +1946,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
                 Ref::new("CTEColumnList").optional().to_matchable(),
                 Ref::keyword("AS").to_matchable(),
+                Ref::keyword("MATERIALIZED").optional().to_matchable(),
                 Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
                     .config(|this| this.parse_mode(ParseMode::Greedy))
                     .to_matchable(),

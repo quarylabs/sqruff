@@ -115,6 +115,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         )],
         "equals",
     );
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "is_not_distinct_from",
+            "<=>",
+            SyntaxKind::RawComparisonOperator,
+        )],
+        "less_than",
+    );
 
     clickhouse_dialect.replace_grammar(
         "AccessorGrammar",
@@ -235,6 +243,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         one_of(vec![
             Ref::new("EqualsSegment").to_matchable(),
             Ref::new("DoubleEqualsSegment").to_matchable(),
+            Ref::new("IsNotDistinctFromSegment").to_matchable(),
             Ref::new("GreaterThanSegment").to_matchable(),
             Ref::new("LessThanSegment").to_matchable(),
             Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
@@ -1308,6 +1317,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             StringParser::new("==", SyntaxKind::RawComparisonOperator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "RawIsNotDistinctFromSegment".into(),
+            StringParser::new("<=>", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "IsNotDistinctFromSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Ref::new("RawIsNotDistinctFromSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "DoubleEqualsSegment".into(),

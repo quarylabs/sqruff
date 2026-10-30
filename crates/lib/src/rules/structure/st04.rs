@@ -248,13 +248,13 @@ fn indentation(
         .find_first_where(|it: &ErasedSegment| it.is_type(SyntaxKind::Whitespace));
     let seg_indent = parent_segments
         .before(segment)
-        .find_last_where(|it| it.is_type(SyntaxKind::Indent));
+        .find_last_where(|it| it.is_indent());
     let mut indent_level = 1;
     if let Some(segment_indent) = seg_indent
         .last()
         .filter(|segment_indent| segment_indent.is_indent())
     {
-        indent_level = segment_indent.indent_val() as usize + 1;
+        indent_level = (segment_indent.indent_val() + 1) as usize;
     }
 
     if let Some(whitespace_seg) = leading_whitespace.first() {
@@ -324,6 +324,12 @@ fn nested_end_trailing_comment(
         .after(case1_else_clause_seg)
         .take_while(|seg: &ErasedSegment| !seg.is_type(SyntaxKind::Newline));
 
+    let comments = trailing_end.find_first_where(|seg: &ErasedSegment| seg.is_comment());
+    let Some(first_comment) = comments.first() else {
+        // This whitespace may be all that separates the nested value from END.
+        return Vec::new();
+    };
+
     let mut fixes = trailing_end
         .take_while(|seg: &ErasedSegment| !seg.is_comment())
         .filter(|seg: &ErasedSegment| seg.is_whitespace())
@@ -331,16 +337,11 @@ fn nested_end_trailing_comment(
         .map(LintFix::delete)
         .collect_vec();
 
-    if let Some(first_comment) = trailing_end
-        .find_first_where(|seg: &ErasedSegment| seg.is_comment())
-        .first()
-    {
-        let segments = vec![
-            SegmentBuilder::newline(tables.next_id(), "\n"),
-            SegmentBuilder::whitespace(tables.next_id(), end_indent_str),
-        ];
-        fixes.push(LintFix::create_before(first_comment.clone(), segments));
-    }
+    let segments = vec![
+        SegmentBuilder::newline(tables.next_id(), "\n"),
+        SegmentBuilder::whitespace(tables.next_id(), end_indent_str),
+    ];
+    fixes.push(LintFix::create_before(first_comment.clone(), segments));
 
     fixes
 }

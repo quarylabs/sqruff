@@ -19,8 +19,6 @@ use lsp_types::{
     Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
-#[cfg(not(target_arch = "wasm32"))]
-use sqruff_lib::core::config::ConfigLoader;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 #[cfg(not(target_arch = "wasm32"))]
@@ -37,15 +35,13 @@ pub struct ConfigOptions {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn load_config(root: Option<&Path>, options: &ConfigOptions) -> FluffConfig {
-    ConfigLoader
-        .try_load_config_up_to_path(
-            root.unwrap_or_else(|| Path::new(".")),
-            options.extra_config_path.clone(),
-            options.ignore_local_config,
-        )
-        .map(|raw| FluffConfig::new(raw, options.extra_config_path.clone(), None))
-        .unwrap_or_default()
-        .with_ignore_local_config(options.ignore_local_config)
+    FluffConfig::from_path(
+        root.unwrap_or_else(|| Path::new(".")),
+        options.extra_config_path.clone(),
+        options.ignore_local_config,
+        None,
+    )
+    .unwrap_or_default()
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -290,7 +286,16 @@ impl LanguageServer {
                 let params: DidSaveTextDocumentParams = serde_json::from_value(params).unwrap();
                 let uri = params.text_document.uri.as_str();
 
-                if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
+                if [
+                    ".sqlfluff",
+                    ".sqruff",
+                    ".sqruff.ini",
+                    "sqruff.toml",
+                    "pyproject.toml",
+                ]
+                .iter()
+                .any(|name| uri.rsplit('/').next() == Some(name))
+                {
                     if self.reload_config() {
                         self.recheck_files();
                     }
@@ -604,6 +609,21 @@ pub fn save_registration_options() -> lsp_types::RegistrationParams {
                 lsp_types::DocumentFilter {
                     language: None,
                     scheme: None,
+                    pattern: Some("**/.sqruff.ini".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/sqruff.toml".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/pyproject.toml".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
                     pattern: Some("**/.sqruffignore".into()),
                 },
             ]),
@@ -690,6 +710,87 @@ mod tests {
         );
 
         (lsp, diagnostics)
+    }
+
+    #[test]
+    fn documents_use_nested_and_other_workspace_configs() {
+        let root = TempRoot::new();
+        let other = TempRoot::new();
+        let nested = root.path.join("nested");
+        fs::create_dir(&nested).unwrap();
+        fs::write(root.path.join(".sqruff"), "[sqruff]\nrules = CP01\n[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = lower\n").unwrap();
+        fs::write(
+            nested.join(".sqruff"),
+            "[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n",
+        )
+        .unwrap();
+        fs::write(other.path.join("sqruff.toml"), "[tool.sqlfluff.core]\nrules = 'CP01'\n[tool.sqlfluff.rules.capitalisation.keywords]\ncapitalisation_policy = 'upper'\n").unwrap();
+        let (mut lsp, diagnostics) = diagnostics_lsp(&root.path);
+        for dir in [&nested, &other.path] {
+            let path = dir.join("query.sql");
+            fs::write(&path, "select 1;\n").unwrap();
+            let uri = path_to_uri(&path);
+            lsp.on_notification(DidOpenTextDocument::METHOD, serde_json::json!({
+                "textDocument": {"uri": uri, "languageId": "sql", "version": 1, "text": "select 1;\n"}
+            }));
+            assert_eq!(
+                diagnostics
+                    .lock()
+                    .unwrap()
+                    .last()
+                    .unwrap()
+                    .diagnostics
+                    .len(),
+                1
+            );
+            assert_eq!(lsp.format(uri)[0].new_text, "SELECT 1;\n");
+        }
+    }
+
+    #[test]
+    fn saving_nested_toml_rechecks_documents_with_new_config() {
+        let root = TempRoot::new();
+        let nested = root.path.join("nested");
+        fs::create_dir(&nested).unwrap();
+        let config = nested.join("sqruff.toml");
+        let write_config = |policy| {
+            fs::write(&config, format!("[tool.sqlfluff.core]\nrules = 'CP01'\n[tool.sqlfluff.rules.capitalisation.keywords]\ncapitalisation_policy = '{policy}'\n")).unwrap()
+        };
+        write_config("upper");
+        let sql = nested.join("query.sql");
+        fs::write(&sql, "select 1;\n").unwrap();
+        let uri = path_to_uri(&sql);
+        let (mut lsp, diagnostics) = diagnostics_lsp(&root.path);
+        lsp.on_notification(DidOpenTextDocument::METHOD, serde_json::json!({
+            "textDocument": {"uri": uri, "languageId": "sql", "version": 1, "text": "select 1;\n"}
+        }));
+        assert_eq!(
+            diagnostics
+                .lock()
+                .unwrap()
+                .last()
+                .unwrap()
+                .diagnostics
+                .len(),
+            1
+        );
+        write_config("lower");
+        lsp.on_notification(
+            DidSaveTextDocument::METHOD,
+            serde_json::json!({
+                "textDocument": {"uri": path_to_uri(&config)}
+            }),
+        );
+        assert!(
+            diagnostics
+                .lock()
+                .unwrap()
+                .last()
+                .unwrap()
+                .diagnostics
+                .is_empty()
+        );
+        assert_eq!(lsp.format(uri)[0].new_text, "select 1;\n");
     }
 
     #[test]

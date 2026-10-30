@@ -25,10 +25,17 @@ earlier values individually:
 1. Built-in defaults.
 2. The user application config directory.
 3. The user's home directory.
-4. Directories between home and the working directory, when working beneath home.
+4. Ancestor directories between home (or its common ancestor with the target) and the configuration target.
 5. The working directory and directories down to the configuration target.
 6. An explicit file passed with `--config`.
 7. Command-line overrides such as `--dialect`.
+
+For files, each file sets its own configuration target, including files opened
+in the language server. Running `sqruff fix .` at a monorepo root therefore
+uses each subproject's dialect and style settings. Parent settings are inherited;
+nearer configurations override individual values rather than replacing the
+whole configuration. This also works when running from a project subdirectory
+or editing files in multiple VS Code workspace folders.
 
 For stdin, `--stdin-filename` sets the configuration target. Each directory is
 checked for `.sqlfluff`, `.sqruff`, `.sqruff.ini`, `pyproject.toml`, and

@@ -1227,6 +1227,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterTableColumnClauses
         | AlterTableConstraintClauses
         | IndexTypeReference
+        | ExecuteDbtProjectStatement
         | ExecuteFileStatement
         | SlashBufferExecutor
         | OracleBatch

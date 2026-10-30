@@ -2966,6 +2966,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateStatementSegment").to_matchable(),
                 Ref::new("DefineStatementSegment").to_matchable(),
                 Ref::new("CreateDbtProjectStatementSegment").to_matchable(),
+                Ref::new("ExecuteDbtProjectStatementSegment").to_matchable(),
                 Ref::new("CreateMcpServerStatementSegment").to_matchable(),
                 Ref::new("CreateDcmProjectStatementSegment").to_matchable(),
                 Ref::new("CreateTaskSegment").to_matchable(),
@@ -10267,6 +10268,112 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("ExternalAccessIntegrationsEqualsSegment")
                         .optional()
                         .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExecuteDbtProjectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExecuteDbtProjectStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXECUTE").to_matchable(),
+                    Ref::keyword("DBT").to_matchable(),
+                    Ref::keyword("PROJECT").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::keyword("WORKSPACE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ARGS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DBT_VERSION").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ExternalAccessIntegrationsEqualsSegment")
+                        .optional()
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENVIRONMENT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENV_VARS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IMPORTS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        Ref::new("FunctionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("AS").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WRITEBACK").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PROJECT_ROOT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -2387,7 +2387,11 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::CallStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("CALL").to_matchable(),
-                Ref::new("FunctionSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("FunctionSegment").to_matchable(),
+                    Ref::new("FunctionNameSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
         })

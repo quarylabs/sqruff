@@ -12944,19 +12944,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("APPEND_ONLY").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                            any_set_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("APPEND_ONLY").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SHOW_INITIAL_ROWS").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("SHOW_INITIAL_ROWS").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
                             .to_matchable(),
                         ])
                         .to_matchable(),

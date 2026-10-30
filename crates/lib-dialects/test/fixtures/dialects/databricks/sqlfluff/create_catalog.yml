@@ -25,3 +25,26 @@ file:
   - keyword: COMMENT
   - quoted_literal: '''This is customer catalog'''
 - statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: CATALOG
+  - catalog_reference:
+    - naked_identifier: customer_cat
+  - keyword: MANAGED
+  - keyword: LOCATION
+  - quoted_literal: '''s3://depts/customers'''
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
+  - keyword: CATALOG
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
+  - catalog_reference:
+    - naked_identifier: customer_cat
+  - keyword: COMMENT
+  - quoted_literal: '''This is customer catalog'''
+  - keyword: MANAGED
+  - keyword: LOCATION
+  - quoted_literal: '''s3://depts/customers'''
+- statement_terminator: ;

@@ -1,0 +1,12 @@
+file:
+- statement:
+  - declare_statement:
+    - keyword: DECLARE
+    - variable: abc
+    - comma: ','
+    - variable: def
+    - comma: ','
+    - variable: ghi
+    - data_type:
+      - data_type_identifier: int
+- statement_terminator: ;

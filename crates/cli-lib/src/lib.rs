@@ -65,12 +65,12 @@ where
         _ => false,
     };
     let config_result = if stdin_input && let Some(filename) = cli.stdin_filename.as_ref() {
-        sqruff_lib::core::config::ConfigLoader {}
-            .try_load_config_up_to_path(filename, cli.config.clone(), cli.ignore_local_config)
-            .map(|raw| {
-                FluffConfig::new(raw, cli.config.clone(), None)
-                    .with_ignore_local_config(cli.ignore_local_config)
-            })
+        FluffConfig::from_path(
+            Path::new(filename),
+            cli.config.clone(),
+            cli.ignore_local_config,
+            None,
+        )
     } else {
         FluffConfig::from_root(cli.config.clone(), cli.ignore_local_config, None)
     };
@@ -89,15 +89,12 @@ where
     };
     if let Some((quiet, verbose)) = output_options
         && (quiet || verbose > 0)
-        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
     {
-        core.insert("verbose".to_string(), Value::Int(i32::from(verbose)));
+        config.set_core_override("verbose", Value::Int(i32::from(verbose)));
     }
 
-    if (cli.nocolor || cli.color)
-        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
-    {
-        core.insert("nocolor".to_string(), Value::Bool(cli.nocolor));
+    if cli.nocolor || cli.color {
+        config.set_core_override("nocolor", Value::Bool(cli.nocolor));
     }
 
     if let Some(dialect) = cli.dialect {
@@ -124,24 +121,18 @@ where
         } else {
             Value::String(library_path.into())
         };
-        if let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut) {
-            core.insert("library_path".to_string(), value);
-        }
+        config.set_core_override("library_path", value);
     }
 
-    if let Some(disable_noqa_except) = cli.disable_noqa_except
-        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
-    {
-        core.insert(
-            "disable_noqa_except".to_string(),
+    if let Some(disable_noqa_except) = cli.disable_noqa_except {
+        config.set_core_override(
+            "disable_noqa_except",
             Value::String(disable_noqa_except.into()),
         );
     }
 
-    if cli.disable_noqa
-        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
-    {
-        core.insert("disable_noqa".to_string(), Value::Bool(true));
+    if cli.disable_noqa {
+        config.set_core_override("disable_noqa", Value::Bool(true));
     }
 
     let disregard_ignores = match &cli.command {

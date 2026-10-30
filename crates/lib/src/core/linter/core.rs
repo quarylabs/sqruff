@@ -80,10 +80,31 @@ impl Linter {
         sql: &str,
         filename: Option<String>,
     ) -> Result<ParsedString, SQLFluffUserError> {
+        if let Some(linter) = self.with_file_config(filename.as_deref())? {
+            return linter.parse_string(tables, sql, filename);
+        }
         if let Some(linter) = self.with_inline_config(sql)? {
             return linter.parse_string_with_config(tables, sql, filename);
         }
         self.parse_string_with_config(tables, sql, filename)
+    }
+
+    fn with_file_config(&self, filename: Option<&str>) -> Result<Option<Self>, SQLFluffUserError> {
+        let Some(filename) = filename.filter(|name| !name.starts_with('<')) else {
+            return Ok(None);
+        };
+        if !self.config.discovers_file_config() {
+            return Ok(None);
+        }
+        let config = self.config.make_child_from_path(Path::new(filename))?;
+        Self::new(
+            config,
+            self.formatter.clone(),
+            None,
+            self.include_parse_errors,
+        )
+        .map(Some)
+        .map_err(SQLFluffUserError::new)
     }
 
     fn with_inline_config(&self, sql: &str) -> Result<Option<Self>, SQLFluffUserError> {
@@ -124,6 +145,9 @@ impl Linter {
         filename: Option<String>,
         fix: bool,
     ) -> Result<LintedFile, SQLFluffUserError> {
+        if let Some(linter) = self.with_file_config(filename.as_deref())? {
+            return linter.lint_string(sql, filename, fix);
+        }
         let scoped = self.with_inline_config(sql)?;
         let linter = scoped.as_ref().unwrap_or(self);
         let tables = Tables::default();
@@ -183,6 +207,42 @@ impl Linter {
             })
             .collect_vec();
 
+        if self.config.discovers_file_config() {
+            // Resolve once per directory and retain batching within each group.
+            // BTreeMap keeps group/output order deterministic.
+            let mut groups = std::collections::BTreeMap::<PathBuf, Vec<String>>::new();
+            for path in paths {
+                let parent = Path::new(&path)
+                    .parent()
+                    .filter(|path| !path.as_os_str().is_empty())
+                    .unwrap_or(Path::new("."));
+                groups.entry(parent.to_path_buf()).or_default().push(path);
+            }
+            let mut files = Vec::new();
+            let mut skipped = 0;
+            for (directory, paths) in groups {
+                let config = self.config.make_child_from_path(&directory)?;
+                let linter = Self::new(
+                    config,
+                    self.formatter.clone(),
+                    None,
+                    self.include_parse_errors,
+                )
+                .map_err(SQLFluffUserError::new)?;
+                let result = linter.lint_files(paths, fix)?;
+                skipped += result.files_skipped();
+                files.extend(result);
+            }
+            return Ok(LintingResult::new_with_files_skipped(files, skipped));
+        }
+        self.lint_files(paths, fix)
+    }
+
+    fn lint_files(
+        &self,
+        paths: Vec<String>,
+        fix: bool,
+    ) -> Result<LintingResult, SQLFluffUserError> {
         let mut files_skipped = 0;
         let mut selected_paths = Vec::with_capacity(paths.len());
         for path in paths {

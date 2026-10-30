@@ -51,6 +51,8 @@ pub struct FluffConfig {
     pub raw: HashMap<String, Value>,
     extra_config_path: Option<String>,
     ignore_local_config: bool,
+    discover_file_config: bool,
+    overrides: HashMap<String, Value>,
     _configs: HashMap<String, HashMap<String, String>>,
     pub(crate) dialect: Dialect,
     sql_file_exts: Vec<String>,
@@ -95,7 +97,20 @@ impl FluffConfig {
             .as_map_mut()
             .unwrap()
             .insert("dialect".into(), Value::String(dialect.as_ref().into()));
+        self.overrides
+            .insert("dialect".into(), Value::String(dialect.as_ref().into()));
         Ok(())
+    }
+
+    /// Apply a CLI core setting, retaining it when resolving child configurations.
+    pub fn set_core_override(&mut self, key: &str, value: Value) {
+        self.raw
+            .get_mut("core")
+            .unwrap()
+            .as_map_mut()
+            .unwrap()
+            .insert(key.into(), value.clone());
+        self.overrides.insert(key.into(), value);
     }
 
     pub fn get(&self, key: &str, section: &str) -> &Value {
@@ -271,6 +286,8 @@ impl FluffConfig {
                 .expect("Dialect is disabled. Please enable the corresponding feature."),
             extra_config_path,
             ignore_local_config: false,
+            discover_file_config: false,
+            overrides: HashMap::new(),
             _configs: HashMap::new(),
             indentation: indentation.unwrap_or_default(),
             sql_file_exts,
@@ -302,27 +319,64 @@ impl FluffConfig {
         ignore_local_config: bool,
         overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
-        let loader = ConfigLoader {};
-        let mut config = loader.try_load_config_up_to_path(
-            ".",
+        Self::from_path(
+            Path::new("."),
+            extra_config_path,
+            ignore_local_config,
+            overrides,
+        )
+    }
+
+    /// Resolve global, ancestor and local settings, then explicit config and CLI overrides.
+    pub fn from_path(
+        path: &Path,
+        extra_config_path: Option<String>,
+        ignore_local_config: bool,
+        overrides: Option<HashMap<String, String>>,
+    ) -> Result<Self, SQLFluffUserError> {
+        let raw = ConfigLoader.try_load_config_up_to_path(
+            path,
             extra_config_path.clone(),
             ignore_local_config,
         )?;
-
+        let mut config =
+            Self::new(raw, extra_config_path, None).with_ignore_local_config(ignore_local_config);
+        config.discover_file_config = true;
         if let Some(overrides) = overrides
             && let Some(dialect) = overrides.get("dialect")
         {
-            let core = config
-                .entry("core".into())
-                .or_insert_with(|| Value::Map(HashMap::new()));
-
-            core.as_map_mut()
-                .unwrap()
-                .insert("dialect".into(), Value::String(dialect.clone().into()));
+            let dialect = DialectKind::from_str(dialect)
+                .map_err(|err| SQLFluffUserError::new(err.to_string()))?;
+            config
+                .override_dialect(dialect)
+                .map_err(SQLFluffUserError::new)?;
         }
+        Ok(config)
+    }
 
-        Ok(FluffConfig::new(config, extra_config_path, None)
-            .with_ignore_local_config(ignore_local_config))
+    pub(crate) fn discovers_file_config(&self) -> bool {
+        self.discover_file_config
+    }
+
+    /// In-memory configs remain self-contained; filesystem configs resolve each file anew.
+    pub fn make_child_from_path(&self, path: &Path) -> Result<Self, SQLFluffUserError> {
+        if !self.discover_file_config {
+            return Ok(self.clone());
+        }
+        let raw = ConfigLoader.try_load_config_up_to_path(
+            path,
+            self.extra_config_path.clone(),
+            self.ignore_local_config,
+        )?;
+        let overrides = HashMap::from_iter([("core".into(), Value::Map(self.overrides.clone()))]);
+        let mut child = Self::new(
+            nested_combine(vec![raw, overrides]),
+            self.extra_config_path.clone(),
+            None,
+        )
+        .with_ignore_local_config(self.ignore_local_config);
+        child.overrides = self.overrides.clone();
+        Ok(child)
     }
 
     /// Construct a config from a subset of common options.
@@ -546,13 +600,20 @@ impl ConfigLoader {
             if paths.last() != Some(&home) {
                 paths.push(home);
             }
-            if let Ok(relative_path) = working_path.strip_prefix(&home_path) {
-                let mut path_to_visit = home_path;
-                for component in relative_path.components() {
-                    path_to_visit.push(component.as_os_str());
-                    if path_to_visit != working_path {
-                        paths.push(resolve(&path_to_visit));
-                    }
+            // SQLFluff also loads ancestors between home (or its common ancestor
+            // with the target) and the target, including projects outside home.
+            if let Some(common) = common_path::common_path(&given_path, &home_path)
+                && common != given_path
+            {
+                let mut ancestors: Vec<_> = given_path
+                    .ancestors()
+                    .skip(1)
+                    .take_while(|path| **path != common)
+                    .map(resolve)
+                    .collect();
+                ancestors.reverse();
+                for path in ancestors {
+                    paths.push(path);
                 }
             }
         }
@@ -560,9 +621,7 @@ impl ConfigLoader {
         if let Some(mut path_to_visit) = common_path::common_path(&given_path, &working_path) {
             loop {
                 let path = resolve(&path_to_visit);
-                if paths.last() != Some(&path) {
-                    paths.push(path);
-                }
+                paths.push(path);
                 if path_to_visit == given_path {
                     break;
                 }
@@ -585,6 +644,12 @@ impl ConfigLoader {
             paths.push(resolve(&given_path));
         }
 
+        // Keep the final occurrence: the working-directory stack has precedence
+        // over the parent stack, just as in SQLFluff's nested_combine().
+        let mut seen = std::collections::HashSet::new();
+        paths.reverse();
+        paths.retain(|path| seen.insert(path.clone()));
+        paths.reverse();
         paths.into_iter()
     }
 

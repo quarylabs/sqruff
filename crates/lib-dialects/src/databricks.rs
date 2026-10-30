@@ -2554,29 +2554,66 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Bracketed::new(vec![
-                    Sequence::new(vec![
-                        Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                    // The two branches differ only in what may come first, and
+                    // their trailing expectation and table-constraint loops must
+                    // stay in step. They are written out rather than shared:
+                    // referencing one grammar instance from both branches, or
+                    // building one per branch from a factory, both stop the
+                    // column list parsing at all.
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("MaterializedViewExpectationConstraintSegment")
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("MaterializedViewExpectationConstraintSegment")
-                                    .to_matchable(),
+                        // A DLT materialized view may declare no columns at all,
+                        // letting their types come from the query, and list only
+                        // expectations. The documented syntax writes the column
+                        // group as required, but Databricks' own published
+                        // pipelines use this form, so the column group is
+                        // optional here. The order of the three groups is
+                        // otherwise unchanged.
+                        Sequence::new(vec![
+                            Ref::new("MaterializedViewExpectationConstraintSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("MaterializedViewExpectationConstraintSegment")
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("TableConstraintSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])

@@ -14167,7 +14167,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("USING").to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![
-                                Ref::new("LocalVariableNameSegment").to_matchable(),
+                                one_of(vec![
+                                    // FROM scripts take named template parameters.
+                                    Ref::new("NamedParameterExpressionSegment").to_matchable(),
+                                    Ref::new("LocalVariableNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])

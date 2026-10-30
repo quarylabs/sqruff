@@ -278,3 +278,25 @@ file:
         - raw_comparison_operator: =
       - quoted_literal: '''amazing comment'''
 - statement_terminator: ;
+- statement:
+  - create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: new_stream
+    - keyword: ON
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: table_name
+    - keyword: SHOW_INITIAL_ROWS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;

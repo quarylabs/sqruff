@@ -4,6 +4,9 @@ use std::path::{Component, Path, PathBuf};
 use std::sync::Once;
 
 use hashbrown::DefaultHashBuilder;
+use icu_casemap::CaseMapper;
+use icu_casemap::options::{LeadingAdjustment, TitlecaseOptions, TrailingCase};
+use icu_locale_core::LanguageIdentifier;
 
 use crate::parser::matchable::{Matchable, MatchableTraitImpl};
 
@@ -21,17 +24,14 @@ impl<T: Into<MatchableTraitImpl>> ToMatchable for T {
 }
 
 pub fn capitalize(s: &str) -> String {
-    assert!(s.is_ascii());
-
-    let mut chars = s.chars();
-    let Some(first_char) = chars.next() else {
-        return String::new();
-    };
-
-    first_char
-        .to_uppercase()
-        .chain(chars.map(|ch| ch.to_ascii_lowercase()))
-        .collect()
+    // Match Python's str.capitalize(): titlecase the first character, including
+    // an uncased one, and lowercase the rest with the full string's context.
+    let mut options = TitlecaseOptions::default();
+    options.leading_adjustment = Some(LeadingAdjustment::None);
+    options.trailing_case = Some(TrailingCase::Lower);
+    CaseMapper::new()
+        .titlecase_segment_with_only_case_data_to_string(s, &LanguageIdentifier::UNKNOWN, options)
+        .into_owned()
 }
 
 pub trait Config: Sized {
@@ -164,4 +164,29 @@ fn with_ctx(f: impl FnOnce(&mut Vec<String>)) {
         static CTX: RefCell<Vec<String>> = const { RefCell::new(Vec::new()) };
     }
     CTX.with(|ctx| f(&mut ctx.borrow_mut()));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::capitalize;
+
+    #[test]
+    fn capitalize_matches_python_unicode_casing() {
+        // Expected results from Python's str.capitalize(), also used by SQLFluff.
+        for (input, expected) in [
+            ("", ""),
+            ("hELLO WORLD", "Hello world"),
+            ("_FOO", "_foo"),
+            ("日本語ABC", "日本語abc"),
+            ("éCOLE", "École"),
+            ("ΟΣ", "Ος"),
+            ("ǆABC", "ǅabc"),
+            ("ǅabc", "ǅabc"),
+            ("ßABC", "Ssabc"),
+            ("ﬄABC", "Fflabc"),
+        ] {
+            assert_eq!(capitalize(input), expected, "input: {input:?}");
+            assert_eq!(capitalize(expected), expected, "must be idempotent");
+        }
+    }
 }

@@ -17,6 +17,8 @@ serde = ["dep:serde"]
 stringify = ["dep:serde_yaml", "serde"]
 
 [dependencies]
+icu_casemap = "2.4"
+icu_locale_core = "2.4"
 smol_str = "0.3.1"
 smallvec = "1.15.1"
 strum.workspace = true

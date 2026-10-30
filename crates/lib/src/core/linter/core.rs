@@ -33,6 +33,8 @@ pub struct Linter {
     config: FluffConfig,
     formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
+    // Share the registry, but configure a separate rulepack for each child.
+    ruleset: Arc<OnceLock<RuleSet>>,
     rulepack: OnceLock<RulePack>,
 
     /// include_parse_errors is a flag to indicate whether to include parse errors in the output
@@ -54,6 +56,7 @@ impl Linter {
             config,
             formatter,
             templater,
+            ruleset: Arc::new(OnceLock::new()),
             rulepack: OnceLock::new(),
             include_parse_errors,
         })
@@ -89,6 +92,18 @@ impl Linter {
         self.parse_string_with_config(tables, sql, filename)
     }
 
+    fn with_config(&self, config: FluffConfig) -> Result<Self, SQLFluffUserError> {
+        let mut child = Self::new(
+            config,
+            self.formatter.clone(),
+            None,
+            self.include_parse_errors,
+        )
+        .map_err(SQLFluffUserError::new)?;
+        child.ruleset = Arc::clone(&self.ruleset);
+        Ok(child)
+    }
+
     fn with_file_config(&self, filename: Option<&str>) -> Result<Option<Self>, SQLFluffUserError> {
         let Some(filename) = filename.filter(|name| !name.starts_with('<')) else {
             return Ok(None);
@@ -97,14 +112,7 @@ impl Linter {
             return Ok(None);
         }
         let config = self.config.make_child_from_path(Path::new(filename))?;
-        Self::new(
-            config,
-            self.formatter.clone(),
-            None,
-            self.include_parse_errors,
-        )
-        .map(Some)
-        .map_err(SQLFluffUserError::new)
+        self.with_config(config).map(Some)
     }
 
     fn with_inline_config(&self, sql: &str) -> Result<Option<Self>, SQLFluffUserError> {
@@ -116,14 +124,7 @@ impl Linter {
         }
         let mut config = self.config.clone();
         config.process_raw_file_for_config(sql)?;
-        Self::new(
-            config,
-            self.formatter.clone(),
-            None,
-            self.include_parse_errors,
-        )
-        .map(Some)
-        .map_err(SQLFluffUserError::new)
+        self.with_config(config).map(Some)
     }
 
     fn parse_string_with_config(
@@ -222,13 +223,7 @@ impl Linter {
             let mut skipped = 0;
             for (directory, paths) in groups {
                 let config = self.config.make_child_from_path(&directory)?;
-                let linter = Self::new(
-                    config,
-                    self.formatter.clone(),
-                    None,
-                    self.include_parse_errors,
-                )
-                .map_err(SQLFluffUserError::new)?;
+                let linter = self.with_config(config)?;
                 let result = linter.lint_files(paths, fix)?;
                 skipped += result.files_skipped();
                 files.extend(result);
@@ -365,20 +360,23 @@ impl Linter {
     }
 
     pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
-        let rs = get_ruleset();
-        rs.get_rulepack(&self.config)
+        self.ruleset
+            .get_or_init(get_ruleset)
+            .get_rulepack(&self.config)
     }
 
     /// Install and configure a ruleset before this linter's rules are initialized.
     /// Returns an error if rules have already been installed or used for linting.
     pub fn set_ruleset(&self, rule_set: &RuleSet) -> Result<(), SQLFluffUserError> {
-        self.rulepack
-            .set(rule_set.get_rulepack(&self.config)?)
-            .map_err(|_| {
-                SQLFluffUserError::new(
-                    "Cannot set rules after the linter's rules have been initialized".to_string(),
-                )
-            })
+        let rulepack = rule_set.get_rulepack(&self.config)?;
+        self.ruleset.set(rule_set.clone()).map_err(|_| {
+            SQLFluffUserError::new(
+                "Cannot set rules after the linter's rules have been initialized".to_string(),
+            )
+        })?;
+        // Another reader may already have configured this same registry.
+        let _ = self.rulepack.set(rulepack);
+        Ok(())
     }
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
@@ -1203,6 +1201,142 @@ mod tests {
             let remaining: Vec<_> = linter.rules().unwrap().iter().map(|r| r.code()).collect();
             assert_eq!(remaining, original);
         }
+    }
+
+    fn with_ruleset_project(test: impl FnOnce(&std::path::Path)) {
+        struct Project(std::path::PathBuf);
+        impl Drop for Project {
+            fn drop(&mut self) {
+                let _ = std::fs::remove_dir_all(&self.0);
+            }
+        }
+        let project = loop {
+            let suffix = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            let path = std::env::temp_dir()
+                .join(format!("sqruff-ruleset-{}-{suffix}", std::process::id()));
+            match std::fs::create_dir(&path) {
+                Ok(()) => break Project(path),
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => panic!("{error}"),
+            }
+        };
+        test(&project.0);
+    }
+
+    #[test]
+    fn installed_ruleset_survives_filename_and_path_discovery() {
+        use crate::rules::capitalisation::cp01::RuleCP01;
+        with_ruleset_project(|root| {
+            let path = root.join("query.sql");
+            std::fs::write(&path, "select  1").unwrap();
+            let config = FluffConfig::from_root(None, true, None).unwrap();
+            let mut linter = Linter::new(config, None, None, false).unwrap();
+            linter
+                .set_ruleset(&RuleSet::from_iter([RuleCP01::default().erased()]))
+                .unwrap();
+            for filename in [None, Some(path.to_string_lossy().into_owned())] {
+                let result = linter.lint_string("select  1", filename, false).unwrap();
+                assert!(
+                    result.violations().is_empty(),
+                    "unexpected built-in rules: {:?}",
+                    result.violations()
+                );
+            }
+            let results = linter.lint_paths(vec![path], false, &|_| false).unwrap();
+            assert_eq!(results.len(), 1);
+            assert!(!results.has_violations());
+        });
+    }
+
+    #[test]
+    fn installed_ruleset_is_reconfigured_for_each_child() {
+        use crate::rules::capitalisation::cp01::RuleCP01;
+        with_ruleset_project(|root| {
+            std::fs::write(root.join(".sqruff"), "[sqruff]\nrules = CP01\n").unwrap();
+            let custom = root.join("custom");
+            let upper = root.join("upper");
+            std::fs::create_dir(&custom).unwrap();
+            std::fs::create_dir(&upper).unwrap();
+            std::fs::write(custom.join(".sqruff"), "[sqruff]\nrules = ZZ01\n").unwrap();
+            std::fs::write(
+                upper.join(".sqruff"),
+                "[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n",
+            )
+            .unwrap();
+            let config = FluffConfig::from_path(root, None, false, None).unwrap();
+            let mut linter = Linter::new(config, None, None, false).unwrap();
+            linter
+                .set_ruleset(&RuleSet::from_iter([
+                    RuleZZ01.erased(),
+                    RuleCP01::default().erased(),
+                ]))
+                .unwrap();
+            assert_eq!(linter.rules().unwrap().len(), 1);
+            for (dir, expected) in [(&custom, "ZZ01"), (&upper, "CP01")] {
+                let path = dir.join("query.sql");
+                std::fs::write(&path, "select  1").unwrap();
+                let result = linter
+                    .lint_string(
+                        "select  1",
+                        Some(path.to_string_lossy().into_owned()),
+                        false,
+                    )
+                    .unwrap();
+                assert_eq!(result.violations().len(), 1);
+                assert_eq!(result.violations()[0].rule_code(), expected);
+            }
+            let results = linter
+                .lint_paths(vec![root.to_path_buf()], false, &|_| false)
+                .unwrap();
+            assert_eq!(results.len(), 2);
+            let mut codes = Vec::new();
+            for file in results {
+                assert_eq!(file.violations().len(), 1);
+                codes.push(file.violations()[0].rule_code().to_string());
+            }
+            codes.sort();
+            assert_eq!(codes, ["CP01", "ZZ01"]);
+        });
+    }
+
+    #[test]
+    fn installed_ruleset_is_reconfigured_for_inline_settings() {
+        use crate::rules::capitalisation::cp01::RuleCP01;
+        let config = FluffConfig::from_source("[sqruff]\nrules = CP01\n", None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        linter
+            .set_ruleset(&RuleSet::from_iter([
+                RuleZZ01.erased(),
+                RuleCP01::default().erased(),
+            ]))
+            .unwrap();
+        for (sql, expected) in [
+            ("-- sqruff:rules:ZZ01\nselect  1", "ZZ01"),
+            (
+                "-- sqruff:rules:capitalisation.keywords:capitalisation_policy:upper\nselect  1",
+                "CP01",
+            ),
+        ] {
+            let result = linter.lint_string(sql, None, false).unwrap();
+            assert_eq!(result.violations().len(), 1);
+            assert_eq!(result.violations()[0].rule_code(), expected);
+        }
+    }
+
+    #[test]
+    fn installed_ruleset_survives_config_mutation() {
+        let config = FluffConfig::from_source("[sqruff]\nrules = all\n", None);
+        let mut linter = Linter::new(config, None, None, false).unwrap();
+        linter
+            .set_ruleset(&RuleSet::from_iter([RuleZZ01.erased()]))
+            .unwrap();
+        *linter.config_mut() = FluffConfig::from_source("[sqruff]\nrules = ZZ01\n", None);
+        let result = linter.lint_string("SELECT 1\n", None, false).unwrap();
+        assert_eq!(result.violations().len(), 1);
+        assert_eq!(result.violations()[0].rule_code(), "ZZ01");
     }
 
     fn postgres_all_rules_linter() -> Linter {

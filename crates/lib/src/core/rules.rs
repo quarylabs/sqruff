@@ -330,6 +330,7 @@ impl<T: Rule> Erased for T {
     }
 }
 
+#[derive(Clone)]
 pub struct RuleManifest {
     pub code: &'static str,
     pub name: &'static str,
@@ -354,6 +355,7 @@ impl RulePack {
     }
 }
 
+#[derive(Clone)]
 pub struct RuleSet {
     register: IndexMap<&'static str, RuleManifest>,
 }

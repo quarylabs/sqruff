@@ -1,0 +1,13 @@
+file:
+- statement:
+  - declare_statement:
+    - keyword: DECLARE
+    - variable: abc
+    - data_type:
+      - data_type_identifier: int
+    - keyword: default
+    - expression:
+      - numeric_literal: '1'
+      - binary_operator: +
+      - numeric_literal: '2'
+- statement_terminator: ;

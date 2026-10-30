@@ -1796,16 +1796,12 @@ pub fn raw_dialect() -> Dialect {
                 // DECLARE local variable
                 Sequence::new(vec![
                     Ref::keyword("DECLARE").to_matchable(),
-                    Ref::new("LocalVariableNameSegment").to_matchable(),
+                    Delimited::new(vec![Ref::new("LocalVariableNameSegment").to_matchable()])
+                        .to_matchable(),
                     Ref::new("DatatypeSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("DEFAULT").to_matchable(),
-                        one_of(vec![
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                            Ref::new("FunctionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),

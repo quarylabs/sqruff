@@ -6,5 +6,6 @@ file:
     - data_type:
       - data_type_identifier: longtext
     - keyword: default
-    - quoted_literal: '''test'''
+    - expression:
+      - quoted_literal: '''test'''
 - statement_terminator: ;

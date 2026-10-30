@@ -805,7 +805,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("CATALOG").to_matchable(),
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("CatalogReferenceSegment").to_matchable(),
-                Ref::new("CommentGrammar").optional().to_matchable(),
+                // The managed location and comment clauses may appear in either order.
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("MANAGED").to_matchable(),
+                        Ref::keyword("LOCATION").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("CommentGrammar").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),

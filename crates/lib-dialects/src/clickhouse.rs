@@ -123,6 +123,44 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         )],
         "less_than",
     );
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![
+            // Binary literals require lowercase `b` and digit-separated underscores.
+            // Reject a numeric prefix of a longer word or decimal.
+            Matcher::legacy(
+                "binary_literal",
+                |s| s.starts_with("0b"),
+                r"0b[01]+(?:_[01]+)*(?![.\w])",
+                SyntaxKind::NumericLiteral,
+            ),
+            // Hexadecimal literals allow a fractional part and a base-two exponent.
+            Matcher::legacy(
+                "hexadecimal_literal",
+                |s| s.starts_with("0x") || s.starts_with("0X"),
+                concat!(
+                    r"0[xX][a-fA-F\d]+(?:_[a-fA-F\d]+)*",
+                    r"(?:\.(?:[a-fA-F\d]+(?:_[a-fA-F\d]+)*)?)?",
+                    r"(?:[pP][+-]?\d+(?:_\d+)*)?",
+                    r"(?![.\w])",
+                ),
+                SyntaxKind::NumericLiteral,
+            ),
+        ],
+        "numeric_literal",
+    );
+    clickhouse_dialect.patch_lexer_matchers(vec![Matcher::legacy(
+        "numeric_literal",
+        |s| s.starts_with(|ch: char| ch.is_numeric() || ch == '.'),
+        concat!(
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*",
+            r"|\d+(_\d+)*\.(?![.\w])",
+            r"|\.\d+(_\d+)*",
+            r"|\d+(_\d+)*)",
+            r"(\.?[eE][+-]?\d+(_\d+)*)?",
+            r"((?<=\.)|(?=\b))",
+        ),
+        SyntaxKind::NumericLiteral,
+    )]);
 
     clickhouse_dialect.replace_grammar(
         "AccessorGrammar",

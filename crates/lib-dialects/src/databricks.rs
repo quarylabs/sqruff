@@ -1835,6 +1835,42 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // A Lakeflow pipeline may mark a streaming table PRIVATE, so that it is
+    // visible inside the pipeline but not published to the catalog:
+    //   CREATE [ OR REFRESH ] [ PRIVATE ] STREAMING TABLE table_name ...
+    // Materialized views already accept it; streaming tables are defined by
+    // the shared SparkSQL TableDefinitionSegment, so Databricks widens it here
+    // rather than adding Databricks-only syntax to SparkSQL.
+    //
+    // PRIVATE is bound to STREAMING rather than inserted as a separate
+    // optional keyword: STREAMING is itself optional, so an independent
+    // PRIVATE would also accept `CREATE PRIVATE TABLE`, which is not valid.
+    // https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-streaming-table
+    databricks.replace_grammar(
+        "TableDefinitionSegment",
+        sparksql::dialect(None)
+            .grammar("TableDefinitionSegment")
+            .copy(
+                Some(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("PRIVATE").to_matchable(),
+                            Ref::keyword("STREAMING").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("STREAMING").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ]),
+                None,
+                Some(Ref::keyword("STREAMING").optional().to_matchable()),
+                Some(vec![Ref::keyword("STREAMING").optional().to_matchable()]),
+                Vec::new(),
+                false,
+            ),
+    );
+
     databricks.replace_grammar(
         "NotNullGrammar",
         Sequence::new(vec![
@@ -2911,17 +2947,94 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "CreateFlowStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateFlowStatement, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("CREATE").to_matchable(),
-                    Ref::keyword("FLOW").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("FLOW").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("FlowReferenceSegment").to_matchable(),
+                    Ref::new("CommentGrammar").optional().to_matchable(),
                     Ref::keyword("AS").to_matchable(),
-                    Ref::keyword("AUTO").to_matchable(),
-                    Ref::keyword("CDC").to_matchable(),
-                    Ref::keyword("INTO").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
-                    Ref::new("TableReferenceSegment").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
-                    Ref::new("CDCSpecificationSegment").to_matchable(),
+                    one_of(vec![
+                        // AUTO CDC [ONCE] INTO target <cdc spec>
+                        Sequence::new(vec![
+                            Ref::keyword("AUTO").to_matchable(),
+                            Ref::keyword("CDC").to_matchable(),
+                            Ref::keyword("ONCE").optional().to_matchable(),
+                            Ref::keyword("INTO").to_matchable(),
+                            MetaSegment::indent().to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
+                            Ref::new("CDCSpecificationSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // INSERT [ONCE] INTO [ONCE] target BY NAME
+                        // [REPLACE USING (...)] query -- an append flow, which
+                        // is how a pipeline points several sources at one
+                        // streaming table.
+                        //
+                        // The reference page writes `INSERT [ONCE] INTO`, while
+                        // the flow examples and backfill pages write `INSERT
+                        // INTO ONCE`. Both spellings are in the Databricks
+                        // documentation, so both parse.
+                        Sequence::new(vec![
+                            Ref::keyword("INSERT").to_matchable(),
+                            // The target is spelled out in each alternative
+                            // rather than factored out after an optional ONCE.
+                            // A table may itself be named `once`, and a
+                            // trailing optional keyword would consume it before
+                            // the target was tried, making a valid append flow
+                            // unparsable.
+                            // BY NAME is repeated inside each alternative rather
+                            // than factored out after the OneOf. OneOf takes the
+                            // longest local match, so for a target named `once`
+                            // the INTO ONCE branch would otherwise win by
+                            // consuming one token more and then strand the rest
+                            // of the statement.
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("ONCE").to_matchable(),
+                                    Ref::keyword("INTO").to_matchable(),
+                                    MetaSegment::indent().to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                    MetaSegment::dedent().to_matchable(),
+                                    Ref::keyword("BY").to_matchable(),
+                                    Ref::keyword("NAME").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("INTO").to_matchable(),
+                                    Ref::keyword("ONCE").to_matchable(),
+                                    MetaSegment::indent().to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                    MetaSegment::dedent().to_matchable(),
+                                    Ref::keyword("BY").to_matchable(),
+                                    Ref::keyword("NAME").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("INTO").to_matchable(),
+                                    MetaSegment::indent().to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                    MetaSegment::dedent().to_matchable(),
+                                    Ref::keyword("BY").to_matchable(),
+                                    Ref::keyword("NAME").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("REPLACE").to_matchable(),
+                                Ref::keyword("USING").to_matchable(),
+                                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                            ])
+                            .config(|config| config.optional())
+                            .to_matchable(),
+                            Ref::new("SelectableGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

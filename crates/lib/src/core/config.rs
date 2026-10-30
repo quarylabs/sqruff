@@ -1331,6 +1331,7 @@ fn parse_toml_config_elems(
 
     for config_root in ["sqlfluff", "sqruff"] {
         if let Some(table) = root.get(config_root).and_then(toml::Value::as_table) {
+            validate_toml_rules_table(table, config_path, config_root)?;
             collect_toml_config_elems(table, Vec::new(), config_path, &mut buff);
         }
     }
@@ -1338,12 +1339,29 @@ fn parse_toml_config_elems(
     if let Some(tool) = root.get("tool").and_then(toml::Value::as_table) {
         for config_root in ["sqlfluff", "sqruff"] {
             if let Some(table) = tool.get(config_root).and_then(toml::Value::as_table) {
+                validate_toml_rules_table(table, config_path, &format!("tool.{config_root}"))?;
                 collect_toml_config_elems(table, Vec::new(), config_path, &mut buff);
             }
         }
     }
 
     Ok(buff)
+}
+
+fn validate_toml_rules_table(
+    table: &toml::Table,
+    config_path: Option<&Path>,
+    section: &str,
+) -> Result<(), SQLFluffUserError> {
+    if let Some(value) = table.get("rules").filter(|value| !value.is_table()) {
+        return Err(SQLFluffUserError::new(format!(
+            "Config file {} set an invalid `rules` value: {value}. In TOML, per-rule config must be \
+             set with a table per rule, e.g. `[{section}.rules.<rule_name>]`, rather than as a plain \
+             value under `[{section}]`.",
+            config_reference(config_path),
+        )));
+    }
+    Ok(())
 }
 
 fn collect_toml_config_elems(
@@ -3016,6 +3034,39 @@ max_line_length = 44
         fs::remove_dir_all(&dir).unwrap();
 
         assert_eq!(config.raw["core"]["max_line_length"].as_int(), Some(44));
+    }
+
+    #[test]
+    fn test_toml_non_table_rules_returns_user_error() {
+        let path = Path::new("project/pyproject.toml");
+        for section in ["sqlfluff", "sqruff", "tool.sqlfluff", "tool.sqruff"] {
+            for value in [r#""all""#, "42", "true", "[]"] {
+                let source = format!("[{section}]\ndialect = \"ansi\"\nrules = {value}\n");
+                let error = ConfigLoader::try_from_source(&source, Some(path)).unwrap_err();
+                let message = error.to_string();
+                assert!(message.contains("project/pyproject.toml"));
+                assert!(message.contains("invalid `rules` value"));
+                assert!(message.contains(value), "{message}");
+                assert!(message.contains(&format!("[{section}.rules.<rule_name>]")));
+            }
+        }
+    }
+
+    #[test]
+    fn test_toml_core_rule_selection_and_per_rule_tables_remain_valid() {
+        for section in ["sqlfluff", "sqruff", "tool.sqlfluff", "tool.sqruff"] {
+            let source = format!(
+                "[{section}.core]\ndialect = \"ansi\"\nrules = \"CP01\"\n\
+                 [{section}.rules.capitalisation.keywords]\ncapitalisation_policy = \"upper\"\n"
+            );
+            let config =
+                ConfigLoader::try_from_source(&source, Some(Path::new("pyproject.toml"))).unwrap();
+            assert_eq!(config["core"]["rules"].as_string(), Some("CP01"));
+            assert_eq!(
+                config["rules"]["capitalisation.keywords"]["capitalisation_policy"].as_string(),
+                Some("upper")
+            );
+        }
     }
 
     #[test]

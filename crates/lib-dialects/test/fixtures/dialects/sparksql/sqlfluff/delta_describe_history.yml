@@ -30,3 +30,28 @@ file:
     - table_reference:
       - naked_identifier: EVENTSTABLE
 - statement_terminator: ;
+- statement:
+  - describe_history_statement:
+    - keyword: DESC
+    - keyword: HISTORY
+    - table_reference:
+      - naked_identifier: EVENTSTABLE
+- statement_terminator: ;
+- statement:
+  - describe_history_statement:
+    - keyword: DESC
+    - keyword: HISTORY
+    - quoted_literal: '''/data/events/'''
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - describe_history_statement:
+    - keyword: DESC
+    - keyword: HISTORY
+    - file_reference:
+      - keyword: DELTA
+      - dot: .
+      - quoted_identifier: '`/data/events/`'
+- statement_terminator: ;

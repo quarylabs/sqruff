@@ -73,7 +73,8 @@ pub fn raw_dialect() -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                 ]),
-                None,
+                // Aggregate types precede NULL, DEFAULT, and COMMENT clauses.
+                Some(3),
                 None,
                 None,
                 Vec::new(),

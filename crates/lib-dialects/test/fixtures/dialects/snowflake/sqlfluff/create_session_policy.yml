@@ -1,0 +1,117 @@
+file:
+- statement:
+  - create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_session_policy
+- statement_terminator: ;
+- statement:
+  - create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_session_policy
+    - session_policy_options:
+      - keyword: SESSION_IDLE_TIMEOUT_MINS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '30'
+      - keyword: SESSION_UI_IDLE_TIMEOUT_MINS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '30'
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''session policy'''
+- statement_terminator: ;
+- statement:
+  - create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_session_policy
+    - session_policy_options:
+      - keyword: SESSION_MAX_LIFESPAN_MINS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1440'
+      - keyword: SESSION_UI_MAX_LIFESPAN_MINS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1440'
+      - keyword: ALLOWED_SECONDARY_ROLES
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''session policy'''
+- statement_terminator: ;
+- statement:
+  - create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_session_policy
+    - session_policy_options:
+      - keyword: ALLOWED_SECONDARY_ROLES
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''ALL'''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_session_policy_statement:
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_session_policy
+    - session_policy_options:
+      - keyword: ALLOWED_SECONDARY_ROLES
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''my_role_1'''
+        - comma: ','
+        - quoted_literal: '''my_role_2'''
+        - end_bracket: )
+      - keyword: BLOCKED_SECONDARY_ROLES
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''my_role_3'''
+        - end_bracket: )
+- statement_terminator: ;

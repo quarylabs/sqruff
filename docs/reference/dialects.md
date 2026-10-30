@@ -4617,7 +4617,7 @@ Oracle SQL dialect for Oracle Database.
 ```
 
 <details>
-<summary>Segment types (291)</summary>
+<summary>Segment types (292)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4868,6 +4868,7 @@ Oracle SQL dialect for Oracle Database.
 <li><code>slash_buffer_executor</code></li>
 <li><code>slice</code></li>
 <li><code>sqlplus_set_statement</code></li>
+<li><code>sqlplus_show_statement</code></li>
 <li><code>star</code></li>
 <li><code>start_bracket</code></li>
 <li><code>start_curly_bracket</code></li>

@@ -1231,6 +1231,7 @@ pub enum SyntaxKind {
     SqlcmdCommandSegment,
     SqlcmdOperator,
     SqlplusSetStatement,
+    SqlplusShowStatement,
     SquareQuote,
     StageEncryptionOption,
     StageParameters,

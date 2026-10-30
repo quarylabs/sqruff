@@ -5723,7 +5723,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (409)</summary>
+<summary>Segment types (412)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5753,6 +5753,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>alter_row_access_policy_statement</code></li>
 <li><code>alter_schema_statement</code></li>
 <li><code>alter_sequence_statement</code></li>
+<li><code>alter_session_policy_statement</code></li>
 <li><code>alter_session_set_statement</code></li>
 <li><code>alter_session_statement</code></li>
 <li><code>alter_session_unset_clause</code></li>
@@ -5848,6 +5849,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>create_row_access_policy_statement</code></li>
 <li><code>create_schema_statement</code></li>
 <li><code>create_sequence_statement</code></li>
+<li><code>create_session_policy_statement</code></li>
 <li><code>create_stage_statement</code></li>
 <li><code>create_statement</code></li>
 <li><code>create_stream_statement</code></li>
@@ -6062,6 +6064,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>semi_structured_element</code></li>
 <li><code>semi_structured_expression</code></li>
 <li><code>semicolon</code></li>
+<li><code>session_policy_options</code></li>
 <li><code>set_clause</code></li>
 <li><code>set_clause_list</code></li>
 <li><code>set_expression</code></li>

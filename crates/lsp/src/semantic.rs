@@ -580,6 +580,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | UsingExternalFunctionStatement
         | AlterUserStatement
         | AlterSessionStatement
+        | AlterSessionPolicyStatement
         | AlterSessionSetStatement
         | AlterSessionUnsetClause
         | AlterTaskStatement
@@ -894,6 +895,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateReservationStatement
         | CreateResourceMonitorStatement
         | CreateRowAccessPolicyStatement
+        | CreateSessionPolicyStatement
         | CreateSearchIndexStatement
         | CreateSecurityPolicyStatement
         | CreateServerRoleStatement
@@ -1406,6 +1408,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ScriptContent
         | ScriptReference
         | SessionParameter
+        | SessionPolicyOptions
         | SystemParameter
         | SystemPrivilege
         | TableConstraintDefinition

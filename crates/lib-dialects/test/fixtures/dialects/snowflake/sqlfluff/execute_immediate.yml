@@ -133,3 +133,23 @@ file:
         - pipe: '|'
       - quoted_literal: ''' AS SELECT * FROM t'''
 - statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - quoted_literal: '''/scripts/foo.sql'''
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - snowflake_keyword_expression:
+        - parameter: env
+        - parameter_assigner: =>
+        - quoted_literal: '''prod'''
+      - comma: ','
+      - snowflake_keyword_expression:
+        - parameter: region
+        - parameter_assigner: =>
+        - quoted_literal: '''us'''
+      - end_bracket: )
+- statement_terminator: ;

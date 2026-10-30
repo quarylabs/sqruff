@@ -335,7 +335,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [PlaceholderCase<'_>; 23] = [
+        let cases: [PlaceholderCase<'_>; 24] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -429,6 +429,21 @@ WHERE userid = 42 AND date > '2021-10-01'
                     ("custom_column", "PascalCaseColumn"),
                     ("start_date", "2021-10-01"),
                 ],
+            ),
+            (
+                // Embedded colons are not parameters; only :user_id is replaced.
+                r#"
+SELECT '2021-10-01 12:30:00'::timestamp, tags[1:3]
+FROM users_data
+WHERE userid = :user_id AND note = 'a\:b'
+"#,
+                "colon_optional_quotes",
+                r#"
+SELECT '2021-10-01 12:30:00'::timestamp, tags[1:3]
+FROM users_data
+WHERE userid = 42 AND note = 'a\:b'
+"#,
+                vec![("user_id", "42")],
             ),
             (
                 r#"

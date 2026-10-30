@@ -6,6 +6,37 @@ mod common;
 use common::sqruff_path;
 
 #[test]
+fn non_table_rules_in_pyproject_is_a_concise_user_error() {
+    for namespace in ["sqlfluff", "sqruff"] {
+        let temp = tempfile::tempdir().unwrap();
+        let pyproject = temp.path().join("pyproject.toml");
+        let sql = temp.path().join("query.sql");
+        fs::write(
+            &pyproject,
+            format!("[tool.{namespace}]\ndialect = \"ansi\"\nrules = \"all\"\n"),
+        )
+        .unwrap();
+        fs::write(&sql, "SELECT 1\n").unwrap();
+
+        let assertion = Command::new(sqruff_path())
+            .current_dir(temp.path())
+            .env("HOME", temp.path())
+            .args(["lint", "--dialect", "ansi"])
+            .arg(&sql)
+            .assert()
+            .code(1);
+        let stderr = String::from_utf8_lossy(&assertion.get_output().stderr);
+
+        assert!(stderr.contains(pyproject.to_string_lossy().as_ref()));
+        assert!(stderr.contains("invalid `rules` value"));
+        assert!(stderr.contains("\"all\""));
+        assert!(stderr.contains(&format!("[tool.{namespace}.rules.<rule_name>]")));
+        assert!(!stderr.contains("panicked"));
+        assert!(!stderr.contains("backtrace"));
+    }
+}
+
+#[test]
 fn invalid_pyproject_toml_is_a_concise_user_error() {
     let temp = tempfile::tempdir().unwrap();
     let pyproject = temp.path().join("pyproject.toml");

@@ -588,6 +588,7 @@ pub enum SyntaxKind {
     ExclusionConstraintElement,
     ExecuteArrow,
     ExecuteAsClause,
+    ExecuteDbtProjectStatement,
     ExecuteFileStatement,
     ExecuteImmediate,
     ExecuteImmediateClause,

@@ -1,0 +1,7 @@
+file:
+- statement:
+  - call_statement:
+    - keyword: CALL
+    - function_name:
+      - function_name_identifier: p1
+- statement_terminator: ;

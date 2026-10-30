@@ -379,6 +379,10 @@ file:
       - column_reference:
         - naked_identifier: event_date
       - end_bracket: )
+    - keyword: SEQUENCE
+    - keyword: BY
+    - column_reference:
+      - naked_identifier: event_time
     - select_statement:
       - select_clause:
         - keyword: SELECT

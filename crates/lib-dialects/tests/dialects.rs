@@ -475,6 +475,19 @@ fn clickhouse_regexp_rejects_not_and_escape() {
 }
 
 #[test]
+fn databricks_replace_using_requires_sequence_by() {
+    let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    let sql = "CREATE FLOW f AS INSERT INTO t BY NAME REPLACE USING (a) SELECT * FROM STREAM s;";
+    let (tokens, lex_errors) = lexer.lex(&tables, sql);
+    assert!(lex_errors.is_empty());
+    let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+    assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+}
+
+#[test]
 fn databricks_materialized_view_rejects_invalid_constraint_order() {
     let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
     let tables = Tables::default();

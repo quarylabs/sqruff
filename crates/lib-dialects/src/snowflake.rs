@@ -27,6 +27,24 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SnowflakeDialectConfig {});
 
+/// Keep branch terminators out of nested expressions such as CASE ... ELSE ... END.
+fn scripting_if_branch_body(terminators: Vec<Matchable>) -> Matchable {
+    AnyNumberOf::new(vec![
+        Sequence::new(vec![
+            Ref::new("StatementSegment")
+                .reset_terminators()
+                .to_matchable(),
+            Ref::new("DelimiterGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .config(|this| {
+        this.min_times(1);
+        this.terminators = terminators;
+    })
+    .to_matchable()
+}
+
 fn scripting_declaration() -> Matchable {
     Sequence::new(vec![
         Ref::new("LocalVariableNameSegment")
@@ -7231,27 +7249,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             .to_matchable(),
                         Ref::keyword("THEN").to_matchable(),
                         MetaSegment::indent().to_matchable(),
-                        Ref::new("StatementSegment").to_matchable(),
-                        AnyNumberOf::new(vec![
+                        scripting_if_branch_body(vec![
+                            Ref::keyword("ELSEIF").to_matchable(),
+                            Ref::keyword("ELSE").to_matchable(),
                             Sequence::new(vec![
-                                Ref::new("DelimiterGrammar").to_matchable(),
-                                Ref::new("StatementSegment").to_matchable(),
+                                Ref::keyword("END").to_matchable(),
+                                Ref::keyword("IF").to_matchable(),
                             ])
                             .to_matchable(),
-                        ])
-                        .config(|this| {
-                            this.terminators = vec![
-                                Ref::keyword("ELSEIF").to_matchable(),
-                                Ref::keyword("ELSE").to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("END").to_matchable(),
-                                    Ref::keyword("IF").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ];
-                        })
-                        .to_matchable(),
-                        Ref::new("DelimiterGrammar").to_matchable(),
+                        ]),
                         MetaSegment::dedent().to_matchable(),
                     ])
                     .to_matchable(),
@@ -7262,27 +7268,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                             Ref::keyword("THEN").to_matchable(),
                             MetaSegment::indent().to_matchable(),
-                            Ref::new("StatementSegment").to_matchable(),
-                            AnyNumberOf::new(vec![
+                            scripting_if_branch_body(vec![
+                                Ref::keyword("ELSEIF").to_matchable(),
+                                Ref::keyword("ELSE").to_matchable(),
                                 Sequence::new(vec![
-                                    Ref::new("DelimiterGrammar").to_matchable(),
-                                    Ref::new("StatementSegment").to_matchable(),
+                                    Ref::keyword("END").to_matchable(),
+                                    Ref::keyword("IF").to_matchable(),
                                 ])
                                 .to_matchable(),
-                            ])
-                            .config(|this| {
-                                this.terminators = vec![
-                                    Ref::keyword("ELSEIF").to_matchable(),
-                                    Ref::keyword("ELSE").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("END").to_matchable(),
-                                        Ref::keyword("IF").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ];
-                            })
-                            .to_matchable(),
-                            Ref::new("DelimiterGrammar").to_matchable(),
+                            ]),
                             MetaSegment::dedent().to_matchable(),
                         ])
                         .to_matchable(),
@@ -7301,25 +7295,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("ELSE").to_matchable(),
                         MetaSegment::indent().to_matchable(),
-                        Ref::new("StatementSegment").to_matchable(),
-                        AnyNumberOf::new(vec![
+                        scripting_if_branch_body(vec![
                             Sequence::new(vec![
-                                Ref::new("DelimiterGrammar").to_matchable(),
-                                Ref::new("StatementSegment").to_matchable(),
+                                Ref::keyword("END").to_matchable(),
+                                Ref::keyword("IF").to_matchable(),
                             ])
                             .to_matchable(),
-                        ])
-                        .config(|this| {
-                            this.terminators = vec![
-                                Sequence::new(vec![
-                                    Ref::keyword("END").to_matchable(),
-                                    Ref::keyword("IF").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ];
-                        })
-                        .to_matchable(),
-                        Ref::new("DelimiterGrammar").to_matchable(),
+                        ]),
                         MetaSegment::dedent().to_matchable(),
                     ])
                     .config(|this| this.optional())

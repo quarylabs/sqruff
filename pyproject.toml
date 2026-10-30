@@ -1,6 +1,6 @@
 [project]
 name = "sqruff"
-version = "0.43.0"
+version = "0.44.0"
 requires-python = ">=3.10"
 dependencies = [
     "Jinja2>=3.0.0",

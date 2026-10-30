@@ -1234,6 +1234,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SlashBufferExecutor
         | OracleBatch
         | SqlplusSetStatement
+        | SqlplusShowStatement
         | OracleCommentStatement
         | OracleCreateProcedureStatement
         | OracleDropProcedureStatement

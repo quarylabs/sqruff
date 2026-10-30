@@ -573,7 +573,6 @@ fn test_clickhouse_tuple_element_access_parse_boundaries() {
         "SELECT .123abc;",
         "SELECT test.1abc;",
         "SELECT test.12a;",
-        "SELECT test.1_2;",
         "SELECT test.1.2e3;",
     ] {
         let parsed = lnt.parse_string(&tables, sql, None).unwrap();
@@ -584,22 +583,26 @@ fn test_clickhouse_tuple_element_access_parse_boundaries() {
     }
 
     // ClickHouse numeric literals fall back to strtod parsing and support
-    // exponential notation, so `.1e2` should stay numeric syntax rather than
-    // tuple access. See: https://clickhouse.com/docs/sql-reference/syntax#numeric
-    let parsed = lnt.parse_string(&tables, "SELECT test.1e2;", None).unwrap();
-    let tree = parsed.tree.unwrap();
-    let tuple_access = tree.recursive_crawl(
-        &SyntaxSet::new(&[SyntaxKind::ColumnReference, SyntaxKind::TupleElementAccess]),
-        true,
-        &SyntaxSet::EMPTY,
-        true,
-    );
-    assert!(
-        tuple_access
-            .iter()
-            .all(|segment| segment.raw().as_str() != "test.1e2"),
-        "expected exponent-style numeric literal not to parse as tuple access"
-    );
+    // exponential notation and digit separators. Keep these forms as numeric
+    // syntax rather than integer tuple access.
+    // See: https://clickhouse.com/docs/sql-reference/syntax#numeric
+    for sql in ["SELECT test.1e2;", "SELECT test.1_2;"] {
+        let parsed = lnt.parse_string(&tables, sql, None).unwrap();
+        assert!(parsed.violations.is_empty(), "{sql}");
+        let tree = parsed.tree.unwrap();
+        let tuple_access = tree.recursive_crawl(
+            &SyntaxSet::new(&[SyntaxKind::ColumnReference, SyntaxKind::TupleElementAccess]),
+            true,
+            &SyntaxSet::EMPTY,
+            true,
+        );
+        assert!(
+            tuple_access
+                .iter()
+                .all(|segment| !["test.1e2", "test.1_2"].contains(&segment.raw().as_str())),
+            "expected exponent or separator-style numeric literal not to parse as tuple access: {sql}"
+        );
+    }
 }
 
 #[test]

@@ -3024,7 +3024,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         // INSERT [ONCE] INTO [ONCE] target BY NAME
-                        // [REPLACE USING (...)] query -- an append flow, which
+                        // [REPLACE USING (...) SEQUENCE BY col]
+                        // query -- an append flow, which
                         // is how a pipeline points several sources at one
                         // streaming table.
                         //
@@ -3082,6 +3083,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("REPLACE").to_matchable(),
                                 Ref::keyword("USING").to_matchable(),
                                 Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                                Ref::keyword("SEQUENCE").to_matchable(),
+                                Ref::keyword("BY").to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
                             ])
                             .config(|config| config.optional())
                             .to_matchable(),

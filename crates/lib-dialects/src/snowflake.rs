@@ -710,6 +710,63 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     snowflake_dialect.add([
         (
+            "WorkloadIdentityPropertyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WORKLOAD_IDENTITY").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("TYPE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("AWS").to_matchable(),
+                            Ref::keyword("AZURE").to_matchable(),
+                            Ref::keyword("GCP").to_matchable(),
+                            Ref::keyword("OIDC").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ARN").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ISSUER").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SUBJECT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OIDC_AUDIENCE_LIST").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "PipePropertiesGrammar".into(),
             Sequence::new(vec![
                 Sequence::new(vec![
@@ -10511,6 +10568,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("BooleanLiteralGrammar").to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::new("WorkloadIdentityPropertyGrammar").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("DAYS_TO_EXPIRY").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
@@ -13785,6 +13843,35 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("SECURITY").to_matchable(),
                             Ref::keyword("INTEGRATION").to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("AUTHENTICATION").to_matchable(),
+                                Ref::keyword("PASSWORD").to_matchable(),
+                                Ref::keyword("SESSION").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("POLICY").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("FORCE").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("AUTHENTICATION").to_matchable(),
+                                Ref::keyword("PASSWORD").to_matchable(),
+                                Ref::keyword("SESSION").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("POLICY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("WorkloadIdentityPropertyGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![

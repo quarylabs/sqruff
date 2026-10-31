@@ -354,3 +354,8 @@ var:lname::string last_name FROM raw;
 CREATE TABLE IF NOT EXISTS my_schema.my_table (
   DELTA INT
 );
+
+CREATE OR REPLACE TABLE dummy_table (
+  id NUMBER NOT NULL,
+  name STRING
+) ROW_TIMESTAMP = TRUE;

@@ -111,3 +111,27 @@ file:
     - tag_reference:
       - naked_identifier: bar
 - statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: set
+    - schema_object_properties:
+      - keyword: row_timestamp_default
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - table_reference:
+      - object_reference:
+        - naked_identifier: schema1
+    - keyword: unset
+    - keyword: row_timestamp_default
+- statement_terminator: ;

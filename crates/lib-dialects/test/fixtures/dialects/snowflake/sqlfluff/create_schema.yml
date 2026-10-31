@@ -167,3 +167,16 @@ file:
         - dot: .
         - naked_identifier: MYSCHEMA
 - statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: test_schema
+    - schema_object_properties:
+      - keyword: ROW_TIMESTAMP_DEFAULT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;

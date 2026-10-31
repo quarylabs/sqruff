@@ -14,7 +14,8 @@ set -euo pipefail
 PNPM_BIN="$RUNFILES_DIR/$PNPM"
 
 # pnpm needs a writable HOME for its config/cache and a writable workspace.
-WORKDIR=$(mktemp -d)
+WORKDIR=$(mktemp -d "${TEST_TMPDIR:-${TMPDIR:-/tmp}}/sqruff-pnpm.XXXXXX")
+trap 'rm -rf "$WORKDIR"' EXIT
 export HOME="$WORKDIR"
 # Silence the global "update available" notifier and behave like CI.
 export CI=1

@@ -4186,6 +4186,17 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("ACCESS").to_matchable(),
+                        Ref::keyword("METHOD").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
                         one_of(vec![
                             Ref::keyword("LOGGED").to_matchable(),
                             Ref::keyword("UNLOGGED").to_matchable(),
@@ -5096,6 +5107,17 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("SET").to_matchable(),
                         Ref::keyword("WITHOUT").to_matchable(),
                         Ref::keyword("CLUSTER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("ACCESS").to_matchable(),
+                        Ref::keyword("METHOD").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

@@ -45,6 +45,7 @@ unset RUSTUP_HOME RUSTUP_TOOLCHAIN
 "$RUSTC_BIN" --version
 
 WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
 export CARGO_HOME="$WORK_DIR/.cargo"
 
 # Copy all Cargo.toml / Cargo.lock files preserving structure
@@ -205,6 +206,7 @@ VENV_OUT="$EXEC_ROOT/{venv_out}"
 PYTHON_BIN="$EXEC_ROOT/{python_path}"
 
 WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
 export UV_CACHE_DIR="$WORK_DIR/.uv-cache"
 
 # Copy the entire Python runtime (bin, lib, include) into a writable directory
@@ -545,7 +547,7 @@ echo "Python ready: $($PYO3_PYTHON --version)"
     # Generate symlink commands for additional cargo subcommand tools
     tool_setup = ""
     if ctx.files.tools:
-        tool_setup = "TOOL_BINDIR=$(mktemp -d)\n"
+        tool_setup = 'TOOL_BINDIR="$WORK_DIR/.cargo-tools"\nmkdir -p "$TOOL_BINDIR"\n'
         for f in ctx.files.tools:
             tool_setup += 'ln -s "$RUNFILES/_main/{path}" "$TOOL_BINDIR/{name}"\n'.format(
                 path = f.short_path,
@@ -584,7 +586,15 @@ CXX_BIN=$(resolve_cc_tool "{cxx_path}")
 AR_BIN=$(resolve_cc_tool "{ar_path}")
 
 # Use the pinned toolchain registered by rules_rust.
-CC_BINDIR=$(mktemp -d)
+WORK_DIR=$(mktemp -d "${{TEST_TMPDIR:-${{TMPDIR:-/tmp}}}}/sqruff-cargo.XXXXXX")
+trap 'rm -rf "$WORK_DIR"' EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
+trap 'exit 142' ALRM
+mkdir -p "$WORK_DIR/.cc-tools" "$WORK_DIR/.tmp"
+CC_BINDIR="$WORK_DIR/.cc-tools"
+export TMPDIR="$WORK_DIR/.tmp"
+echo "Cargo workspace: $WORK_DIR"
 ln -s "$CC_BIN" "$CC_BINDIR/cc"
 ln -s "$CXX_BIN" "$CC_BINDIR/c++"
 ln -s "$AR_BIN" "$CC_BINDIR/ar"
@@ -598,8 +608,6 @@ export AR="$AR_BIN"
 unset RUSTUP_HOME RUSTUP_TOOLCHAIN
 
 {tool_setup}
-
-WORK_DIR=$(mktemp -d)
 
 # Copy source files into writable tree (heredoc handles spaces in filenames)
 while IFS= read -r src; do

@@ -89,10 +89,13 @@ untracked files. It runs formatting checks, `cargo build`, `cargo test`, and
 Output streams normally; use the returned process/session handle to wait for the
 same invocation. Do not restart tests merely because a tool yielded.
 
-The helper puts Cargo and Bazel-test temporary files in a disposable directory
-under the ignored `.cache/sqlfluff-port-tests/`, allows that path in the Bazel
-sandbox, and removes it on success or failure. Repeated ports reuse the same
-checkout and build caches. Keep focused/manual Bazel tests inside the TMPDIR
+The helper puts Cargo/client scratch in a disposable directory under the ignored
+`.cache/sqlfluff-port-tests/`, passes that path explicitly to Bazel test environments,
+and removes it on success or failure. Generated Cargo tests use their managed
+`TEST_TMPDIR` and an exit trap for all workspace/tool/Python scratch. Build actions
+and other test scripts clean their owned temporary trees too. Bazel runs at most
+four jobs; each Cargo-hack test runs at most two Cargo jobs. Repeated ports reuse
+the same checkout and build caches. Keep focused/manual Bazel tests inside the TMPDIR
 wrapper documented in `next-sqlfluff.md` as well. After a killed run, inspect
 `scratch_directory` in its checkpoint and remove only that directory after
 confirming the run has stopped; do not clear shared caches or unrelated temp files.

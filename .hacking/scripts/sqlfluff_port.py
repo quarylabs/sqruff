@@ -284,7 +284,8 @@ def verify(args, state):
             actual = command
             if command[0] == "bazel":
                 actual = command + [
-                    "--test_env=TMPDIR",
+                    "--jobs=4",
+                    f"--test_env=TMPDIR={scratch}",
                     f"--sandbox_writable_path={scratch}",
                 ]
             start = time.monotonic()

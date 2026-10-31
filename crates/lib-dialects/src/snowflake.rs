@@ -8529,6 +8529,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS").to_matchable(),
                                     Ref::keyword("DEFAULT_DDL_COLLATION").to_matchable(),
                                     Ref::keyword("COMMENT").to_matchable(),
+                                    Ref::keyword("ROW_TIMESTAMP_DEFAULT").to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
@@ -8857,6 +8858,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("DEFAULT_DDL_COLLATION").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
                         Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ROW_TIMESTAMP_DEFAULT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("BooleanLiteralGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("CommentEqualsClauseSegment").to_matchable(),

@@ -1,0 +1,94 @@
+file:
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: SET
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_auth_policy
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - keyword: IF
+    - keyword: EXISTS
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: SET
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_auth_policy
+    - keyword: FORCE
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: UNSET
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: SET
+    - keyword: PASSWORD
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_password_policy
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: UNSET
+    - keyword: PASSWORD
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_session_policy
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: my_user
+    - keyword: UNSET
+    - keyword: SESSION
+    - keyword: POLICY
+- statement_terminator: ;

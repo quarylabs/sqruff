@@ -4,12 +4,15 @@
 import argparse
 import hashlib
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from pathlib import Path
 
 REPO = "quarylabs/sqruff"
@@ -63,7 +66,10 @@ def open_ports():
     return [
         pr
         for pr in prs
-        if pr["head"]["ref"].startswith("port/sqlfluff-")
+        if (
+            pr["head"]["ref"].startswith("port/sqlfluff-")
+            or "Ported from SQLFluff" in (pr.get("body") or "")
+        )
         and pr["head"]["repo"]["full_name"] == REPO
     ]
 
@@ -240,6 +246,24 @@ def staged_tree(state):
     return git(root, "write-tree")
 
 
+@contextmanager
+def test_scratch(root):
+    # A stable path preserves Bazel test cache keys across sequential ports.
+    scratch = root / ".cache" / "sqlfluff-port-tests" / "active"
+    scratch.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        scratch.mkdir()
+    except FileExistsError as exc:
+        raise PortError(
+            f"Validation scratch already exists: {scratch}. Confirm its run has "
+            "stopped before removing it; do not run concurrent ports here."
+        ) from exc
+    try:
+        yield str(scratch)
+    finally:
+        shutil.rmtree(scratch)
+
+
 def verify(args, state):
     tree = staged_tree(state)
     root = Path(state["root"])
@@ -247,28 +271,43 @@ def verify(args, state):
     state["status"] = "testing"
     state["tests"] = []
     save(args.state, state)
-    for command in [
-        ["cargo", "fmt", "--all", "--", "--check"],
-        ["cargo", "build"],
-        ["cargo", "test"],
-        ["bazel", "test", "//..."],
-    ]:
-        start = time.monotonic()
-        print("Running " + " ".join(command), file=sys.stderr, flush=True)
-        # Stream output to stderr; stdout remains one compact machine-readable result.
-        result = subprocess.run(
-            command, cwd=root, stdout=sys.stderr, stderr=sys.stderr, check=False
-        )
-        state["tests"].append(
-            {
-                "command": command,
-                "seconds": round(time.monotonic() - start, 2),
-                "exit_code": result.returncode,
-            }
-        )
+    with test_scratch(root) as scratch:
+        state["scratch_directory"] = scratch
         save(args.state, state)
-        if result.returncode:
-            raise PortError("Validation failed; fix the failure and rerun verify.")
+        environment = {**os.environ, "TMPDIR": scratch}
+        for command in [
+            ["cargo", "fmt", "--all", "--", "--check"],
+            ["cargo", "build"],
+            ["cargo", "test"],
+            ["bazel", "test", "//..."],
+        ]:
+            actual = command
+            if command[0] == "bazel":
+                actual = command + [
+                    "--test_env=TMPDIR",
+                    f"--sandbox_writable_path={scratch}",
+                ]
+            start = time.monotonic()
+            print("Running " + " ".join(actual), file=sys.stderr, flush=True)
+            # Stream output; keep a stable command receipt without ephemeral paths.
+            result = subprocess.run(
+                actual,
+                cwd=root,
+                env=environment,
+                stdout=sys.stderr,
+                stderr=sys.stderr,
+                check=False,
+            )
+            state["tests"].append(
+                {
+                    "command": command,
+                    "seconds": round(time.monotonic() - start, 2),
+                    "exit_code": result.returncode,
+                }
+            )
+            save(args.state, state)
+            if result.returncode:
+                raise PortError("Validation failed; fix the failure and rerun verify.")
     if staged_tree(state) != tree:
         raise PortError("Tree changed during validation; rerun verify.")
     state.update(validated_tree=tree, status="validated")

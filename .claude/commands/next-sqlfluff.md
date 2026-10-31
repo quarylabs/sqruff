@@ -2,9 +2,11 @@ Port the next SQLFluff commit to sqruff.
 
 ## Safety limits
 
-- Create **at most one pull request per invocation**. After publishing or
-  deciding that no PR should be created, stop. Do not loop, recurse, or start
-  another SQLFluff port.
+- Create **at most one pull request per invocation**. A user-requested loop or
+  active goal may start the next invocation after publishing and auditing this
+  port. Continue sequentially until caught up, the open-port limit is reached,
+  or a failure, duplicate, or concurrent publisher requires reconciliation.
+  Without an explicit loop request, stop after this invocation.
 - Keep **at most fifty open SQLFluff port PRs** in the repository. Count the
   matching open PRs before starting any port work. If there are already fifty,
   stop without creating a branch or PR and report the existing stack.
@@ -14,6 +16,34 @@ Port the next SQLFluff commit to sqruff.
 
 ## Workflow
 
+### Reuse the checkout and contain temporary files
+
+Run every port in the same sqruff checkout. Switch branches there and reuse its
+Cargo `target/`, Bazel output base, shared disk cache, and repository cache. Do
+not create a new worktree, temporary clone, or Bazel `--output_base` per port.
+Keep the existing `sqlfluff/` reference clone and fetch it without changing its
+checkout. Run one port and one build/test invocation at a time.
+
+Prefer `next-sqlfluff-optimized.md` and its checkpointed helper for repeated
+ports. The helper confines Cargo and Bazel-test scratch files to one disposable
+directory under the ignored `.cache/sqlfluff-port-tests/` and removes it on
+success or failure. This includes `mktemp` directories made by test scripts.
+When running validation manually, apply the same containment:
+
+```bash
+mkdir -p .cache/sqlfluff-port-tests
+(
+  export TMPDIR="$(mktemp -d "$PWD/.cache/sqlfluff-port-tests/run-XXXXXXXX")"
+  trap 'rm -rf -- "$TMPDIR"' EXIT
+  bazel test --test_env=TMPDIR --sandbox_writable_path="$TMPDIR" //...
+)
+```
+
+Do not run an unwrapped `bazel test` that leaves test scratch in the system temp
+folder. After an interrupted run, inspect its checkpoint and remove only that
+run's scratch directory after confirming its tests have stopped. Never sweep
+unrelated `/tmp` files or clear shared caches between ports.
+
 1. **Require a clean worktree and fetch the latest refs:**
 
    ```bash
@@ -21,12 +51,14 @@ Port the next SQLFluff commit to sqruff.
    git fetch origin --prune
    ```
 
-   Stop if the worktree is dirty. Do not overwrite unrelated work.
+   Preserve and identify existing work before switching branches. Resume it if
+   it belongs to the exact next port on the selected base; otherwise stop without
+   overwriting it. An explicitly authorized stash must be recorded and preserved.
 
 2. **Choose the base branch and stack tip.** List open sqruff port PRs and inspect their head and base branches:
 
    ```bash
-   gh pr list --repo quarylabs/sqruff --state open \
+   gh pr list --repo quarylabs/sqruff --state open --limit 1000 \
      --json number,title,body,url,headRefName,baseRefName,createdAt
    ```
 
@@ -62,8 +94,8 @@ Port the next SQLFluff commit to sqruff.
 5. **Find the next commit** in the local SQLFluff clone at `sqlfluff/`. First make sure it's up to date, then get the next commit after the saved SHA on the main branch (first-parent only, so merge commits are followed but side-branch commits are skipped):
 
    ```bash
-   git -C sqlfluff pull
-   git -C sqlfluff log --reverse --first-parent --format="%H" <SHA>..main | head -n 1
+   git -C sqlfluff fetch origin main
+   git -C sqlfluff log --reverse --first-parent --format="%H" <SHA>..origin/main | head -n 1
    ```
 
 6. **Inspect the commit** — show its message and full diff:
@@ -122,7 +154,8 @@ Port the next SQLFluff commit to sqruff.
 14. **Verify the change builds and passes Bazel tests** to ensure nothing is broken. This step is MANDATORY even if no code changes were made (skip-only SHA updates still need a green CI):
 
     ```bash
-    bazel test //...
+    # Use the disposable TMPDIR wrapper above, or the optimized helper.
+    bazel test --test_env=TMPDIR --sandbox_writable_path="$TMPDIR" //...
     ```
 
     Fix any failures before proceeding.
@@ -190,4 +223,10 @@ Port the next SQLFluff commit to sqruff.
 
     Include the base PR URL. Ensure the PR diff contains only this port relative to its base branch.
 
-19. **Summarize the stack and merge order, then stop.** Report what was ported, the new PR, its base PR, the bottom-to-top merge order, tests run, and any decisions made. After a lower PR merges, rebase or retarget its immediate child onto the updated `main` before merging the child if GitHub does not do so automatically. Do not begin porting the next SQLFluff commit in this invocation.
+19. **Summarize and checkpoint this port.** Report the new PR, base, merge order,
+    tests, watermark, and decisions. For an explicitly requested loop, recheck
+    capacity and the current stack tip, then begin the next invocation in this
+    same checkout with a new checkpoint. Preserve the existing fifty-PR limit.
+    Otherwise stop. After a lower PR merges, rebase or retarget its immediate
+    child onto the updated `main` before merging the child if GitHub does not do
+    so automatically. A porting loop does not authorize merging PRs.

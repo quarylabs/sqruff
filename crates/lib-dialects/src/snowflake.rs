@@ -16675,6 +16675,11 @@ fn snowflake_access_schema_object() -> Matchable {
         ])
         .to_matchable(),
         Sequence::new(vec![
+            Ref::keyword("SEMANTIC").to_matchable(),
+            Ref::keyword("VIEW").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
             Ref::keyword("MATERIALIZED").to_matchable(),
             Ref::keyword("VIEW").to_matchable(),
         ])
@@ -16760,6 +16765,11 @@ fn snowflake_access_schema_plural_object() -> Matchable {
             Ref::keyword("PROJECTS").to_matchable(),
         ])
         .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("SEMANTIC").to_matchable(),
+            Ref::keyword("VIEWS").to_matchable(),
+        ])
+        .to_matchable(),
     ])
     .to_matchable()
 }
@@ -16774,6 +16784,11 @@ fn snowflake_access_permission() -> Matchable {
                 Ref::keyword("USER").to_matchable(),
                 Ref::keyword("WAREHOUSE").to_matchable(),
                 Ref::keyword("DATABASE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::keyword("ROLE").to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::keyword("INTEGRATION").to_matchable(),
                 Ref::keyword("SHARE").to_matchable(),
                 Ref::keyword("TAG").to_matchable(),
@@ -16941,6 +16956,44 @@ fn snowflake_access_permission() -> Matchable {
 fn snowflake_access_object() -> Matchable {
     one_of(vec![
         Ref::keyword("ACCOUNT").to_matchable(),
+        // Account-wide containers have no trailing object reference.
+        Sequence::new(vec![
+            Ref::keyword("ALL").to_matchable(),
+            one_of(vec![
+                Ref::new("AccessSchemaPluralObjectSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("MATERIALIZED").to_matchable(),
+                    Ref::keyword("VIEWS").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("TABLES").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DYNAMIC").to_matchable(),
+                    Ref::keyword("TABLES").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ICEBERG").to_matchable(),
+                    Ref::keyword("TABLES").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FILE").to_matchable(),
+                    Ref::keyword("FORMATS").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("SCHEMAS").to_matchable(),
+                Ref::keyword("WAREHOUSES").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("IN").to_matchable(),
+            Ref::keyword("ACCOUNT").to_matchable(),
+        ])
+        .to_matchable(),
         Sequence::new(vec![
             one_of(vec![
                 Sequence::new(vec![
@@ -16981,7 +17034,6 @@ fn snowflake_access_object() -> Matchable {
                         Ref::keyword("FUTURE").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("DYNAMIC").optional().to_matchable(),
                     one_of(vec![
                         Ref::new("AccessSchemaPluralObjectSegment").to_matchable(),
                         Sequence::new(vec![
@@ -16991,6 +17043,16 @@ fn snowflake_access_object() -> Matchable {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("EXTERNAL").to_matchable(),
+                            Ref::keyword("TABLES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DYNAMIC").to_matchable(),
+                            Ref::keyword("TABLES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ICEBERG").to_matchable(),
                             Ref::keyword("TABLES").to_matchable(),
                         ])
                         .to_matchable(),
@@ -17083,6 +17145,7 @@ fn snowflake_grant_statement() -> Matchable {
         Ref::keyword("GRANT").to_matchable(),
         one_of(vec![
             Sequence::new(vec![
+                Ref::keyword("INHERITED").optional().to_matchable(),
                 Ref::new("AccessPermissionsSegment").to_matchable(),
                 Ref::keyword("ON").to_matchable(),
                 Ref::new("AccessObjectSegment").to_matchable(),
@@ -17180,6 +17243,7 @@ fn snowflake_revoke_statement() -> Matchable {
         .to_matchable(),
         one_of(vec![
             Sequence::new(vec![
+                Ref::keyword("INHERITED").optional().to_matchable(),
                 Ref::new("AccessPermissionsSegment").to_matchable(),
                 Ref::keyword("ON").to_matchable(),
                 Ref::new("AccessObjectSegment").to_matchable(),

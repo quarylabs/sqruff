@@ -724,8 +724,7 @@ file:
       - access_object:
         - keyword: future
         - keyword: dynamic
-        - access_schema_plural_object:
-          - keyword: tables
+        - keyword: tables
         - keyword: in
         - keyword: schema
         - object_reference:
@@ -749,8 +748,7 @@ file:
       - access_object:
         - keyword: all
         - keyword: dynamic
-        - access_schema_plural_object:
-          - keyword: tables
+        - keyword: tables
         - keyword: in
         - keyword: schema
         - object_reference:

@@ -747,7 +747,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("EXCEPT").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::keyword("ALL").optional().to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DISTINCT").to_matchable(),
+                    Ref::keyword("ALL").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
             ])
             .to_matchable(),
             Ref::keyword("MINUS").to_matchable(),

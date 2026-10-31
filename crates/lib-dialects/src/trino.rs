@@ -1426,24 +1426,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::SetOperator, |_| {
                 one_of(vec![
                     Sequence::new(vec![
-                        Ref::keyword("UNION").to_matchable(),
                         one_of(vec![
-                            Ref::keyword("DISTINCT").to_matchable(),
-                            Ref::keyword("ALL").to_matchable(),
-                        ])
-                        .config(|config| {
-                            config.optional();
-                        })
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
+                            Ref::keyword("UNION").to_matchable(),
                             Ref::keyword("INTERSECT").to_matchable(),
                             Ref::keyword("EXCEPT").to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::keyword("ALL").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DISTINCT").to_matchable(),
+                            Ref::keyword("ALL").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

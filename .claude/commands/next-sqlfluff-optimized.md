@@ -5,13 +5,16 @@ is an alternative to `next-sqlfluff.md`; do not run both workflows in one turn.
 
 - At most one PR per invocation, extending the active stack in upstream
   first-parent order. Stop after publishing, finding a duplicate, reaching
-  upstream main, or encountering a blocker. A background goal may start another
-  invocation on its next continuation.
+  upstream main, or encountering a blocker. An explicitly requested loop or
+  active goal may start the next invocation after a successful publication/audit,
+  using a fresh checkpoint and checking capacity again.
 - Default to at most fifty open SQLFluff port PRs. Preserve explicit session/goal
   overrides: use `--limit 0` only when the user has already removed that cap.
 - Preserve unrelated work, stashes, and lockfiles. Do not merge PRs or force-push.
   Only one porting invocation may own this worktree at a time. If another goal is
-  using it, stop or use a separately authorized isolated checkout.
+  using it, stop. Reuse this checkout across ports; do not create per-port
+  worktrees, temporary clones, or Bazel output bases. Reuse Cargo `target/` and
+  the existing Bazel/shared caches.
 - The scripts automate bookkeeping, not the assessment of Rust behavior or
   fixtures. Keep all required Cargo and Bazel checks, including SHA-only ports.
 
@@ -86,6 +89,14 @@ untracked files. It runs formatting checks, `cargo build`, `cargo test`, and
 Output streams normally; use the returned process/session handle to wait for the
 same invocation. Do not restart tests merely because a tool yielded.
 
+The helper puts Cargo and Bazel-test temporary files in a disposable directory
+under the ignored `.cache/sqlfluff-port-tests/`, allows that path in the Bazel
+sandbox, and removes it on success or failure. Repeated ports reuse the same
+checkout and build caches. Keep focused/manual Bazel tests inside the TMPDIR
+wrapper documented in `next-sqlfluff.md` as well. After a killed run, inspect
+`scratch_directory` in its checkpoint and remove only that directory after
+confirming the run has stopped; do not clear shared caches or unrelated temp files.
+
 After successful validation, commit exactly the staged port. Use the existing
 signing policy (including any user requirement for signed commits). Use a
 conventional title such as `fix(postgres): support optional SRID (6543)` and
@@ -137,4 +148,6 @@ the outstanding UI repair instead of recreating the PR.
 Report the new PR, base, merge order, upstream watermark, tests, and decisions.
 Keep a compact continuation checkpoint: state-file path, PR/branch/SHA, stack ID,
 completed verification, and any unfinished operation. Do not repeat resolved
-historical-fork analysis unless relevant refs change. Stop this invocation.
+historical-fork analysis unless relevant refs change. Finish this invocation;
+when the user explicitly requested a loop, continue with a fresh checkpoint in
+this same checkout until caught up, capacity is full, or reconciliation is needed.

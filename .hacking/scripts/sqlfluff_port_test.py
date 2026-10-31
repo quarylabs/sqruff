@@ -3,6 +3,7 @@
 import argparse
 import importlib.util
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -114,6 +115,74 @@ class GraphTests(unittest.TestCase):
             port.recheck(state)
 
 
+class ShellScratchTests(unittest.TestCase):
+    def test_test_scripts_remove_owned_scratch_on_success_and_failure(self):
+        scripts = Path(__file__).parent
+        for script in ["cargo_machete.sh", "pnpm_lock_check.sh"]:
+            for code in [0, 7]:
+                with (
+                    self.subTest(script=script, code=code),
+                    tempfile.TemporaryDirectory() as directory,
+                ):
+                    root = Path(directory)
+                    runfiles = root / "runfiles"
+                    main = runfiles / "_main"
+                    tools = runfiles / "tools"
+                    managed = root / "managed"
+                    for path in [main, tools, managed, root / "system"]:
+                        path.mkdir(parents=True)
+                    marker = managed / "unrelated"
+                    marker.write_text("preserve me")
+                    for name in [
+                        "package.json",
+                        "pnpm-workspace.yaml",
+                        "pnpm-lock.yaml",
+                        "editors/code/package.json",
+                        "playground/package.json",
+                    ]:
+                        path = main / name
+                        path.parent.mkdir(parents=True, exist_ok=True)
+                        path.write_text("{}\n")
+                    cargo = tools / "cargo"
+                    cargo.write_text(
+                        '#!/bin/bash\nexec "$(dirname "$0")/cargo-machete" "$@"\n'
+                    )
+                    cargo.chmod(0o755)
+                    for name, location in [("machete", '"$PWD"'), ("pnpm", '"$2"')]:
+                        tool = tools / name
+                        tool.write_text(
+                            f'#!/bin/bash\nprintf "%s" {location} > "$SQRUFF_WORKSPACE_RECORD"\nexit {code}\n'
+                        )
+                        tool.chmod(0o755)
+                    record = root / "workspace"
+                    result = subprocess.run(
+                        ["bash", str(scripts / script)],
+                        env={
+                            **os.environ,
+                            "RUNFILES_DIR": str(runfiles),
+                            "CARGO": "tools/cargo",
+                            "MACHETE": "tools/machete",
+                            "PNPM": "tools/pnpm",
+                            "TEST_TMPDIR": str(managed),
+                            "TMPDIR": str(root / "system"),
+                            "SQRUFF_WORKSPACE_RECORD": str(record),
+                        },
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(
+                        result.returncode,
+                        0 if code == 0 else (7 if script == "cargo_machete.sh" else 1),
+                        result.stderr,
+                    )
+                    workspace = Path(record.read_text())
+                    self.assertTrue(workspace.is_relative_to(managed))
+                    self.assertFalse(workspace.exists())
+                    self.assertEqual(list(managed.iterdir()), [marker])
+                    self.assertEqual(list((root / "system").iterdir()), [])
+
+
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -204,7 +273,8 @@ class WorkflowTests(unittest.TestCase):
                     directories.add(scratch)
                     (scratch / "left-by-test").write_text("temporary build data")
                     if command[0] == "bazel":
-                        self.assertIn("--test_env=TMPDIR", command)
+                        self.assertIn("--jobs=4", command)
+                        self.assertIn(f"--test_env=TMPDIR={scratch}", command)
                         self.assertIn(f"--sandbox_writable_path={scratch}", command)
                         if outcome is KeyboardInterrupt:
                             raise KeyboardInterrupt

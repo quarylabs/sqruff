@@ -25,9 +25,13 @@ Keep the existing `sqlfluff/` reference clone and fetch it without changing its
 checkout. Run one port and one build/test invocation at a time.
 
 Prefer `next-sqlfluff-optimized.md` and its checkpointed helper for repeated
-ports. The helper confines Cargo and Bazel-test scratch files to one disposable
-directory under the ignored `.cache/sqlfluff-port-tests/` and removes it on
-success or failure. This includes `mktemp` directories made by test scripts.
+ports. The helper uses a disposable directory under the ignored
+`.cache/sqlfluff-port-tests/` for Cargo/client scratch and removes it on success
+or failure. Bazel Cargo tests put their workspace, tool links, Python copy, and
+nested scratch under `TEST_TMPDIR`, with an exit trap to remove the workspace.
+Build actions and other test scripts also clean up their owned temporary trees.
+The helper limits Bazel to four concurrent jobs; each Cargo-hack test already
+limits its nested Cargo compilation to two jobs.
 When running validation manually, apply the same containment:
 
 ```bash
@@ -35,7 +39,7 @@ mkdir -p .cache/sqlfluff-port-tests
 (
   export TMPDIR="$(mktemp -d "$PWD/.cache/sqlfluff-port-tests/run-XXXXXXXX")"
   trap 'rm -rf -- "$TMPDIR"' EXIT
-  bazel test --test_env=TMPDIR --sandbox_writable_path="$TMPDIR" //...
+  bazel test --jobs=4 --test_env=TMPDIR="$TMPDIR" --sandbox_writable_path="$TMPDIR" //...
 )
 ```
 
@@ -155,7 +159,7 @@ unrelated `/tmp` files or clear shared caches between ports.
 
     ```bash
     # Use the disposable TMPDIR wrapper above, or the optimized helper.
-    bazel test --test_env=TMPDIR --sandbox_writable_path="$TMPDIR" //...
+    bazel test --jobs=4 --test_env=TMPDIR="$TMPDIR" --sandbox_writable_path="$TMPDIR" //...
     ```
 
     Fix any failures before proceeding.

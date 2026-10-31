@@ -19,7 +19,7 @@ SPEC.loader.exec_module(port)
 def pr(number, head, base="main", body="", title="SQLFluff port"):
     return {
         "number": number,
-        "head": {"ref": head},
+        "head": {"ref": head, "repo": {"full_name": port.REPO}},
         "base": {"ref": base},
         "body": body,
         "title": title,
@@ -187,6 +187,54 @@ class WorkflowTests(unittest.TestCase):
         saved = json.loads(self.checkpoint.read_text())
         self.assertNotIn("validated_tree", saved)
         self.assertEqual(saved["tests"][-1]["exit_code"], 1)
+
+    def test_scratch_is_isolated_and_removed_on_success_failure_and_interruption(self):
+        for outcome in (0, 1, KeyboardInterrupt):
+            with self.subTest(outcome=outcome):
+                directories = set()
+
+                def execute(
+                    command, outcome=outcome, directories=directories, **kwargs
+                ):
+                    if command[0] not in ("cargo", "bazel"):
+                        return self.real_run(command, **kwargs)
+                    scratch = Path(kwargs["env"]["TMPDIR"])
+                    self.assertTrue(scratch.is_relative_to(self.root / ".cache"))
+                    self.assertTrue(scratch.is_dir())
+                    directories.add(scratch)
+                    (scratch / "left-by-test").write_text("temporary build data")
+                    if command[0] == "bazel":
+                        self.assertIn("--test_env=TMPDIR", command)
+                        self.assertIn(f"--sandbox_writable_path={scratch}", command)
+                        if outcome is KeyboardInterrupt:
+                            raise KeyboardInterrupt
+                        return subprocess.CompletedProcess(command, outcome)
+                    return subprocess.CompletedProcess(command, 0)
+
+                with patch.object(port.subprocess, "run", side_effect=execute):
+                    if outcome == 0:
+                        port.verify(self.args, self.state)
+                    else:
+                        exception = (
+                            KeyboardInterrupt
+                            if outcome is KeyboardInterrupt
+                            else port.PortError
+                        )
+                        with self.assertRaises(exception):
+                            port.verify(self.args, self.state)
+                self.assertEqual(len(directories), 1)
+                self.assertTrue(all(not p.exists() for p in directories))
+
+    def test_existing_scratch_is_preserved_and_blocks_concurrent_validation(self):
+        with port.test_scratch(self.root) as directory:
+            marker = Path(directory) / "in-use"
+            marker.write_text("preserve me")
+            with (
+                self.assertRaisesRegex(port.PortError, "already exists"),
+                port.test_scratch(self.root),
+            ):
+                self.fail("Must not share another validation's scratch")
+            self.assertEqual(marker.read_text(), "preserve me")
 
     def test_untracked_work_refused(self):
         (self.root / "unrelated.txt").write_text("preserve me")

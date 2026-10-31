@@ -932,6 +932,38 @@ fn oracle_rejects_duplicate_physical_attributes() {
 }
 
 #[test]
+fn snowflake_workload_identity_requires_a_known_provider() {
+    let dialect = kind_to_dialect(&DialectKind::Snowflake, None).unwrap();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    for prefix in ["CREATE USER svc", "ALTER USER svc SET"] {
+        for (properties, valid) in [
+            ("TYPE = AWS", true),
+            ("TYPE = AZURE", true),
+            ("TYPE = GCP", true),
+            ("TYPE = OIDC", true),
+            ("", false),
+            ("SUBJECT = 'service'", false),
+            ("TYPE = CUSTOM", false),
+            ("TYPE = GCP TYPE = AWS", false),
+            ("TYPE = GCP SUBJECT = 'a' SUBJECT = 'b'", false),
+            ("TYPE = OIDC OIDC_AUDIENCE_LIST = ()", false),
+        ] {
+            let sql = format!("{prefix} WORKLOAD_IDENTITY = ({properties});");
+            let tables = Tables::default();
+            let (tokens, errors) = lexer.lex(&tables, sql.as_str());
+            assert!(errors.is_empty(), "{sql}");
+            let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+            assert_eq!(
+                check_no_unparsable_segments(&tree).is_empty(),
+                valid,
+                "{sql}",
+            );
+        }
+    }
+}
+
+#[test]
 fn bracketed_matching_modes() {
     use sqruff_lib_core::helpers::ToMatchable;
     use sqruff_lib_core::parser::context::ParseContext;

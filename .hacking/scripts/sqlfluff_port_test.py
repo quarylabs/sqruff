@@ -189,14 +189,17 @@ class WorkflowTests(unittest.TestCase):
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name) / "repo"
         self.root.mkdir()
-        self.checkpoint = Path(self.temporary.name) / "state.json"
-        self.summary = Path(self.temporary.name) / "summary.md"
+        directory = self.root / port.ARTIFACT_DIR
+        directory.mkdir(parents=True)
+        self.checkpoint = directory / "state.json"
+        self.summary = directory / "summary.md"
         port.git(self.root, "init", "-q")
         port.git(self.root, "config", "user.email", "test@example.invalid")
         port.git(self.root, "config", "user.name", "Test")
         port.git(self.root, "config", "commit.gpgsign", "false")
         (self.root / ".sqlfluff-sha").write_text("a" * 40 + "\n")
-        port.git(self.root, "add", ".sqlfluff-sha")
+        (self.root / ".gitignore").write_text(".cache/\n")
+        port.git(self.root, "add", ".sqlfluff-sha", ".gitignore")
         port.git(self.root, "commit", "-qm", "base")
         self.base = port.git(self.root, "rev-parse", "HEAD")
         port.git(self.root, "switch", "-qc", "port/sqlfluff-123")
@@ -232,6 +235,21 @@ class WorkflowTests(unittest.TestCase):
         with self.builds():
             port.verify(self.args, self.state)
         port.git(self.root, "commit", "-qm", "chore: record upstream (123)")
+
+    def test_artifacts_stay_inside_checkout_even_with_symlinks(self):
+        self.assertEqual(
+            port.local_artifact(self.root, self.checkpoint), self.checkpoint
+        )
+        for path in [
+            Path(self.temporary.name) / "outside.json",
+            self.root / "state.json",
+        ]:
+            with self.assertRaises(port.PortError):
+                port.local_artifact(self.root, path)
+        link = self.checkpoint.parent / "outside"
+        link.symlink_to(self.temporary.name, target_is_directory=True)
+        with self.assertRaises(port.PortError):
+            port.local_artifact(self.root, link / "state.json")
 
     def test_success_records_all_checks_and_matches_committed_tree(self):
         self.validated_commit()
@@ -326,6 +344,7 @@ class WorkflowTests(unittest.TestCase):
     def test_publish_uses_literal_body_file_and_checkpoints_success(self):
         self.validated_commit()
         calls = []
+        body_paths = []
         real = port.run
 
         def execute(*args, **kwargs):
@@ -336,7 +355,10 @@ class WorkflowTests(unittest.TestCase):
                 return ""
             if args[:3] == ("gh", "pr", "create"):
                 calls.append("create")
-                body = Path(args[args.index("--body-file") + 1]).read_text()
+                body_path = Path(args[args.index("--body-file") + 1])
+                self.assertEqual(body_path.parent, self.checkpoint.parent)
+                body_paths.append(body_path)
+                body = body_path.read_text()
                 self.assertIn("`cargo test` and $(do-not-execute)", body)
                 return "https://github.com/quarylabs/sqruff/pull/42"
             return real(*args, **kwargs)
@@ -349,6 +371,8 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(calls, ["push", "create"])
         self.assertEqual(result["chain"], [42])
         self.assertEqual(json.loads(self.checkpoint.read_text())["status"], "published")
+        self.assertTrue(body_paths)
+        self.assertTrue(all(not path.exists() for path in body_paths))
 
     def test_existing_remote_branch_is_not_overwritten(self):
         self.validated_commit()

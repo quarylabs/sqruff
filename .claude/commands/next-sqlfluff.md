@@ -24,6 +24,13 @@ not create a new worktree, temporary clone, or Bazel `--output_base` per port.
 Keep the existing `sqlfluff/` reference clone and fetch it without changing its
 checkout. Run one port and one build/test invocation at a time.
 
+Work inline in this checkout. Keep checkpoints, logs, commit messages, and PR
+summaries under the ignored `.cache/sqlfluff-port/` directory. Do not use `/tmp`
+or `/private/tmp` for port artifacts or helper scripts. Prefer streaming output.
+After auditing a published port, retain one compact `last-result.json` receipt
+and remove its completed recovery files before starting the next port. Preserve
+unfinished recovery files in this in-repo directory while paused.
+
 Prefer `next-sqlfluff-optimized.md` and its checkpointed helper for repeated
 ports. The helper uses a disposable directory under the ignored
 `.cache/sqlfluff-port-tests/` for Cargo/client scratch and removes it on success

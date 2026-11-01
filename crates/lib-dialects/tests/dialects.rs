@@ -932,6 +932,34 @@ fn oracle_rejects_duplicate_physical_attributes() {
 }
 
 #[test]
+fn trino_show_catalog_operands_are_single_identifiers() {
+    let dialect = kind_to_dialect(&DialectKind::Trino, None).unwrap();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    for command in ["ROLES", "CURRENT ROLES", "ROLE GRANTS", "SCHEMAS"] {
+        for preposition in ["FROM", "IN"] {
+            for (catalog, valid) in [
+                ("hive", true),
+                ("\"hive.sales\"", true),
+                ("hive.sales", false),
+                ("\"hive\".\"sales\"", false),
+            ] {
+                let sql = format!("SHOW {command} {preposition} {catalog};");
+                let tables = Tables::default();
+                let (tokens, errors) = lexer.lex(&tables, sql.as_str());
+                assert!(errors.is_empty(), "{sql}");
+                let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+                assert_eq!(
+                    check_no_unparsable_segments(&tree).is_empty(),
+                    valid,
+                    "{sql}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn snowflake_workload_identity_requires_a_known_provider() {
     let dialect = kind_to_dialect(&DialectKind::Snowflake, None).unwrap();
     let lexer = Lexer::from(&dialect);

@@ -7199,7 +7199,7 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 ```
 
 <details>
-<summary>Segment types (179)</summary>
+<summary>Segment types (180)</summary>
 <ul>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
@@ -7343,6 +7343,7 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 <li><code>set_operator</code></li>
 <li><code>set_schema_statement</code></li>
 <li><code>set_session_statement</code></li>
+<li><code>show_statement</code></li>
 <li><code>sign_indicator</code></li>
 <li><code>single_quote</code></li>
 <li><code>slice</code></li>

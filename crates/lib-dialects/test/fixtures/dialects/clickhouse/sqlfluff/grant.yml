@@ -555,3 +555,165 @@ file:
           - role_reference:
             - naked_identifier: user_name
 - statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: test_table
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: ADD
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - wildcard_identifier:
+            - star: '*'
+            - dot: .
+            - star: '*'
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: MODIFY
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - naked_identifier: test_table
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: DROP
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - wildcard_identifier:
+            - star: '*'
+            - dot: .
+            - star: '*'
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: MATERIALIZE
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: test_table
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: CLEAR
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - naked_identifier: test_table
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: ADD
+            - keyword: PROJECTION
+        - comma: ','
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: MATERIALIZE
+            - keyword: PROJECTION
+        - comma: ','
+        - access_permission:
+          - access_permission:
+            - keyword: ALTER
+            - keyword: PROJECTION
+      - keyword: ON
+      - access_object:
+        - access_object:
+          - naked_identifier: default
+          - dot: .
+          - naked_identifier: test_table
+      - keyword: TO
+      - access_target:
+        - access_target:
+          - role_reference:
+            - naked_identifier: user_name
+- statement_terminator: ;

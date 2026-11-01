@@ -4335,7 +4335,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CONVERT").to_matchable(),
                     Ref::keyword("TO").to_matchable(),
                     Ref::keyword("DELTA").to_matchable(),
-                    Ref::new("FileReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("FileReferenceSegment").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("NO").to_matchable(),
                         Ref::keyword("STATISTICS").to_matchable(),

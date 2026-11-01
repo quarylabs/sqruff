@@ -3441,6 +3441,11 @@ pub fn raw_dialect() -> Dialect {
                 Some(vec![
                     Ref::new("ObjectUnpivotSegment").optional().to_matchable(),
                     Ref::new("ArrayUnnestSegment").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::new("AccessorGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ]),
                 None,
                 Some(Ref::new("TableReferenceSegment").to_matchable()),

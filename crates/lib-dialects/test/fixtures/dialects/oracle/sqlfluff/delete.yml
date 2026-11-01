@@ -1,0 +1,194 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: hr
+                - dot: .
+                - naked_identifier: employees
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: employee_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '100'
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+            - alias_expression:
+              - naked_identifier: e
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: department_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '30'
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+            - alias_expression:
+              - naked_identifier: e
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: department_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '30'
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: employee_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '100'
+      - oracle_returning_clause:
+        - keyword: RETURNING
+        - naked_identifier: last_name
+        - oracle_into_clause:
+          - keyword: INTO
+          - bind_variable:
+            - bind_colon: ':'
+            - parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - oracle_returning_clause:
+        - keyword: RETURNING
+        - naked_identifier: last_name
+        - oracle_into_clause:
+          - keyword: INTO
+          - bind_variable:
+            - bind_colon: ':'
+            - parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - oracle_returning_clause:
+        - keyword: RETURNING
+        - naked_identifier: last_name
+        - oracle_into_clause:
+          - keyword: INTO
+          - bind_variable:
+            - bind_colon: ':'
+            - parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+    - oracle_delete_statement:
+      - keyword: DELETE
+      - from_clause:
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - oracle_returning_clause:
+        - keyword: RETURN
+        - naked_identifier: last_name
+        - oracle_into_clause:
+          - keyword: INTO
+          - bind_variable:
+            - bind_colon: ':'
+            - parameter: v_last_name
+  - statement_terminator: ;
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_delete_statement:
+          - keyword: DELETE
+          - from_clause:
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: employees
+          - where_clause:
+            - keyword: WHERE
+            - expression:
+              - column_reference:
+                - naked_identifier: employee_id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '100'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

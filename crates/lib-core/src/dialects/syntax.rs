@@ -1044,6 +1044,7 @@ pub enum SyntaxKind {
     ProcedureParameterList,
     ProcedureStatement,
     ProcedureStatements,
+    ProjectionDefinition,
     PropertiesNakedIdentifier,
     PropertyNameIdentifier,
     PsqlCopyCommand,

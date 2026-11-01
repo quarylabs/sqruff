@@ -204,6 +204,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ExtensionReference
         | TagReference
         | ColumnDefinition
+        | ProjectionDefinition
         | ColumnConstraintSegment
         | CommentClause
         | CheckOptionClause

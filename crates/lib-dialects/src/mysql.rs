@@ -2395,6 +2395,20 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // DO evaluates expressions without returning their results.
+    mysql.add([(
+        "DoStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DoStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DO").to_matchable(),
+                Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // SelectPartitionClauseSegment.
     mysql.add([(
         "SelectPartitionClauseSegment".into(),
@@ -4603,6 +4617,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("RepeatStatementSegment").to_matchable(),
                 Ref::new("LoopStatementSegment").to_matchable(),
                 Ref::new("CallStoredProcedureSegment").to_matchable(),
+                Ref::new("DoStatementSegment").to_matchable(),
                 Ref::new("PrepareSegment").to_matchable(),
                 Ref::new("ExecuteSegment").to_matchable(),
                 Ref::new("DeallocateSegment").to_matchable(),

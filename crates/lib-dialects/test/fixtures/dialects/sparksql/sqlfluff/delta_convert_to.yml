@@ -57,3 +57,57 @@ file:
     - keyword: NO
     - keyword: STATISTICS
 - statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - table_reference:
+      - naked_identifier: events
+- statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - table_reference:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: events
+- statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - table_reference:
+      - naked_identifier: events
+    - keyword: NO
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+  - convert_to_delta_statement:
+    - keyword: CONVERT
+    - keyword: TO
+    - keyword: DELTA
+    - table_reference:
+      - naked_identifier: events
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: part
+        - data_type:
+          - primitive_type:
+            - keyword: int
+      - comma: ','
+      - column_definition:
+        - naked_identifier: part2
+        - data_type:
+          - primitive_type:
+            - keyword: int
+      - end_bracket: )
+- statement_terminator: ;

@@ -125,7 +125,34 @@ pub fn raw_dialect() -> Dialect {
         )],
     );
 
+    hive_dialect.replace_grammar(
+        "ComparisonOperatorGrammar",
+        hive_dialect.grammar("ComparisonOperatorGrammar").copy(
+            Some(vec![Ref::new("NullSafeEqualsSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     hive_dialect.add([
+        (
+            // Impala inherits Hive's NULL-safe comparison operator.
+            "NullSafeEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("RawLessThanSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                    Ref::new("RawGreaterThanSegment").to_matchable(),
+                ])
+                .allow_gaps(false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             // Impala dialect uses REGEXP and IREGEXP
             "LikeGrammar".into(),

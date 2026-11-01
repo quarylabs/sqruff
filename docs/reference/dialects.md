@@ -1670,7 +1670,7 @@ Apache Doris SQL dialect, based on MySQL.
 ```
 
 <details>
-<summary>Segment types (272)</summary>
+<summary>Segment types (273)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1757,6 +1757,7 @@ Apache Doris SQL dialect, based on MySQL.
 <li><code>describe_statement</code></li>
 <li><code>distribution_segment</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -3733,7 +3734,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 ```
 
 <details>
-<summary>Segment types (273)</summary>
+<summary>Segment types (274)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3819,6 +3820,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 <li><code>delimiter_statement</code></li>
 <li><code>describe_statement</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -4335,7 +4337,7 @@ MySQL SQL dialect for the popular open-source database.
 ```
 
 <details>
-<summary>Segment types (265)</summary>
+<summary>Segment types (266)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4421,6 +4423,7 @@ MySQL SQL dialect for the popular open-source database.
 <li><code>delimiter_statement</code></li>
 <li><code>describe_statement</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -6659,7 +6662,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 ```
 
 <details>
-<summary>Segment types (281)</summary>
+<summary>Segment types (282)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6747,6 +6750,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 <li><code>describe_statement</code></li>
 <li><code>distribution_segment</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>

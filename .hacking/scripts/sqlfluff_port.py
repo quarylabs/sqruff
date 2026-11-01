@@ -17,10 +17,20 @@ from pathlib import Path
 
 REPO = "quarylabs/sqruff"
 UPSTREAM = "https://github.com/sqlfluff/sqlfluff"
+ARTIFACT_DIR = Path(".cache/sqlfluff-port")
 
 
 class PortError(Exception):
     pass
+
+
+def local_artifact(root, path):
+    """Keep workflow files in the checkout, including through existing symlinks."""
+    directory = (root / ARTIFACT_DIR).resolve()
+    path = Path(path).resolve()
+    if not directory.is_relative_to(root) or not path.is_relative_to(directory):
+        raise PortError(f"Keep port files under {root / ARTIFACT_DIR}.")
+    return path
 
 
 def run(*args, cwd=None, timeout=120):
@@ -371,7 +381,9 @@ def publish(args, state):
     run("git", "push", "-u", "origin", state["branch"], cwd=root)
     state["status"] = "pushed"
     save(args.state, state)
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".md") as file:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".md", dir=Path(args.state).parent
+    ) as file:
         file.write(body)
         file.flush()
         url = run(
@@ -407,7 +419,8 @@ def main():
     for name in ("preflight", "recheck", "verify", "publish"):
         command = sub.add_parser(name)
         command.add_argument(
-            "--state", required=True, help="Checkpoint path outside the worktree"
+            "--state",
+            help="Checkpoint under .cache/sqlfluff-port/ (default: state.json there)",
         )
         if name == "preflight":
             command.add_argument(
@@ -418,15 +431,18 @@ def main():
             )
         if name == "publish":
             command.add_argument(
-                "--summary", required=True, help="Markdown summary file"
+                "--summary",
+                required=True,
+                help="Markdown file under .cache/sqlfluff-port/",
             )
     args = parser.parse_args()
     try:
         root = Path(git(Path.cwd(), "rev-parse", "--show-toplevel")).resolve()
-        if Path(args.state).resolve().is_relative_to(root):
-            raise PortError(
-                "Keep the checkpoint outside the worktree (for example /private/tmp)."
-            )
+        args.state = local_artifact(
+            root, args.state or root / ARTIFACT_DIR / "state.json"
+        )
+        if args.command == "publish":
+            args.summary = local_artifact(root, args.summary)
         if args.command == "preflight":
             if args.limit < 0:
                 raise PortError("Limit must be nonnegative.")

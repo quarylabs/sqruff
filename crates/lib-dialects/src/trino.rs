@@ -833,6 +833,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::new("MergeStatementSegment").to_matchable(),
             Ref::new("SelectableGrammar").to_matchable(),
             Ref::new("SetSchemaStatementSegment").to_matchable(),
+            Ref::new("ShowStatementSegment").to_matchable(),
             Ref::new("TransactionStatementSegment").to_matchable(),
             Ref::new("UpdateStatementSegment").to_matchable(),
             Ref::new("UseStatementSegment").to_matchable(),
@@ -1211,6 +1212,252 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     )]);
 
     trino_dialect.add([
+        (
+            "DescribeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DescribeStatement, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("DESCRIBE").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("INPUT").to_matchable(),
+                            Ref::keyword("OUTPUT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("DESCRIBE").to_matchable(),
+                            Ref::keyword("DESC").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExplainStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExplainStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXPLAIN").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ANALYZE").to_matchable(),
+                            Ref::keyword("VERBOSE").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("FORMAT").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("TEXT").to_matchable(),
+                                            Ref::keyword("GRAPHVIZ").to_matchable(),
+                                            Ref::keyword("JSON").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("TYPE").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("LOGICAL").to_matchable(),
+                                            Ref::keyword("DISTRIBUTED").to_matchable(),
+                                            Ref::keyword("VALIDATE").to_matchable(),
+                                            Ref::keyword("IO").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                    one_of(vec![
+                        super::ansi::explainable_stmt().to_matchable(),
+                        Ref::new("MergeStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ShowStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
+                let like_clause = Sequence::new(vec![
+                    Ref::keyword("LIKE").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ESCAPE").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable();
+                let from_or_in = one_of(vec![
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                ])
+                .to_matchable();
+                let from_schema = Sequence::new(vec![
+                    from_or_in.clone(),
+                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable();
+                // Catalog operands are single identifiers; a quoted dot is allowed.
+                let from_catalog = Sequence::new(vec![
+                    from_or_in.clone(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable();
+                Sequence::new(vec![
+                    Ref::keyword("SHOW").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CATALOGS").to_matchable(),
+                            like_clause.clone(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SESSION").to_matchable(),
+                            like_clause.clone(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("COLUMNS").to_matchable(),
+                            from_or_in,
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            like_clause.clone(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CREATE").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("TABLE").to_matchable(),
+                                        Ref::keyword("VIEW").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("MATERIALIZED").to_matchable(),
+                                            Ref::keyword("VIEW").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEMA").to_matchable(),
+                                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("FUNCTION").to_matchable(),
+                                    Ref::new("FunctionNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FUNCTIONS").to_matchable(),
+                            from_schema.clone(),
+                            like_clause.clone(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("GRANTS").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                Ref::keyword("TABLE").optional().to_matchable(),
+                                Ref::new("TableReferenceSegment").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("ROLES").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CURRENT").to_matchable(),
+                                    Ref::keyword("ROLES").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ROLE").to_matchable(),
+                                    Ref::keyword("GRANTS").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            from_catalog.clone(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SCHEMAS").to_matchable(),
+                            from_catalog,
+                            like_clause.clone(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("STATS").to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            one_of(vec![
+                                Ref::new("TableReferenceSegment").to_matchable(),
+                                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("TABLES").to_matchable(),
+                            from_schema,
+                            like_clause,
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // An 'ANALYZE' statement.
         // As per docs https://trino.io/docs/current/sql/analyze.html
         (

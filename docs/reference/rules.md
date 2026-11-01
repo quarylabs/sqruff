@@ -2356,6 +2356,10 @@ References cannot reference objects not present in 'FROM' clause.
 
 **Fixable:** No
 
+For Trino, single-source SELECTs are exempt by default because dotted
+references may access ROW fields. SELECTs with multiple sources are still
+checked. Set `force_enable = True` to check single-source SELECTs strictly too.
+
 **Anti-pattern**
 
 In this example, the reference `vee` has not been declared.

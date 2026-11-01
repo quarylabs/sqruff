@@ -50,6 +50,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("date_part_function_name")
         .extend(["TIMEDIFF"]);
 
+    databricks.replace_grammar(
+        "AccessSchemaObjectSegment",
+        databricks
+            .grammar("AccessSchemaObjectSegment")
+            .match_grammar(&databricks)
+            .unwrap()
+            .copy(
+                Some(vec![Ref::keyword("VOLUME").to_matchable()]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+    databricks.replace_grammar(
+        "AccessPermissionSegment",
+        databricks
+            .grammar("AccessPermissionSegment")
+            .match_grammar(&databricks)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("READ").to_matchable(),
+                            Ref::keyword("WRITE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("VOLUME").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+
     databricks.insert_lexer_matchers(
         vec![Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow)],
         "equals",

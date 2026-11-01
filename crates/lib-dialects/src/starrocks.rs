@@ -232,6 +232,49 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("FunctionSegment").to_matchable(),
+                        // LIST partitions accept bare literals or multi-column tuples.
+                        Sequence::new(vec![
+                            Ref::keyword("LIST").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("PARTITION").to_matchable(),
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        Ref::keyword("VALUES").to_matchable(),
+                                        Ref::keyword("IN").to_matchable(),
+                                        Bracketed::new(vec![
+                                            Delimited::new(vec![
+                                                one_of(vec![
+                                                    Bracketed::new(vec![
+                                                        Delimited::new(vec![
+                                                            Ref::new("LiteralGrammar")
+                                                                .to_matchable(),
+                                                        ])
+                                                        .to_matchable(),
+                                                    ])
+                                                    .to_matchable(),
+                                                    Ref::new("LiteralGrammar").to_matchable(),
+                                                ])
+                                                .to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                                 .to_matchable(),

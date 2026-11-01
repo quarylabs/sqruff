@@ -99,7 +99,7 @@ impl RuleRF01 {
         Vec::new()
     }
 
-    #[allow(clippy::only_used_in_recursion)]
+    #[allow(clippy::too_many_arguments)]
     fn resolve_reference<'a>(
         &self,
         r: &ObjectReferenceSegment,
@@ -108,6 +108,7 @@ impl RuleRF01 {
         query: Query<'a>,
         payloads: &RF01State<'a>,
         implicit_targets: &[Vec<SmolStr>],
+        is_parent_lookup: bool,
     ) -> Option<LintResult> {
         let possible_references: Vec<_> = tbl_refs
             .clone()
@@ -146,8 +147,16 @@ impl RuleRF01 {
             .collect();
         let dialect = RefCell::borrow(&query.inner).dialect.name;
 
+        // The Trino exemption belongs to the reference's own SELECT, not an
+        // ancestor visited while resolving a correlated reference.
+        let single_trino_source = dialect == DialectKind::Trino
+            && payloads.get(&query.id()).is_some_and(|payload| {
+                payload.aliases.len() == 1 && payload.standalone_aliases.is_empty()
+            });
         if Self::dialect_supports_dot_access(dialect)
+            && !(dialect == DialectKind::Trino && is_parent_lookup)
             && (distinct_targets.len() == 1
+                || single_trino_source
                 || matches!(dialect, DialectKind::Bigquery | DialectKind::Sparksql))
             && !self.force_enable
         {
@@ -155,6 +164,25 @@ impl RuleRF01 {
         }
 
         targets.extend(implicit_targets.iter().cloned());
+
+        if dialect == DialectKind::Trino && !self.force_enable {
+            // ROW access starts with a visible table/alias, then a column and
+            // its fields. Match only the prefix, never an alias in a field suffix.
+            let reference = r.iter_raw_references();
+            for end in 1..reference.len().saturating_sub(1) {
+                if targets.iter().any(|target| {
+                    target.len() >= end
+                        && reference[..end]
+                            .iter()
+                            .map(|part| part.part.as_str())
+                            .eq(target[target.len() - end..]
+                                .iter()
+                                .map(|part| part.as_str()))
+                }) {
+                    return None;
+                }
+            }
+        }
 
         if !object_ref_matches_table(&possible_references, &targets) {
             if let Some(parent) = query.parent() {
@@ -165,6 +193,7 @@ impl RuleRF01 {
                     parent,
                     payloads,
                     implicit_targets,
+                    true,
                 );
             } else if dml_target_table.is_empty()
                 || !object_ref_matches_table(&possible_references, &[dml_target_table.to_vec()])
@@ -246,6 +275,7 @@ impl RuleRF01 {
                             query.clone(),
                             payloads,
                             implicit_targets,
+                            false,
                         );
                         violations.extend(violation);
                     }
@@ -348,6 +378,10 @@ impl Rule for RuleRF01 {
 
     fn long_description(&self) -> &'static str {
         r#"
+For Trino, single-source SELECTs are exempt by default because dotted
+references may access ROW fields. SELECTs with multiple sources are still
+checked. Set `force_enable = True` to check single-source SELECTs strictly too.
+
 **Anti-pattern**
 
 In this example, the reference `vee` has not been declared.

@@ -1,0 +1,35 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+      - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+      - naked_identifier: hive
+      - dot: .
+      - naked_identifier: sales
+      - dot: .
+      - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - table_reference:
+      - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: INPUT
+    - naked_identifier: my_query
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: OUTPUT
+    - naked_identifier: my_query
+- statement_terminator: ;

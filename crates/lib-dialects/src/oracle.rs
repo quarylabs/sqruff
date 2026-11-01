@@ -5020,7 +5020,7 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // ---- FromClauseTerminatorGrammar ----
-    // Add FOR (for FOR UPDATE), CONNECT, START, PIVOT, UNPIVOT as FROM clause terminators
+    // Include Oracle query clauses and DML RETURNING as FROM clause terminators.
     oracle.replace_grammar(
         "FromClauseTerminatorGrammar",
         one_of(vec![
@@ -5061,6 +5061,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Ref::keyword("PIVOT").to_matchable(),
             Ref::keyword("UNPIVOT").to_matchable(),
+            Ref::new("ReturningClauseSegment").to_matchable(),
         ])
         .to_matchable(),
     );
@@ -5211,14 +5212,26 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // ---- DeleteStatementSegment: add RETURNING clause ----
-    // SQLFluff: ansi.DeleteStatementSegment.match_grammar.copy(insert=[Ref("ReturningClauseSegment", optional=True)])
+    // Oracle permits DELETE targets with or without FROM.
+    oracle.add([(
+        "DeleteFromClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::FromClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("FROM").optional().to_matchable(),
+                Ref::new("FromExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     oracle.add([(
         "DeleteStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::OracleDeleteStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("DELETE").to_matchable(),
-                Ref::new("FromClauseSegment").to_matchable(),
+                Ref::new("DeleteFromClauseSegment").to_matchable(),
                 Ref::new("WhereClauseSegment").optional().to_matchable(),
                 Ref::new("ReturningClauseSegment").optional().to_matchable(),
             ])

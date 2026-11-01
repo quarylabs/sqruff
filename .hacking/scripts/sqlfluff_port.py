@@ -214,8 +214,9 @@ def preflight(args):
     state["status"] = "caught_up"
     if state["next_sha"]:
         subject = git(root / "sqlfluff", "show", "-s", "--format=%s", state["next_sha"])
-        match = re.search(r"\(#(\d+)\)", subject)
-        number = int(match[1]) if match else None
+        # Squash merges append their PR after any issue numbers in the title.
+        matches = re.findall(r"\(#(\d+)\)", subject)
+        number = int(matches[-1]) if matches else None
         state.update(
             subject=subject,
             upstream_pr=number,

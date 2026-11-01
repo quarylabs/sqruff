@@ -236,6 +236,33 @@ class WorkflowTests(unittest.TestCase):
             port.verify(self.args, self.state)
         port.git(self.root, "commit", "-qm", "chore: record upstream (123)")
 
+    def test_preflight_uses_merge_pr_after_issue_number_in_title(self):
+        port.git(self.root, "commit", "-qm", "prepare clean worktree")
+        subject = "StarRocks: support PARTITION BY LIST (#8555) (#8595)"
+        real_git = port.git
+
+        def local_git(root, *args):
+            if root == self.root / "sqlfluff":
+                self.assertEqual(args, ("show", "-s", "--format=%s", "b" * 40))
+                return subject
+            return real_git(root, *args)
+
+        with (
+            patch.object(port.Path, "cwd", return_value=self.root),
+            patch.object(port, "git", side_effect=local_git),
+            patch.object(port, "snapshot", return_value=dict(self.state)),
+            patch.object(port, "duplicates", return_value=[]) as duplicates,
+        ):
+            result = port.preflight(
+                argparse.Namespace(state=str(self.checkpoint), limit=50)
+            )
+        self.assertEqual(result["status"], "ready")
+        self.assertEqual(result["upstream_pr"], 8595)
+        self.assertEqual(result["branch"], "port/sqlfluff-8595")
+        self.assertEqual(json.loads(self.checkpoint.read_text())["upstream_pr"], 8595)
+        duplicates.assert_called_once()
+        self.assertEqual(duplicates.call_args.args[0]["upstream_pr"], 8595)
+
     def test_artifacts_stay_inside_checkout_even_with_symlinks(self):
         self.assertEqual(
             port.local_artifact(self.root, self.checkpoint), self.checkpoint

@@ -67,7 +67,7 @@
     "@vscode/test-electron": "^3.0.0",
     "@vscode/test-web": "^0.0.81",
     "@playwright/test": "catalog:",
-    "@vscode/vsce": "^3.9.1",
+    "@vscode/vsce": "^4.1.0",
     "code-server": "^4.141.0",
     "esbuild": "^0.28.1",
     "eslint": "catalog:",

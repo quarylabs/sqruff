@@ -1,0 +1,23 @@
+-- IS [NOT] DISTINCT FROM in SELECT expressions.
+SELECT NULL IS DISTINCT FROM TRUE;
+SELECT NULL IS NOT DISTINCT FROM TRUE;
+SELECT a IS DISTINCT FROM b FROM t;
+SELECT a IS NOT DISTINCT FROM b FROM t;
+SELECT DISTINCT a IS DISTINCT FROM b FROM t;
+SELECT a, b IS DISTINCT FROM c, d FROM t;
+
+-- The comparison's FROM must not terminate a CASE condition.
+SELECT CASE WHEN a IS NOT DISTINCT FROM b THEN 1 END FROM t;
+SELECT CASE WHEN a IS DISTINCT FROM b THEN 1 END FROM t;
+
+-- INTO and the real FROM still terminate the SELECT clause.
+SELECT a IS DISTINCT FROM b INTO new_t FROM t;
+
+-- Look behind comments when identifying the comparison's FROM.
+SELECT a IS -- inline comment
+DISTINCT FROM b FROM t;
+SELECT a IS /* block comment */ NOT DISTINCT FROM b FROM t;
+
+-- WHERE comparisons continue to parse.
+SELECT a FROM t WHERE a IS DISTINCT FROM b;
+SELECT a FROM t WHERE a IS NOT DISTINCT FROM b;

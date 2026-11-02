@@ -47,7 +47,7 @@ serde_yaml = "0.9.34"
 assert_cmd = "2.2.2"
 expect-test = "1.5.0"
 tempfile = "3.23.0"
-fancy-regex = { version = "0.19" }
+fancy-regex = { version = "0.20" }
 # Include codegen deps as dev-deps so they appear in Bazel crate_universe
 clap-markdown.workspace = true
 minijinja.workspace = true

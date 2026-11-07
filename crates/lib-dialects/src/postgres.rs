@@ -4188,6 +4188,17 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("ACCESS").to_matchable(),
+                        Ref::keyword("METHOD").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
                         one_of(vec![
                             Ref::keyword("LOGGED").to_matchable(),
                             Ref::keyword("UNLOGGED").to_matchable(),
@@ -5098,6 +5109,17 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("SET").to_matchable(),
                         Ref::keyword("WITHOUT").to_matchable(),
                         Ref::keyword("CLUSTER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("ACCESS").to_matchable(),
+                        Ref::keyword("METHOD").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -8626,8 +8648,18 @@ pub fn raw_dialect() -> Dialect {
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
                                     Ref::keyword("HEADER").to_matchable(),
-                                    Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                        Ref::keyword("MATCH").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
@@ -8657,29 +8689,61 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("FORCE_NOT_NULL").to_matchable(),
-                                    Bracketed::new(vec![
-                                        Delimited::new(vec![
-                                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    one_of(vec![
+                                        Bracketed::new(vec![
+                                            Delimited::new(vec![
+                                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
                                         ])
                                         .to_matchable(),
+                                        Ref::new("StarSegment").to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("FORCE_NULL").to_matchable(),
-                                    Bracketed::new(vec![
-                                        Delimited::new(vec![
-                                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    one_of(vec![
+                                        Bracketed::new(vec![
+                                            Delimited::new(vec![
+                                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
                                         ])
                                         .to_matchable(),
+                                        Ref::new("StarSegment").to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
+                                    Ref::keyword("ON_ERROR").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("STOP").to_matchable(),
+                                        Ref::keyword("IGNORE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("REJECT_LIMIT").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
                                     Ref::keyword("ENCODING").to_matchable(),
                                     Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("LOG_VERBOSITY").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("DEFAULT").to_matchable(),
+                                        Ref::keyword("VERBOSE").to_matchable(),
+                                        Ref::keyword("SILENT").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

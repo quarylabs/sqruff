@@ -475,6 +475,19 @@ fn clickhouse_regexp_rejects_not_and_escape() {
 }
 
 #[test]
+fn databricks_replace_using_requires_sequence_by() {
+    let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    let sql = "CREATE FLOW f AS INSERT INTO t BY NAME REPLACE USING (a) SELECT * FROM STREAM s;";
+    let (tokens, lex_errors) = lexer.lex(&tables, sql);
+    assert!(lex_errors.is_empty());
+    let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+    assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+}
+
+#[test]
 fn databricks_materialized_view_rejects_invalid_constraint_order() {
     let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
     let tables = Tables::default();
@@ -915,6 +928,66 @@ fn oracle_rejects_duplicate_physical_attributes() {
             !check_no_unparsable_segments(&tree).is_empty(),
             "expected duplicate or mutually exclusive Oracle attributes to be rejected: {sql}",
         );
+    }
+}
+
+#[test]
+fn trino_show_catalog_operands_are_single_identifiers() {
+    let dialect = kind_to_dialect(&DialectKind::Trino, None).unwrap();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    for command in ["ROLES", "CURRENT ROLES", "ROLE GRANTS", "SCHEMAS"] {
+        for preposition in ["FROM", "IN"] {
+            for (catalog, valid) in [
+                ("hive", true),
+                ("\"hive.sales\"", true),
+                ("hive.sales", false),
+                ("\"hive\".\"sales\"", false),
+            ] {
+                let sql = format!("SHOW {command} {preposition} {catalog};");
+                let tables = Tables::default();
+                let (tokens, errors) = lexer.lex(&tables, sql.as_str());
+                assert!(errors.is_empty(), "{sql}");
+                let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+                assert_eq!(
+                    check_no_unparsable_segments(&tree).is_empty(),
+                    valid,
+                    "{sql}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn snowflake_workload_identity_requires_a_known_provider() {
+    let dialect = kind_to_dialect(&DialectKind::Snowflake, None).unwrap();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    for prefix in ["CREATE USER svc", "ALTER USER svc SET"] {
+        for (properties, valid) in [
+            ("TYPE = AWS", true),
+            ("TYPE = AZURE", true),
+            ("TYPE = GCP", true),
+            ("TYPE = OIDC", true),
+            ("", false),
+            ("SUBJECT = 'service'", false),
+            ("TYPE = CUSTOM", false),
+            ("TYPE = GCP TYPE = AWS", false),
+            ("TYPE = GCP SUBJECT = 'a' SUBJECT = 'b'", false),
+            ("TYPE = OIDC OIDC_AUDIENCE_LIST = ()", false),
+        ] {
+            let sql = format!("{prefix} WORKLOAD_IDENTITY = ({properties});");
+            let tables = Tables::default();
+            let (tokens, errors) = lexer.lex(&tables, sql.as_str());
+            assert!(errors.is_empty(), "{sql}");
+            let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+            assert_eq!(
+                check_no_unparsable_segments(&tree).is_empty(),
+                valid,
+                "{sql}",
+            );
+        }
     }
 }
 

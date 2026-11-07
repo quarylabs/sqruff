@@ -1,0 +1,9 @@
+file:
+- statement:
+  - call_statement:
+    - keyword: CALL
+    - function_name:
+      - naked_identifier: mydb
+      - dot: .
+      - function_name_identifier: p1
+- statement_terminator: ;

@@ -3,6 +3,7 @@
 import argparse
 import importlib.util
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -19,7 +20,7 @@ SPEC.loader.exec_module(port)
 def pr(number, head, base="main", body="", title="SQLFluff port"):
     return {
         "number": number,
-        "head": {"ref": head},
+        "head": {"ref": head, "repo": {"full_name": port.REPO}},
         "base": {"ref": base},
         "body": body,
         "title": title,
@@ -114,20 +115,91 @@ class GraphTests(unittest.TestCase):
             port.recheck(state)
 
 
+class ShellScratchTests(unittest.TestCase):
+    def test_test_scripts_remove_owned_scratch_on_success_and_failure(self):
+        scripts = Path(__file__).parent
+        for script in ["cargo_machete.sh", "pnpm_lock_check.sh"]:
+            for code in [0, 7]:
+                with (
+                    self.subTest(script=script, code=code),
+                    tempfile.TemporaryDirectory() as directory,
+                ):
+                    root = Path(directory)
+                    runfiles = root / "runfiles"
+                    main = runfiles / "_main"
+                    tools = runfiles / "tools"
+                    managed = root / "managed"
+                    for path in [main, tools, managed, root / "system"]:
+                        path.mkdir(parents=True)
+                    marker = managed / "unrelated"
+                    marker.write_text("preserve me")
+                    for name in [
+                        "package.json",
+                        "pnpm-workspace.yaml",
+                        "pnpm-lock.yaml",
+                        "editors/code/package.json",
+                        "playground/package.json",
+                    ]:
+                        path = main / name
+                        path.parent.mkdir(parents=True, exist_ok=True)
+                        path.write_text("{}\n")
+                    cargo = tools / "cargo"
+                    cargo.write_text(
+                        '#!/bin/bash\nexec "$(dirname "$0")/cargo-machete" "$@"\n'
+                    )
+                    cargo.chmod(0o755)
+                    for name, location in [("machete", '"$PWD"'), ("pnpm", '"$2"')]:
+                        tool = tools / name
+                        tool.write_text(
+                            f'#!/bin/bash\nprintf "%s" {location} > "$SQRUFF_WORKSPACE_RECORD"\nexit {code}\n'
+                        )
+                        tool.chmod(0o755)
+                    record = root / "workspace"
+                    result = subprocess.run(
+                        ["bash", str(scripts / script)],
+                        env={
+                            **os.environ,
+                            "RUNFILES_DIR": str(runfiles),
+                            "CARGO": "tools/cargo",
+                            "MACHETE": "tools/machete",
+                            "PNPM": "tools/pnpm",
+                            "TEST_TMPDIR": str(managed),
+                            "TMPDIR": str(root / "system"),
+                            "SQRUFF_WORKSPACE_RECORD": str(record),
+                        },
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    self.assertEqual(
+                        result.returncode,
+                        0 if code == 0 else (7 if script == "cargo_machete.sh" else 1),
+                        result.stderr,
+                    )
+                    workspace = Path(record.read_text())
+                    self.assertTrue(workspace.is_relative_to(managed))
+                    self.assertFalse(workspace.exists())
+                    self.assertEqual(list(managed.iterdir()), [marker])
+                    self.assertEqual(list((root / "system").iterdir()), [])
+
+
 class WorkflowTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name) / "repo"
         self.root.mkdir()
-        self.checkpoint = Path(self.temporary.name) / "state.json"
-        self.summary = Path(self.temporary.name) / "summary.md"
+        directory = self.root / port.ARTIFACT_DIR
+        directory.mkdir(parents=True)
+        self.checkpoint = directory / "state.json"
+        self.summary = directory / "summary.md"
         port.git(self.root, "init", "-q")
         port.git(self.root, "config", "user.email", "test@example.invalid")
         port.git(self.root, "config", "user.name", "Test")
         port.git(self.root, "config", "commit.gpgsign", "false")
         (self.root / ".sqlfluff-sha").write_text("a" * 40 + "\n")
-        port.git(self.root, "add", ".sqlfluff-sha")
+        (self.root / ".gitignore").write_text(".cache/\n")
+        port.git(self.root, "add", ".sqlfluff-sha", ".gitignore")
         port.git(self.root, "commit", "-qm", "base")
         self.base = port.git(self.root, "rev-parse", "HEAD")
         port.git(self.root, "switch", "-qc", "port/sqlfluff-123")
@@ -164,6 +236,48 @@ class WorkflowTests(unittest.TestCase):
             port.verify(self.args, self.state)
         port.git(self.root, "commit", "-qm", "chore: record upstream (123)")
 
+    def test_preflight_uses_merge_pr_after_issue_number_in_title(self):
+        port.git(self.root, "commit", "-qm", "prepare clean worktree")
+        subject = "StarRocks: support PARTITION BY LIST (#8555) (#8595)"
+        real_git = port.git
+
+        def local_git(root, *args):
+            if root == self.root / "sqlfluff":
+                self.assertEqual(args, ("show", "-s", "--format=%s", "b" * 40))
+                return subject
+            return real_git(root, *args)
+
+        with (
+            patch.object(port.Path, "cwd", return_value=self.root),
+            patch.object(port, "git", side_effect=local_git),
+            patch.object(port, "snapshot", return_value=dict(self.state)),
+            patch.object(port, "duplicates", return_value=[]) as duplicates,
+        ):
+            result = port.preflight(
+                argparse.Namespace(state=str(self.checkpoint), limit=50)
+            )
+        self.assertEqual(result["status"], "ready")
+        self.assertEqual(result["upstream_pr"], 8595)
+        self.assertEqual(result["branch"], "port/sqlfluff-8595")
+        self.assertEqual(json.loads(self.checkpoint.read_text())["upstream_pr"], 8595)
+        duplicates.assert_called_once()
+        self.assertEqual(duplicates.call_args.args[0]["upstream_pr"], 8595)
+
+    def test_artifacts_stay_inside_checkout_even_with_symlinks(self):
+        self.assertEqual(
+            port.local_artifact(self.root, self.checkpoint), self.checkpoint
+        )
+        for path in [
+            Path(self.temporary.name) / "outside.json",
+            self.root / "state.json",
+        ]:
+            with self.assertRaises(port.PortError):
+                port.local_artifact(self.root, path)
+        link = self.checkpoint.parent / "outside"
+        link.symlink_to(self.temporary.name, target_is_directory=True)
+        with self.assertRaises(port.PortError):
+            port.local_artifact(self.root, link / "state.json")
+
     def test_success_records_all_checks_and_matches_committed_tree(self):
         self.validated_commit()
         saved = json.loads(self.checkpoint.read_text())
@@ -188,6 +302,55 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("validated_tree", saved)
         self.assertEqual(saved["tests"][-1]["exit_code"], 1)
 
+    def test_scratch_is_isolated_and_removed_on_success_failure_and_interruption(self):
+        for outcome in (0, 1, KeyboardInterrupt):
+            with self.subTest(outcome=outcome):
+                directories = set()
+
+                def execute(
+                    command, outcome=outcome, directories=directories, **kwargs
+                ):
+                    if command[0] not in ("cargo", "bazel"):
+                        return self.real_run(command, **kwargs)
+                    scratch = Path(kwargs["env"]["TMPDIR"])
+                    self.assertTrue(scratch.is_relative_to(self.root / ".cache"))
+                    self.assertTrue(scratch.is_dir())
+                    directories.add(scratch)
+                    (scratch / "left-by-test").write_text("temporary build data")
+                    if command[0] == "bazel":
+                        self.assertIn("--jobs=4", command)
+                        self.assertIn(f"--test_env=TMPDIR={scratch}", command)
+                        self.assertIn(f"--sandbox_writable_path={scratch}", command)
+                        if outcome is KeyboardInterrupt:
+                            raise KeyboardInterrupt
+                        return subprocess.CompletedProcess(command, outcome)
+                    return subprocess.CompletedProcess(command, 0)
+
+                with patch.object(port.subprocess, "run", side_effect=execute):
+                    if outcome == 0:
+                        port.verify(self.args, self.state)
+                    else:
+                        exception = (
+                            KeyboardInterrupt
+                            if outcome is KeyboardInterrupt
+                            else port.PortError
+                        )
+                        with self.assertRaises(exception):
+                            port.verify(self.args, self.state)
+                self.assertEqual(len(directories), 1)
+                self.assertTrue(all(not p.exists() for p in directories))
+
+    def test_existing_scratch_is_preserved_and_blocks_concurrent_validation(self):
+        with port.test_scratch(self.root) as directory:
+            marker = Path(directory) / "in-use"
+            marker.write_text("preserve me")
+            with (
+                self.assertRaisesRegex(port.PortError, "already exists"),
+                port.test_scratch(self.root),
+            ):
+                self.fail("Must not share another validation's scratch")
+            self.assertEqual(marker.read_text(), "preserve me")
+
     def test_untracked_work_refused(self):
         (self.root / "unrelated.txt").write_text("preserve me")
         with self.assertRaises(port.PortError):
@@ -208,6 +371,7 @@ class WorkflowTests(unittest.TestCase):
     def test_publish_uses_literal_body_file_and_checkpoints_success(self):
         self.validated_commit()
         calls = []
+        body_paths = []
         real = port.run
 
         def execute(*args, **kwargs):
@@ -218,7 +382,10 @@ class WorkflowTests(unittest.TestCase):
                 return ""
             if args[:3] == ("gh", "pr", "create"):
                 calls.append("create")
-                body = Path(args[args.index("--body-file") + 1]).read_text()
+                body_path = Path(args[args.index("--body-file") + 1])
+                self.assertEqual(body_path.parent, self.checkpoint.parent)
+                body_paths.append(body_path)
+                body = body_path.read_text()
                 self.assertIn("`cargo test` and $(do-not-execute)", body)
                 return "https://github.com/quarylabs/sqruff/pull/42"
             return real(*args, **kwargs)
@@ -231,6 +398,8 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(calls, ["push", "create"])
         self.assertEqual(result["chain"], [42])
         self.assertEqual(json.loads(self.checkpoint.read_text())["status"], "published")
+        self.assertTrue(body_paths)
+        self.assertTrue(all(not path.exists() for path in body_paths))
 
     def test_existing_remote_branch_is_not_overwritten(self):
         self.validated_commit()

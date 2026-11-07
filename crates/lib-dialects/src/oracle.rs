@@ -1523,6 +1523,146 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // SQL*Plus SHOW commands belong to batches, rather than SQL statements.
+        (
+            "SqlplusShowStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SqlplusShowStatement, |_| {
+                let errors_object_type = one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ANALYTIC").to_matchable(),
+                        Ref::keyword("VIEW").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ATTRIBUTE").to_matchable(),
+                        Ref::keyword("DIMENSION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("HIERARCHY").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::keyword("PROCEDURE").to_matchable(),
+                    Ref::keyword("TRIGGER").to_matchable(),
+                    Ref::keyword("VIEW").to_matchable(),
+                    Ref::keyword("DIMENSION").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PACKAGE").to_matchable(),
+                        Ref::keyword("BODY").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TYPE").to_matchable(),
+                        Ref::keyword("BODY").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("JAVA").to_matchable(),
+                        Ref::keyword("CLASS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+                let mut options = vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("ERRORS").to_matchable(),
+                            Ref::keyword("ERR").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            errors_object_type,
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("PARAMETERS").to_matchable(),
+                            Ref::keyword("PARAMETER").to_matchable(),
+                            Ref::keyword("SPPARAMETERS").to_matchable(),
+                            Ref::keyword("SPPARAMETER").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ParameterNameSegment").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("RECYCLEBIN").to_matchable(),
+                            Ref::keyword("RECYC").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("CONNECTION").to_matchable(),
+                            Ref::keyword("CONN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("NETSERVICENAMES").to_matchable(),
+                            Ref::keyword("NETS").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ];
+                options.extend(
+                    [
+                        "ALL",
+                        "USER",
+                        "SGA",
+                        "PDBS",
+                        "EDITION",
+                        "HISTORY",
+                        "LNO",
+                        "PNO",
+                        "SQLCODE",
+                        "CON_ID",
+                        "CON_NAME",
+                        "XQUERY",
+                        "RELEASE",
+                        "REL",
+                        "BTITLE",
+                        "BTI",
+                        "TTITLE",
+                        "TTI",
+                        "REPFOOTER",
+                        "REPF",
+                        "REPHEADER",
+                        "REPH",
+                        "LOBPREFETCH",
+                        "LOBPREF",
+                        "ROWPREFETCH",
+                        "ROWPREF",
+                        "SPOOL",
+                        "SPOO",
+                        "STATEMENTCACHE",
+                        "STATEMENTC",
+                    ]
+                    .into_iter()
+                    .map(|word| Ref::keyword(word).to_matchable()),
+                );
+                // Other SET system variables, such as LINESIZE or PAGESIZE.
+                options.push(Ref::new("SingleIdentifierGrammar").to_matchable());
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("SHOW").to_matchable(),
+                        Ref::keyword("SHO").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(options).to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // ConnectByClauseSegment
         (
             "ConnectByClauseSegment".into(),
@@ -4497,6 +4637,7 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![
                         one_of(vec![
                             Ref::new("SqlplusSetStatementSegment").to_matchable(),
+                            Ref::new("SqlplusShowStatementSegment").to_matchable(),
                             Ref::new("StatementSegment").to_matchable(),
                         ])
                         .to_matchable(),
@@ -4657,6 +4798,47 @@ pub fn raw_dialect() -> Dialect {
         .config(|this| {
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
+        .to_matchable(),
+    );
+
+    // Oracle can limit the fetched rows by a percentage. Keep PERCENT
+    // unreserved so it can also be the row-count expression.
+    oracle.replace_grammar(
+        "FetchClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("FETCH").to_matchable(),
+            one_of(vec![
+                Ref::keyword("FIRST").to_matchable(),
+                Ref::keyword("NEXT").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("ExpressionSegment")
+                        .exclude(Ref::keyword("ROW"))
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("PERCENT").optional().to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("ROW").to_matchable(),
+                Ref::keyword("ROWS").to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("ONLY").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("TIES").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
         .to_matchable(),
     );
 
@@ -4838,7 +5020,7 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // ---- FromClauseTerminatorGrammar ----
-    // Add FOR (for FOR UPDATE), CONNECT, START, PIVOT, UNPIVOT as FROM clause terminators
+    // Include Oracle query clauses and DML RETURNING as FROM clause terminators.
     oracle.replace_grammar(
         "FromClauseTerminatorGrammar",
         one_of(vec![
@@ -4879,6 +5061,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Ref::keyword("PIVOT").to_matchable(),
             Ref::keyword("UNPIVOT").to_matchable(),
+            Ref::new("ReturningClauseSegment").to_matchable(),
         ])
         .to_matchable(),
     );
@@ -5029,14 +5212,26 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // ---- DeleteStatementSegment: add RETURNING clause ----
-    // SQLFluff: ansi.DeleteStatementSegment.match_grammar.copy(insert=[Ref("ReturningClauseSegment", optional=True)])
+    // Oracle permits DELETE targets with or without FROM.
+    oracle.add([(
+        "DeleteFromClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::FromClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("FROM").optional().to_matchable(),
+                Ref::new("FromExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     oracle.add([(
         "DeleteStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::OracleDeleteStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("DELETE").to_matchable(),
-                Ref::new("FromClauseSegment").to_matchable(),
+                Ref::new("DeleteFromClauseSegment").to_matchable(),
                 Ref::new("WhereClauseSegment").optional().to_matchable(),
                 Ref::new("ReturningClauseSegment").optional().to_matchable(),
             ])

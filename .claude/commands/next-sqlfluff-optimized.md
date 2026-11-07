@@ -5,29 +5,39 @@ is an alternative to `next-sqlfluff.md`; do not run both workflows in one turn.
 
 - At most one PR per invocation, extending the active stack in upstream
   first-parent order. Stop after publishing, finding a duplicate, reaching
-  upstream main, or encountering a blocker. A background goal may start another
-  invocation on its next continuation.
+  upstream main, or encountering a blocker. An explicitly requested loop or
+  active goal may start the next invocation after a successful publication/audit,
+  using a fresh checkpoint and checking capacity again.
 - Default to at most fifty open SQLFluff port PRs. Preserve explicit session/goal
   overrides: use `--limit 0` only when the user has already removed that cap.
 - Preserve unrelated work, stashes, and lockfiles. Do not merge PRs or force-push.
   Only one porting invocation may own this worktree at a time. If another goal is
-  using it, stop or use a separately authorized isolated checkout.
+  using it, stop. Reuse this checkout across ports; do not create per-port
+  worktrees, temporary clones, or Bazel output bases. Reuse Cargo `target/` and
+  the existing Bazel/shared caches.
+- Work inline in this checkout. Keep checkpoints, logs, commit messages, and PR
+  summaries under the ignored `.cache/sqlfluff-port/` directory. Do not create
+  helper scripts, working directories, or port artifacts in `/tmp` or
+  `/private/tmp`. Stream command output unless a log is needed for recovery.
 - The scripts automate bookkeeping, not the assessment of Rust behavior or
   fixtures. Keep all required Cargo and Bazel checks, including SHA-only ports.
 
 ## 1. Preflight once
 
-Choose a unique checkpoint path outside the checkout, and retain its exact path
-in the goal's continuation summary. Invoke from the sqruff root:
+Use the in-repo checkpoint and retain its path in the continuation summary.
+Invoke from the sqruff root:
 
 ```bash
-python3 .hacking/scripts/sqlfluff_port.py preflight --state /private/tmp/sqlfluff-port-<run-id>.json
+python3 .hacking/scripts/sqlfluff_port.py preflight
 ```
 
 The helper checks the clean worktree, fetches refs, paginates open PRs, identifies
 the active stack tip (including older forks), verifies the first-parent watermark,
 finds the next commit, and checks exact duplicates in open and historical PRs.
-It fetches SQLFluff without changing its checkout. Its JSON result is the baseline
+The default checkpoint is `.cache/sqlfluff-port/state.json`; `--state` may select
+another file only under `.cache/sqlfluff-port/`. Resume an existing checkpoint
+instead of making another directory. It fetches SQLFluff without changing its
+checkout. Its JSON result is the baseline
 for this invocation; do not repeat the same queries individually.
 
 - `ready`: continue using the returned `base_sha`, `base_branch`, `branch`,
@@ -73,11 +83,12 @@ returned `next_sha` **before final validation**.
 ## 3. Stage, validate, and commit
 
 Inspect the intended diff and stage explicit paths, including `.sqlfluff-sha`.
-Keep the summary Markdown outside the worktree. Do not use `git add .` to sweep
-unrelated files into a port.
+Keep the summary at `.cache/sqlfluff-port/summary.md` and any commit message at
+`.cache/sqlfluff-port/commit.txt`. Do not use `git add .` to sweep unrelated files
+into a port.
 
 ```bash
-python3 .hacking/scripts/sqlfluff_port.py verify --state <checkpoint-path>
+python3 .hacking/scripts/sqlfluff_port.py verify
 ```
 
 This checks the branch, staged watermark, whitespace, and absence of unstaged or
@@ -85,6 +96,17 @@ untracked files. It runs formatting checks, `cargo build`, `cargo test`, and
 `bazel test //...` once on the final tree and checkpoints results and timings.
 Output streams normally; use the returned process/session handle to wait for the
 same invocation. Do not restart tests merely because a tool yielded.
+
+The helper puts Cargo/client scratch in a disposable directory under the ignored
+`.cache/sqlfluff-port-tests/`, passes that path explicitly to Bazel test environments,
+and removes it on success or failure. Generated Cargo tests use their managed
+`TEST_TMPDIR` and an exit trap for all workspace/tool/Python scratch. Build actions
+and other test scripts clean their owned temporary trees too. Bazel runs at most
+four jobs; each Cargo-hack test runs at most two Cargo jobs. Repeated ports reuse
+the same checkout and build caches. Keep focused/manual Bazel tests inside the TMPDIR
+wrapper documented in `next-sqlfluff.md` as well. After a killed run, inspect
+`scratch_directory` in its checkpoint and remove only that directory after
+confirming the run has stopped; do not clear shared caches or unrelated temp files.
 
 After successful validation, commit exactly the staged port. Use the existing
 signing policy (including any user requirement for signed commits). Use a
@@ -102,7 +124,7 @@ Write a short Markdown summary file containing bullets explaining the port and
 decisions. Then invoke:
 
 ```bash
-python3 .hacking/scripts/sqlfluff_port.py publish --state <checkpoint-path> --summary <summary-file>
+python3 .hacking/scripts/sqlfluff_port.py publish --summary .cache/sqlfluff-port/summary.md
 ```
 
 The helper checks that the clean branch contains exactly one commit above the
@@ -136,5 +158,11 @@ the outstanding UI repair instead of recreating the PR.
 
 Report the new PR, base, merge order, upstream watermark, tests, and decisions.
 Keep a compact continuation checkpoint: state-file path, PR/branch/SHA, stack ID,
-completed verification, and any unfinished operation. Do not repeat resolved
-historical-fork analysis unless relevant refs change. Stop this invocation.
+completed verification, and any unfinished operation. After publication and the
+remote audit, replace `.cache/sqlfluff-port/last-result.json` with that compact
+receipt and remove the completed checkpoint, logs, summary, and commit-message
+files before the next invocation. Keep unfinished recovery files in this same
+directory while paused; do not accumulate per-port directories. Do not repeat resolved
+historical-fork analysis unless relevant refs change. Finish this invocation;
+when the user explicitly requested a loop, continue with a fresh checkpoint in
+this same checkout until caught up, capacity is full, or reconciliation is needed.

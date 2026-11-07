@@ -3987,6 +3987,15 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+            // Delta introspection statements can also supply a relation.
+            Bracketed::new(vec![
+                one_of(vec![
+                    Ref::new("DescribeHistoryStatementSegment").to_matchable(),
+                    Ref::new("DescribeDetailStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -4257,7 +4266,11 @@ pub fn raw_dialect() -> Dialect {
             "DescribeHistoryStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DescribeHistoryStatement, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("DESCRIBE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DESCRIBE").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("HISTORY").to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
@@ -4276,7 +4289,11 @@ pub fn raw_dialect() -> Dialect {
             "DescribeDetailStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DescribeDetailStatement, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("DESCRIBE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DESCRIBE").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("DETAIL").to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
@@ -4318,7 +4335,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CONVERT").to_matchable(),
                     Ref::keyword("TO").to_matchable(),
                     Ref::keyword("DELTA").to_matchable(),
-                    Ref::new("FileReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("FileReferenceSegment").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("NO").to_matchable(),
                         Ref::keyword("STATISTICS").to_matchable(),

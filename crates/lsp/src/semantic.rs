@@ -204,6 +204,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ExtensionReference
         | TagReference
         | ColumnDefinition
+        | ProjectionDefinition
         | ColumnConstraintSegment
         | CommentClause
         | CheckOptionClause
@@ -580,6 +581,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | UsingExternalFunctionStatement
         | AlterUserStatement
         | AlterSessionStatement
+        | AlterSessionPolicyStatement
         | AlterSessionSetStatement
         | AlterSessionUnsetClause
         | AlterTaskStatement
@@ -894,6 +896,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateReservationStatement
         | CreateResourceMonitorStatement
         | CreateRowAccessPolicyStatement
+        | CreateSessionPolicyStatement
         | CreateSearchIndexStatement
         | CreateSecurityPolicyStatement
         | CreateServerRoleStatement
@@ -1227,10 +1230,12 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterTableColumnClauses
         | AlterTableConstraintClauses
         | IndexTypeReference
+        | ExecuteDbtProjectStatement
         | ExecuteFileStatement
         | SlashBufferExecutor
         | OracleBatch
         | SqlplusSetStatement
+        | SqlplusShowStatement
         | OracleCommentStatement
         | OracleCreateProcedureStatement
         | OracleDropProcedureStatement
@@ -1405,6 +1410,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ScriptContent
         | ScriptReference
         | SessionParameter
+        | SessionPolicyOptions
         | SystemParameter
         | SystemPrivilege
         | TableConstraintDefinition

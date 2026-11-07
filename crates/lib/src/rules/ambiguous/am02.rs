@@ -69,43 +69,31 @@ SELECT a, b FROM table_2
         let raw = rule_cx.segment.raw();
         let raw_upper = raw.to_uppercase();
 
-        if rule_cx.segment.raw().contains("union")
-            && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
+        if !raw_upper.contains("UNION")
+            || raw_upper.contains("ALL")
+            || raw_upper.contains("DISTINCT")
         {
-            let edits = vec![
-                SegmentBuilder::keyword(rule_cx.tables.next_id(), "union"),
-                SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "),
-                SegmentBuilder::keyword(rule_cx.tables.next_id(), "distinct"),
-            ];
-
-            let segments = rule_cx.segment.clone();
-            let fixes = vec![LintFix::replace(
-                rule_cx.segment.segments()[0].clone(),
-                edits,
-                None,
-            )];
-
-            return vec![LintResult::new(Some(segments), fixes, None, None)];
-        } else if raw_upper.contains("UNION")
-            && !(raw_upper.contains("ALL") || raw_upper.contains("DISTINCT"))
-        {
-            let edits = vec![
-                SegmentBuilder::keyword(rule_cx.tables.next_id(), "UNION"),
-                SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "),
-                SegmentBuilder::keyword(rule_cx.tables.next_id(), "DISTINCT"),
-            ];
-
-            let segments = rule_cx.segment.clone();
-            let fixes = vec![LintFix::replace(
-                rule_cx.segment.segments()[0].clone(),
-                edits,
-                None,
-            )];
-
-            return vec![LintResult::new(Some(segments), fixes, None, None)];
+            return Vec::new();
         }
 
-        Vec::new()
+        // Preserve the existing UNION token; capitalisation belongs to CP01.
+        let union_keyword = &rule_cx.segment.segments()[0];
+        let distinct_keyword = if union_keyword.raw().chars().all(char::is_uppercase) {
+            "DISTINCT"
+        } else {
+            "distinct"
+        };
+        let edits = vec![
+            SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "),
+            SegmentBuilder::keyword(rule_cx.tables.next_id(), distinct_keyword),
+        ];
+        let fixes = vec![LintFix::create_after(union_keyword.clone(), edits, None)];
+        vec![LintResult::new(
+            Some(rule_cx.segment.clone()),
+            fixes,
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {

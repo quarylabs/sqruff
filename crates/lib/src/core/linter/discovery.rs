@@ -416,6 +416,8 @@ pub fn paths_from_path_with_options(
 
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use super::{paths_from_path, paths_from_path_check_non_existent};
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
@@ -525,19 +527,15 @@ mod tests {
 
     #[test]
     fn test_linter_path_from_paths_nested_ignore_files() {
-        let paths = normalise_paths(paths_from_path(
-            "test/fixtures/linter/sqlfluffignore".into(),
-            None,
-            None,
-            None,
-            None,
-            &[".sql".into()],
-            None,
-        ));
-        assert_eq!(
-            paths,
-            &["test.fixtures.linter.sqlfluffignore.path_b.query_b.sql"]
-        );
+        let relative = PathBuf::from("test/fixtures/linter/sqlfluffignore");
+        for path in [relative.clone(), super::absolute_path(&relative)] {
+            let expected = vec![path.join("path_b/query_b.sql")];
+            let paths = paths_from_path(path, None, None, None, None, &[".sql".into()], None);
+            assert_eq!(
+                paths.into_iter().map(PathBuf::from).collect::<Vec<_>>(),
+                expected,
+            );
+        }
     }
 
     #[test]
@@ -555,6 +553,7 @@ mod tests {
             paths,
             &[
                 "test.fixtures.linter.sqlfluffignore.path_a.query_a.sql",
+                "test.fixtures.linter.sqlfluffignore.path_b.nested.query_c.sql",
                 "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql",
                 "test.fixtures.linter.sqlfluffignore.path_b.query_c.sql",
                 "test.fixtures.linter.sqlfluffignore.path_b.query_d.sql",

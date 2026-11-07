@@ -153,7 +153,9 @@ impl PlaceholderStyle {
     pub const fn regex_pattern(self) -> &'static str {
         match self {
             Self::Colon => r"(?<![:\w\\]):(?P<param_name>\w+)",
-            Self::ColonOptionalQuotes => r#"(?<!:):(?P<quotation>['"]?)(?P<param_name>[\w_]+)\1"#,
+            Self::ColonOptionalQuotes => {
+                r#"(?<![:\w\x5c]):(?P<quotation>['"]?)(?P<param_name>[\w_]+)\1"#
+            }
             Self::ColonNoSpaces => r"(?<!:):(?P<param_name>\w+)",
             Self::NumericColon => r"(?<![:\w\\]):(?P<param_name>\d+)",
             Self::At => r"(?<![:\w\\])@(?P<param_name>\w+)",

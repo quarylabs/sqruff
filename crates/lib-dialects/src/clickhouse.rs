@@ -115,6 +115,85 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         )],
         "equals",
     );
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "is_not_distinct_from",
+            "<=>",
+            SyntaxKind::RawComparisonOperator,
+        )],
+        "less_than",
+    );
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![
+            // Binary literals require lowercase `b` and digit-separated underscores.
+            // Reject a numeric prefix of a longer word or decimal.
+            Matcher::legacy(
+                "binary_literal",
+                |s| s.starts_with("0b"),
+                r"0b[01]+(?:_[01]+)*(?![.\w])",
+                SyntaxKind::NumericLiteral,
+            ),
+            // Hexadecimal literals allow a fractional part and a base-two exponent.
+            Matcher::legacy(
+                "hexadecimal_literal",
+                |s| s.starts_with("0x") || s.starts_with("0X"),
+                concat!(
+                    r"0[xX][a-fA-F\d]+(?:_[a-fA-F\d]+)*",
+                    r"(?:\.(?:[a-fA-F\d]+(?:_[a-fA-F\d]+)*)?)?",
+                    r"(?:[pP][+-]?\d+(?:_\d+)*)?",
+                    r"(?![.\w])",
+                ),
+                SyntaxKind::NumericLiteral,
+            ),
+        ],
+        "numeric_literal",
+    );
+    clickhouse_dialect.patch_lexer_matchers(vec![Matcher::legacy(
+        "numeric_literal",
+        |s| s.starts_with(|ch: char| ch.is_numeric() || ch == '.'),
+        concat!(
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*",
+            r"|\d+(_\d+)*\.(?![.\w])",
+            r"|\.\d+(_\d+)*",
+            r"|\d+(_\d+)*)",
+            r"(\.?[eE][+-]?\d+(_\d+)*)?",
+            r"((?<=\.)|(?=\b))",
+        ),
+        SyntaxKind::NumericLiteral,
+    )]);
+
+    clickhouse_dialect.add([
+        (
+            "PositionalPlacementGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("AFTER").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("FIRST").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PartitionExpressionGrammar".into(),
+            one_of(vec![
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ID").optional().to_matchable(),
+                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                Ref::new("TupleSegment").to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     clickhouse_dialect.replace_grammar(
         "AccessorGrammar",
@@ -235,6 +314,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         one_of(vec![
             Ref::new("EqualsSegment").to_matchable(),
             Ref::new("DoubleEqualsSegment").to_matchable(),
+            Ref::new("IsNotDistinctFromSegment").to_matchable(),
             Ref::new("GreaterThanSegment").to_matchable(),
             Ref::new("LessThanSegment").to_matchable(),
             Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
@@ -378,10 +458,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             one_of(vec![
                                 Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("MODIFY").to_matchable(),
                                 Ref::keyword("DROP").to_matchable(),
                                 Ref::keyword("MATERIALIZE").to_matchable(),
                                 Ref::keyword("CLEAR").to_matchable(),
                             ])
+                            .config(|this| this.optional())
                             .to_matchable(),
                             Ref::keyword("PROJECTION").to_matchable(),
                         ])
@@ -642,6 +724,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Vec::new(),
                     false,
                 )
+                .copy(
+                    Some(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("GROUP").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ]),
+                    None,
+                    Some(
+                        Sequence::new(vec![
+                            Ref::keyword("ORDER").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ),
+                    None,
+                    Vec::new(),
+                    false,
+                )
                 .into(),
         ),
         (
@@ -700,7 +802,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("EXCEPT").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::keyword("ALL").optional().to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DISTINCT").to_matchable(),
+                    Ref::keyword("ALL").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
             ])
             .to_matchable(),
             Ref::keyword("MINUS").to_matchable(),
@@ -1308,6 +1415,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             StringParser::new("==", SyntaxKind::RawComparisonOperator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "RawIsNotDistinctFromSegment".into(),
+            StringParser::new("<=>", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "IsNotDistinctFromSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Ref::new("RawIsNotDistinctFromSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "DoubleEqualsSegment".into(),
@@ -1946,6 +2067,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
                 Ref::new("CTEColumnList").optional().to_matchable(),
                 Ref::keyword("AS").to_matchable(),
+                Ref::keyword("MATERIALIZED").optional().to_matchable(),
                 Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
                     .config(|this| this.parse_mode(ParseMode::Greedy))
                     .to_matchable(),
@@ -2384,6 +2506,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::new("TableConstraintSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("ColumnConstraintSegment").to_matchable(),
+                                    Ref::new("ProjectionDefinitionSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
@@ -2449,6 +2572,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::new("TableConstraintSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("ColumnConstraintSegment").to_matchable(),
+                                    Ref::new("ProjectionDefinitionSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
@@ -3433,6 +3557,145 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
+    clickhouse_dialect.add([
+        (
+            "ProjectionDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ProjectionDefinition, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("PROJECTION").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    one_of(vec![
+                        Bracketed::new(vec![
+                            // Projection queries permit common scalar expressions.
+                            Sequence::new(vec![
+                                Ref::keyword("WITH").to_matchable(),
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                        Ref::keyword("AS").to_matchable(),
+                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::new("SelectClauseSegment").to_matchable(),
+                            Ref::new("WhereClauseSegment").optional().to_matchable(),
+                            one_of(vec![
+                                Ref::new("OrderByClauseSegment").to_matchable(),
+                                Ref::new("GroupByClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("INDEX").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("TYPE").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("ProjectionDefinitionStatementSettingsClauseSegment")
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterTableAddProjectionDefinitionStatement".into(),
+            NodeMatcher::new(SyntaxKind::ProjectionDefinition, |dialect| {
+                dialect
+                    .grammar("ProjectionDefinitionSegment")
+                    .match_grammar(dialect)
+                    .unwrap()
+                    .copy(
+                        Some(vec![
+                            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        ]),
+                        None,
+                        Some(Ref::new("SingleIdentifierGrammar").to_matchable()),
+                        None,
+                        Vec::new(),
+                        false,
+                    )
+                    .copy(
+                        Some(vec![
+                            Ref::new("PositionalPlacementGrammar")
+                                .optional()
+                                .to_matchable(),
+                        ]),
+                        None,
+                        None,
+                        None,
+                        Vec::new(),
+                        false,
+                    )
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterTableModifyProjectionDefinitionStatement".into(),
+            NodeMatcher::new(SyntaxKind::ProjectionDefinition, |dialect| {
+                dialect
+                    .grammar("ProjectionDefinitionSegment")
+                    .match_grammar(dialect)
+                    .unwrap()
+                    .copy(
+                        Some(vec![Ref::new("IfExistsGrammar").optional().to_matchable()]),
+                        None,
+                        Some(Ref::new("SingleIdentifierGrammar").to_matchable()),
+                        None,
+                        Vec::new(),
+                        false,
+                    )
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProjectionDefinitionStatementSettingsClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SettingsClause, |dialect| {
+                Sequence::new(vec![
+                    Ref::keyword("SETTINGS").to_matchable(),
+                    Bracketed::new(vec![
+                        dialect
+                            .grammar("SettingsClauseSegment")
+                            .match_grammar(dialect)
+                            .unwrap()
+                            .copy(
+                                None,
+                                None,
+                                None,
+                                Some(vec![Ref::keyword("SETTINGS").to_matchable()]),
+                                Vec::new(),
+                                false,
+                            ),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // https://clickhouse.com/docs/sql-reference/statements/alter
     clickhouse_dialect.replace_grammar(
         "AlterTableStatementSegment",
@@ -3519,16 +3782,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("AFTER").to_matchable(),
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
-                        ])
+                    Ref::new("PositionalPlacementGrammar")
+                        .optional()
                         .to_matchable(),
-                        Ref::keyword("FIRST").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
                 ])
                 .to_matchable(),
                 // ALTER TABLE ... ADD ALIAS name FOR column_name
@@ -3698,16 +3954,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("AFTER").to_matchable(),
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
-                        ])
+                    Ref::new("PositionalPlacementGrammar")
+                        .optional()
                         .to_matchable(),
-                        Ref::keyword("FIRST").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
                 ])
                 .to_matchable(),
                 // ALTER TABLE ... ALTER COLUMN name [TYPE] [type]
@@ -3727,16 +3976,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     // Without TYPE keyword
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("AFTER").to_matchable(),
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
-                        ])
+                    Ref::new("PositionalPlacementGrammar")
+                        .optional()
                         .to_matchable(),
-                        Ref::keyword("FIRST").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
                 ])
                 .to_matchable(),
                 // ALTER TABLE ... REMOVE TTL
@@ -3822,6 +4064,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("DELETE").to_matchable(),
                     Ref::new("WhereClauseSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::new("AlterTableAddProjectionDefinitionStatement").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("MODIFY").to_matchable(),
+                    Ref::new("AlterTableModifyProjectionDefinitionStatement").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("PROJECTION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("MATERIALIZE").to_matchable(),
+                        Ref::keyword("CLEAR").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("PROJECTION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IN").to_matchable(),
+                        Ref::keyword("PARTITION").to_matchable(),
+                        Ref::new("PartitionExpressionGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])

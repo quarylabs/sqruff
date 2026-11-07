@@ -50,6 +50,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("date_part_function_name")
         .extend(["TIMEDIFF"]);
 
+    databricks.replace_grammar(
+        "AccessSchemaObjectSegment",
+        databricks
+            .grammar("AccessSchemaObjectSegment")
+            .match_grammar(&databricks)
+            .unwrap()
+            .copy(
+                Some(vec![Ref::keyword("VOLUME").to_matchable()]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+    databricks.replace_grammar(
+        "AccessPermissionSegment",
+        databricks
+            .grammar("AccessPermissionSegment")
+            .match_grammar(&databricks)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("READ").to_matchable(),
+                            Ref::keyword("WRITE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("VOLUME").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+
     databricks.insert_lexer_matchers(
         vec![Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow)],
         "equals",
@@ -241,7 +282,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("NotebookStart").optional().to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
-                            Ref::new("MagicStartGrammar").optional().to_matchable(),
+                            // A directive may carry content on its opening line and
+                            // still be followed by additional magic body lines.
+                            one_of(vec![
+                                Ref::new("MagicStartGrammar").to_matchable(),
+                                Ref::new("MagicSingleLineGrammar").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
                             AnyNumberOf::new(vec![Ref::new("MagicLineGrammar").to_matchable()])
                                 .config(|config| {
                                     config.optional();
@@ -249,7 +299,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("MagicSingleLineGrammar").optional().to_matchable(),
                         AnyNumberOf::new(vec![Ref::new("BareMagicCellGrammar").to_matchable()])
                             .to_matchable(),
                     ])
@@ -797,7 +846,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("CATALOG").to_matchable(),
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("CatalogReferenceSegment").to_matchable(),
-                Ref::new("CommentGrammar").optional().to_matchable(),
+                // The managed location and comment clauses may appear in either order.
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("MANAGED").to_matchable(),
+                        Ref::keyword("LOCATION").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("CommentGrammar").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -2554,29 +2613,66 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Bracketed::new(vec![
-                    Sequence::new(vec![
-                        Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                    // The two branches differ only in what may come first, and
+                    // their trailing expectation and table-constraint loops must
+                    // stay in step. They are written out rather than shared:
+                    // referencing one grammar instance from both branches, or
+                    // building one per branch from a factory, both stop the
+                    // column list parsing at all.
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("MaterializedViewExpectationConstraintSegment")
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("MaterializedViewExpectationConstraintSegment")
-                                    .to_matchable(),
+                        // A DLT materialized view may declare no columns at all,
+                        // letting their types come from the query, and list only
+                        // expectations. The documented syntax writes the column
+                        // group as required, but Databricks' own published
+                        // pipelines use this form, so the column group is
+                        // optional here. The order of the three groups is
+                        // otherwise unchanged.
+                        Sequence::new(vec![
+                            Ref::new("MaterializedViewExpectationConstraintSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("MaterializedViewExpectationConstraintSegment")
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("TableConstraintSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -2969,7 +3065,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         // INSERT [ONCE] INTO [ONCE] target BY NAME
-                        // [REPLACE USING (...)] query -- an append flow, which
+                        // [REPLACE USING (...) SEQUENCE BY col]
+                        // query -- an append flow, which
                         // is how a pipeline points several sources at one
                         // streaming table.
                         //
@@ -3027,6 +3124,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("REPLACE").to_matchable(),
                                 Ref::keyword("USING").to_matchable(),
                                 Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                                Ref::keyword("SEQUENCE").to_matchable(),
+                                Ref::keyword("BY").to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
                             ])
                             .config(|config| config.optional())
                             .to_matchable(),

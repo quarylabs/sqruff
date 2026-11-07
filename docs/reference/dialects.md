@@ -839,7 +839,7 @@ ClickHouse SQL dialect for real-time analytics.
 ```
 
 <details>
-<summary>Segment types (244)</summary>
+<summary>Segment types (245)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1001,6 +1001,7 @@ ClickHouse SQL dialect for real-time analytics.
 <li><code>placeholder</code></li>
 <li><code>plus</code></li>
 <li><code>pre_where_clause</code></li>
+<li><code>projection_definition</code></li>
 <li><code>qualify_clause</code></li>
 <li><code>question</code></li>
 <li><code>quoted_identifier</code></li>
@@ -1669,7 +1670,7 @@ Apache Doris SQL dialect, based on MySQL.
 ```
 
 <details>
-<summary>Segment types (272)</summary>
+<summary>Segment types (273)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1756,6 +1757,7 @@ Apache Doris SQL dialect, based on MySQL.
 <li><code>describe_statement</code></li>
 <li><code>distribution_segment</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -3732,7 +3734,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 ```
 
 <details>
-<summary>Segment types (273)</summary>
+<summary>Segment types (274)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3818,6 +3820,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 <li><code>delimiter_statement</code></li>
 <li><code>describe_statement</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -4334,7 +4337,7 @@ MySQL SQL dialect for the popular open-source database.
 ```
 
 <details>
-<summary>Segment types (265)</summary>
+<summary>Segment types (266)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4420,6 +4423,7 @@ MySQL SQL dialect for the popular open-source database.
 <li><code>delimiter_statement</code></li>
 <li><code>describe_statement</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -4617,7 +4621,7 @@ Oracle SQL dialect for Oracle Database.
 ```
 
 <details>
-<summary>Segment types (291)</summary>
+<summary>Segment types (292)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4868,6 +4872,7 @@ Oracle SQL dialect for Oracle Database.
 <li><code>slash_buffer_executor</code></li>
 <li><code>slice</code></li>
 <li><code>sqlplus_set_statement</code></li>
+<li><code>sqlplus_show_statement</code></li>
 <li><code>star</code></li>
 <li><code>start_bracket</code></li>
 <li><code>start_curly_bracket</code></li>
@@ -5723,7 +5728,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (408)</summary>
+<summary>Segment types (412)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5753,6 +5758,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>alter_row_access_policy_statement</code></li>
 <li><code>alter_schema_statement</code></li>
 <li><code>alter_sequence_statement</code></li>
+<li><code>alter_session_policy_statement</code></li>
 <li><code>alter_session_set_statement</code></li>
 <li><code>alter_session_statement</code></li>
 <li><code>alter_session_unset_clause</code></li>
@@ -5848,6 +5854,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>create_row_access_policy_statement</code></li>
 <li><code>create_schema_statement</code></li>
 <li><code>create_sequence_statement</code></li>
+<li><code>create_session_policy_statement</code></li>
 <li><code>create_stage_statement</code></li>
 <li><code>create_statement</code></li>
 <li><code>create_stream_statement</code></li>
@@ -5912,6 +5919,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>exception_code</code></li>
 <li><code>exclude_bracket_close</code></li>
 <li><code>exclude_bracket_open</code></li>
+<li><code>execute_dbt_project_statement</code></li>
 <li><code>execute_immediate_clause</code></li>
 <li><code>execute_task_clause</code></li>
 <li><code>explain_statement</code></li>
@@ -6061,6 +6069,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>semi_structured_element</code></li>
 <li><code>semi_structured_expression</code></li>
 <li><code>semicolon</code></li>
+<li><code>session_policy_options</code></li>
 <li><code>set_clause</code></li>
 <li><code>set_clause_list</code></li>
 <li><code>set_expression</code></li>
@@ -6653,7 +6662,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 ```
 
 <details>
-<summary>Segment types (281)</summary>
+<summary>Segment types (282)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6741,6 +6750,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 <li><code>describe_statement</code></li>
 <li><code>distribution_segment</code></li>
 <li><code>divide</code></li>
+<li><code>do_statement</code></li>
 <li><code>dollar_quote</code></li>
 <li><code>dot</code></li>
 <li><code>double_ampersand</code></li>
@@ -7194,7 +7204,7 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 ```
 
 <details>
-<summary>Segment types (179)</summary>
+<summary>Segment types (180)</summary>
 <ul>
 <li><code>alias_expression</code></li>
 <li><code>alias_operator</code></li>
@@ -7338,6 +7348,7 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 <li><code>set_operator</code></li>
 <li><code>set_schema_statement</code></li>
 <li><code>set_session_statement</code></li>
+<li><code>show_statement</code></li>
 <li><code>sign_indicator</code></li>
 <li><code>single_quote</code></li>
 <li><code>slice</code></li>

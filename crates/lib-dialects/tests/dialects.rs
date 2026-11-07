@@ -525,6 +525,26 @@ fn teradata_rejects_duplicate_data_type_attributes() {
 }
 
 #[test]
+fn mysql_kill_rejects_mariadb_only_forms() {
+    let dialect = kind_to_dialect(&DialectKind::Mysql, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "KILL HARD 5",
+        "KILL SOFT CONNECTION 5",
+        "KILL QUERY ID 5",
+        "KILL USER 'u'@'h'",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn mysql_rejects_mariadb_alter_table_conditions() {
     let dialect = kind_to_dialect(&DialectKind::Mysql, None).unwrap();
     let tables = Tables::default();

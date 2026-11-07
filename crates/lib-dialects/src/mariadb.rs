@@ -1339,5 +1339,47 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // MariaDB extends KILL with HARD/SOFT, QUERY ID and account targets.
+    mariadb.replace_grammar(
+        "KillStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("KILL").to_matchable(),
+            one_of(vec![
+                Ref::keyword("HARD").to_matchable(),
+                Ref::keyword("SOFT").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("QUERY").to_matchable(),
+                    Ref::keyword("ID").to_matchable(),
+                    Ref::new("KillIdGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("CONNECTION").to_matchable(),
+                        Ref::keyword("QUERY").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("USER").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("KillIdGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     mariadb
 }

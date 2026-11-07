@@ -446,6 +446,20 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
+    // Connection/query IDs can be functions, variables, numbers or bracketed expressions.
+    mysql.add([(
+        "KillIdGrammar".into(),
+        one_of(vec![
+            Ref::new("FunctionSegment").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+            Ref::new("SessionVariableNameSegment").to_matchable(),
+            Ref::new("LocalVariableNameSegment").to_matchable(),
+            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // WalrusOperatorSegment - :=.
     mysql.add([(
         "WalrusOperatorSegment".into(),
@@ -1657,7 +1671,13 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
-            Ref::keyword("CURRENT_USER").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("CURRENT_USER").to_matchable(),
+                Bracketed::new(vec![])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -3621,6 +3641,25 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    mysql.add([(
+        "KillStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::KillStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("KILL").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("CONNECTION").to_matchable(),
+                    Ref::keyword("QUERY").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("KillIdGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // LoadDataSegment.
     mysql.add([(
         "LoadDataSegment".into(),
@@ -4138,7 +4177,11 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
-                Ref::new("ObjectReferenceSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("WildcardIdentifierSegment").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
         })
@@ -4641,6 +4684,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("UpsertClauseListSegment").to_matchable(),
                 Ref::new("InsertRowAliasSegment").to_matchable(),
                 Ref::new("FlushStatementSegment").to_matchable(),
+                Ref::new("KillStatementSegment").to_matchable(),
                 Ref::new("LoadDataSegment").to_matchable(),
                 Ref::new("ReplaceSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),

@@ -1,0 +1,64 @@
+file:
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: kill
+    - keyword: connection
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - variable: '@thread_id'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - function:
+      - function_name:
+        - function_name_identifier: CONNECTION_ID
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - function:
+      - function_name:
+        - function_name_identifier: CONNECTION_ID
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '2'
+      - end_bracket: )
+- statement_terminator: ;

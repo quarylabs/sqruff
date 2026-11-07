@@ -1,0 +1,98 @@
+file:
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: CONNECTION
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - keyword: QUERY
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - keyword: ID
+    - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: QUERY
+    - keyword: ID
+    - variable: '@query_id'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: '''u1'''
+      - at_sign_literal: '@'
+      - quoted_identifier: '''localhost'''
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: HARD
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: u1
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+      - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: USER
+    - role_reference:
+      - keyword: CURRENT_USER
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: QUERY
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: '''u1'''
+      - at_sign_literal: '@'
+      - quoted_identifier: '''localhost'''
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: SOFT
+    - keyword: CONNECTION
+    - keyword: USER
+    - role_reference:
+      - keyword: CURRENT_USER
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- statement_terminator: ;

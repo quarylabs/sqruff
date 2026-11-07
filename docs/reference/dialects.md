@@ -1670,7 +1670,7 @@ Apache Doris SQL dialect, based on MySQL.
 ```
 
 <details>
-<summary>Segment types (273)</summary>
+<summary>Segment types (274)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1827,6 +1827,7 @@ Apache Doris SQL dialect, based on MySQL.
 <li><code>join_on_condition</code></li>
 <li><code>json_table_columns_clause</code></li>
 <li><code>keyword</code></li>
+<li><code>kill_statement</code></li>
 <li><code>like_operator</code></li>
 <li><code>limit_clause</code></li>
 <li><code>list_partition_definition</code></li>
@@ -3734,7 +3735,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 ```
 
 <details>
-<summary>Segment types (274)</summary>
+<summary>Segment types (275)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3889,6 +3890,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 <li><code>join_on_condition</code></li>
 <li><code>json_table_columns_clause</code></li>
 <li><code>keyword</code></li>
+<li><code>kill_statement</code></li>
 <li><code>like_operator</code></li>
 <li><code>limit_clause</code></li>
 <li><code>load_data_statement</code></li>
@@ -4337,7 +4339,7 @@ MySQL SQL dialect for the popular open-source database.
 ```
 
 <details>
-<summary>Segment types (266)</summary>
+<summary>Segment types (267)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4491,6 +4493,7 @@ MySQL SQL dialect for the popular open-source database.
 <li><code>join_on_condition</code></li>
 <li><code>json_table_columns_clause</code></li>
 <li><code>keyword</code></li>
+<li><code>kill_statement</code></li>
 <li><code>like_operator</code></li>
 <li><code>limit_clause</code></li>
 <li><code>load_data_statement</code></li>
@@ -6662,7 +6665,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 ```
 
 <details>
-<summary>Segment types (282)</summary>
+<summary>Segment types (283)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6822,6 +6825,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 <li><code>join_on_condition</code></li>
 <li><code>json_table_columns_clause</code></li>
 <li><code>keyword</code></li>
+<li><code>kill_statement</code></li>
 <li><code>like_operator</code></li>
 <li><code>limit_clause</code></li>
 <li><code>load_data_desc</code></li>

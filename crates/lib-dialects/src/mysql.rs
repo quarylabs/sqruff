@@ -4178,6 +4178,13 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional())
                 .to_matchable(),
                 one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("StarSegment").to_matchable(),
+                        Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
+                        Ref::new("StarSegment").to_matchable(),
+                    ])
+                    .allow_gaps(false)
+                    .to_matchable(),
                     Ref::new("WildcardIdentifierSegment").to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                 ])

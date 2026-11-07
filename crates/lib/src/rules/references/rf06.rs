@@ -164,6 +164,10 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
                 [SyntaxKind::PasswordAuth, SyntaxKind::ExecuteAsClause]
                     .into_iter()
                     .any(|ty| it.is_type(ty))
+                    || (matches!(
+                        context.dialect.name,
+                        DialectKind::Mysql | DialectKind::Mariadb
+                    ) && it.is_type(SyntaxKind::RoleReference))
             })
         {
             return Vec::new();

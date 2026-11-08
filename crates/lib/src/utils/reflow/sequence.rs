@@ -551,6 +551,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             self.reflow_config.max_line_length,
             self.reflow_config.implicit_indents,
             self.reflow_config.trailing_comments,
+            self.reflow_config.list_wrapping,
         );
 
         ReflowSequence {

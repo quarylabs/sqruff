@@ -390,6 +390,45 @@ file:
     - keyword: DATABASE
     - database_reference:
       - naked_identifier: db
+    - keyword: ALLOW_CONNECTIONS
+    - keyword: OFF
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: ON
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '1'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: off
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db
     - keyword: WITH
     - keyword: IS_TEMPLATE
     - comparison_operator:

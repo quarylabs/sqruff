@@ -61,3 +61,27 @@ file:
     - object_reference:
       - quoted_identifier: '"de_DE"'
 - statement_terminator: ;
+- statement:
+  - create_collation_statement:
+    - keyword: CREATE
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: c
+    - bracketed:
+      - start_bracket: (
+      - keyword: provider
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: icu
+      - comma: ','
+      - keyword: locale
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''und'''
+      - comma: ','
+      - keyword: deterministic
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: off
+      - end_bracket: )
+- statement_terminator: ;

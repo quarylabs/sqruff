@@ -54,3 +54,175 @@ test_pass_order_by_without_limit:
     SELECT *
     FROM foo
     ORDER BY id;
+
+# OFFSET 0 skips no rows, so the result does not depend on row order
+test_pass_offset_zero_without_limit_postgres:
+  pass_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0;
+  configs:
+    core:
+      dialect: postgres
+
+# OFFSET 0 in a LATERAL subquery stops PostgreSQL from pulling it up
+test_pass_offset_zero_lateral_subquery_postgres:
+  pass_str: |
+    SELECT foo.id, bar.name
+    FROM foo
+    CROSS JOIN LATERAL (
+        SELECT bar.name
+        FROM bar
+        WHERE bar.id = foo.bar_id
+        OFFSET 0
+    ) AS bar;
+  configs:
+    core:
+      dialect: postgres
+
+# OFFSET 0 ROWS is standard SQL and skips no rows either
+test_pass_offset_zero_rows:
+  pass_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0 ROWS;
+
+# OFFSET other than 0 without ORDER BY
+test_fail_offset_without_order_by_postgres:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 5;
+  configs:
+    core:
+      dialect: postgres
+
+# Only a literal 0 is exempt, not a parameter that may be 0
+test_fail_offset_parameter_postgres:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET $1;
+  configs:
+    core:
+      dialect: postgres
+
+# A templated value is not exempt even when it renders as 0
+test_fail_offset_templated_zero_postgres:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET :offset;
+  configs:
+    core:
+      dialect: postgres
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: colon
+        offset: 0
+
+# OFFSET 0 inside the LIMIT clause does not excuse the LIMIT
+test_fail_limit_with_offset_zero_in_limit_clause:
+  fail_str: |
+    SELECT *
+    FROM foo
+    LIMIT 10
+    OFFSET 0;
+
+# OFFSET 0 does not excuse a LIMIT in a separate clause
+test_fail_offset_zero_with_limit_duckdb:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0
+    LIMIT 10;
+  configs:
+    core:
+      dialect: duckdb
+
+# OFFSET 0 does not excuse a FETCH without ORDER BY
+test_fail_fetch_with_offset_zero_postgres:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0
+    FETCH FIRST 10 ROWS ONLY;
+  configs:
+    core:
+      dialect: postgres
+
+# OFFSET 0 does not excuse a TOP without ORDER BY
+test_fail_top_with_offset_zero_redshift:
+  fail_str: |
+    SELECT TOP 10 *
+    FROM foo
+    OFFSET 0;
+  configs:
+    core:
+      dialect: redshift
+
+# Teradata nests the TOP modifier one level deeper than redshift
+test_fail_top_with_offset_zero_rows_teradata:
+  fail_str: |
+    SELECT TOP 10 *
+    FROM foo
+    OFFSET 0 ROWS;
+  configs:
+    core:
+      dialect: teradata
+
+# An unparsable part may hide a LIMIT, so OFFSET 0 is still reported. This case
+# relies on the postgres grammar not parsing a LIMIT after OFFSET. The AM09
+# finding is on line 3, the parse error on line 4.
+test_fail_offset_zero_with_unparsable_limit_postgres:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0
+    LIMIT 10;
+  line_numbers: [3, 4]
+  configs:
+    core:
+      dialect: postgres
+
+# An unparsable part may hide a FETCH, so OFFSET 0 is still reported. This case
+# relies on the postgres grammar not parsing OFFSET n ROWS. The AM09 finding
+# and the parse error are both on line 3.
+test_fail_offset_zero_with_unparsable_fetch_postgres:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0 ROWS
+    FETCH FIRST 10 ROWS ONLY;
+  line_numbers: [3, 3]
+  configs:
+    core:
+      dialect: postgres
+
+# The parse error can sit outside the statement: trino does not parse the
+# parameter in LIMIT ?, and leaves the LIMIT as an unparsable part next to the
+# statement. OFFSET 0 is still reported. The AM09 finding is on line 3, the
+# parse error on line 4.
+test_fail_offset_zero_with_unparsable_limit_outside_statement_trino:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0
+    LIMIT ?;
+  line_numbers: [3, 4]
+  configs:
+    core:
+      dialect: trino
+
+# Same with a FETCH whose row count is a parameter.
+test_fail_offset_zero_with_unparsable_fetch_outside_statement_trino:
+  fail_str: |
+    SELECT *
+    FROM foo
+    OFFSET 0 ROWS
+    FETCH FIRST ? ROWS ONLY;
+  line_numbers: [3, 4]
+  configs:
+    core:
+      dialect: trino

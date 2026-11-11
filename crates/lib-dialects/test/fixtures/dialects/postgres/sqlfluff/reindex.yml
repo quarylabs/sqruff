@@ -57,3 +57,30 @@ file:
       - object_reference:
         - naked_identifier: my_schema
 - statement_terminator: ;
+- statement:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - bracketed:
+      - start_bracket: (
+      - keyword: CONCURRENTLY
+      - keyword: OFF
+      - comma: ','
+      - keyword: VERBOSE
+      - keyword: ON
+      - end_bracket: )
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+  - reindex_statement_segment:
+    - keyword: REINDEX
+    - bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: my_index
+- statement_terminator: ;

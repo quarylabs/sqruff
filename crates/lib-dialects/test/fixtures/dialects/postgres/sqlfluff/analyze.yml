@@ -97,3 +97,55 @@ file:
         - naked_identifier: bat2
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - analyze_statement:
+    - keyword: ANALYZE
+    - bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - keyword: ON
+      - comma: ','
+      - keyword: SKIP_LOCKED
+      - keyword: OFF
+      - end_bracket: )
+    - table_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - analyze_statement:
+    - keyword: ANALYZE
+    - bracketed:
+      - start_bracket: (
+      - keyword: VERBOSE
+      - numeric_literal: '1'
+      - comma: ','
+      - keyword: SKIP_LOCKED
+      - numeric_literal: '0'
+      - end_bracket: )
+    - table_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - analyze_statement:
+    - keyword: ANALYZE
+    - bracketed:
+      - start_bracket: (
+      - keyword: BUFFER_USAGE_LIMIT
+      - numeric_literal: '256'
+      - end_bracket: )
+    - table_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - analyze_statement:
+    - keyword: ANALYZE
+    - bracketed:
+      - start_bracket: (
+      - keyword: BUFFER_USAGE_LIMIT
+      - quoted_literal: '''1MB'''
+      - comma: ','
+      - keyword: VERBOSE
+      - end_bracket: )
+    - table_reference:
+      - naked_identifier: foo
+- statement_terminator: ;

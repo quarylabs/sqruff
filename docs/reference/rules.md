@@ -817,6 +817,8 @@ ORDER BY id
 LIMIT 10;
 ```
 
+`OFFSET 0` without `LIMIT`, `FETCH` or `TOP` is allowed: it skips no rows, so the result does not depend on row order. Only a literal `0` written in the source is allowed; a templated value is still reported even when it renders as `0`. It is also still reported when the file has a parse error, because the unparsable part may hide a `LIMIT` or `FETCH`.
+
 
 ### capitalisation.keywords
 

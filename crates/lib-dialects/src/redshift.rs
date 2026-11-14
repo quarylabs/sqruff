@@ -3790,13 +3790,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("EXCLUDE").to_matchable(),
                     one_of(vec![
                         Bracketed::new(vec![
-                            Delimited::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
                         ])
                         .to_matchable(),
-                        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                             .to_matchable(),
                     ])
                     .to_matchable(),

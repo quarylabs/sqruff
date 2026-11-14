@@ -42,8 +42,8 @@ importers:
   editors/code:
     dependencies:
       vscode-languageclient:
-        specifier: ^10.1.2
-        version: 10.1.2
+        specifier: ^11.0.0
+        version: 11.0.0
       vscode-languageserver:
         specifier: ^11.0.0
         version: 11.0.0
@@ -58,8 +58,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@types/node':
-        specifier: ~26.0.1
-        version: 26.0.1
+        specifier: ~26.6.6
+        version: 26.6.6
       '@types/vscode':
         specifier: 1.96.0
         version: 1.96.0
@@ -153,7 +153,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react-swc':
         specifier: ^4.3.3
-        version: 4.3.3(vite@8.3.6(@types/node@26.0.1)(esbuild@0.28.2)(jiti@2.7.0))
+        version: 4.3.3(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))
       autoprefixer:
         specifier: ^10.6.2
         version: 10.6.2(postcss@8.5.32)
@@ -171,7 +171,7 @@ importers:
         version: 8.72.1(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3)
       vite:
         specifier: ^8.3.6
-        version: 8.3.6(@types/node@26.0.1)(esbuild@0.28.2)(jiti@2.7.0)
+        version: 8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)
 
 packages:
 
@@ -1034,8 +1034,8 @@ packages:
   '@types/mocha@10.0.10':
     resolution: {integrity: sha512-xPyYSz1cMPnJQhl0CLMH68j3gprKZaTjG3s5Vi+fDgx+uhG9NOXwbVt52eFS8ECyXhyKcjDLCBEqBExKuiZb7Q==}
 
-  '@types/node@26.0.1':
-    resolution: {integrity: sha512-fc3KiUoBt6kie0N9bIW3E47vZsuaMf0PM2AaUpLCLT0s/LvX1nxAim6Fc049cNxODPpGm6qRAuUOB86SkRuPQw==}
+  '@types/node@26.6.6':
+    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
   '@types/react-dom@19.3.0':
     resolution: {integrity: sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==}
@@ -3424,8 +3424,8 @@ packages:
   underscore@1.13.8:
     resolution: {integrity: sha512-DXtD3ZtEQzc7M8m4cXotyHR+FAS18C64asBYY5vqZexfYryNNnDc02W4hKg3rdQuqOYas1jkseX0+nZXjTXnvQ==}
 
-  undici-types@8.3.0:
-    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
@@ -3509,25 +3509,15 @@ packages:
     resolution: {integrity: sha512-USSfxg0vDIpTQqlQBGxF3mBARyoS8cU7LHLpbYNh6dOJt32dlskxPWB0Irrh5TllTmyf7oNLAvqDqzklbwwnpA==}
     engines: {node: '>=14.17.0'}
 
-  vscode-jsonrpc@9.0.3:
-    resolution: {integrity: sha512-qETYf9PCl1lVfwR+oBmMfc4vP2nqLNA35ABxorw3j06+xlKRgDVxbLgKm4Y/xPL0YWdeDjLoI4ImICIT3nB0zQ==}
-    engines: {node: '>=14.0.0'}
-
-  vscode-languageclient@10.1.2:
-    resolution: {integrity: sha512-cOv5SMvtAhfVeo5m2r9L2rVHAD0J5CFOsmvH1WgNmPaI61VYjJNc3XUDLOKeFSDtWoAXIEoK6KetuBEL/3hErg==}
+  vscode-languageclient@11.0.0:
+    resolution: {integrity: sha512-kVyeGLfyd1M74PbMNPfFkgRnhMYgnt6YGc5uXr/tNMzCpfZ0wFtfiqmqX1M05kkdNgV0HSozEUPvgggJbyIAYw==}
     engines: {vscode: ^1.91.0}
-
-  vscode-languageserver-protocol@3.18.4:
-    resolution: {integrity: sha512-CCXbyr99dafRJzJH/0Ryk7ly5T8XPmSR0//OuF2w4m+9JiOin7zcAT5iET8GRE7Z9taFBejb3GbM0a0mbjdbrg==}
 
   vscode-languageserver-protocol@3.18.5:
     resolution: {integrity: sha512-FW4fBMzZ99N8xeob4py0l050wgCoRgTpEq5Xcsb9lM1bc29UKGR/wSV+4knaqFxssFHajy7OzNiKP/m3U1ZEuA==}
 
-  vscode-languageserver-textdocument@1.0.15:
-    resolution: {integrity: sha512-Gsfr9S8LU3S6885cS+NaleasJ0n3V5y/SOTqHCifQiXWFw3G9w9/YItDfwHrlCz+dSZWWZ8ilYVMcJe7Sz7Sxw==}
-
-  vscode-languageserver-types@3.18.4:
-    resolution: {integrity: sha512-nQsacoiijvl0fRf2q28uFDrAVwRhdCa3QveiF7/CX0r18mLR5FU/1WskSsCKOjmEbtteKUnY8x8Yzxop+k0zwg==}
+  vscode-languageserver-textdocument@1.0.16:
+    resolution: {integrity: sha512-qeNEuOi9a3qkqRf7Gfez2WL2VwlBTLCNekHBGO9kxPVUp9XuY15yfTJ9jwvOwKI0I2MhUUfZq95NSp+LK1CLQg==}
 
   vscode-languageserver-types@3.18.5:
     resolution: {integrity: sha512-kPd6+JQNz3HMJvjKlqUxERSlZHAntl/aGpsk7ImwIh0ewDKDcjgAEyVSYciPiOJD3ftbK9IrfiqUeTZLSbCizw==}
@@ -4381,9 +4371,9 @@ snapshots:
 
   '@types/mocha@10.0.10': {}
 
-  '@types/node@26.0.1':
+  '@types/node@26.6.6':
     dependencies:
-      undici-types: 8.3.0
+      undici-types: 8.9.0
 
   '@types/react-dom@19.3.0(@types/react@19.3.0)':
     dependencies:
@@ -4574,11 +4564,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react-swc@4.3.3(vite@8.3.6(@types/node@26.0.1)(esbuild@0.28.2)(jiti@2.7.0))':
+  '@vitejs/plugin-react-swc@4.3.3(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       '@swc/core': 1.16.22
-      vite: 8.3.6(@types/node@26.0.1)(esbuild@0.28.2)(jiti@2.7.0)
+      vite: 8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -7365,7 +7355,7 @@ snapshots:
 
   underscore@1.13.8: {}
 
-  undici-types@8.3.0: {}
+  undici-types@8.9.0: {}
 
   universalify@2.0.1: {}
 
@@ -7395,7 +7385,7 @@ snapshots:
 
   version-range@4.15.0: {}
 
-  vite@8.3.6(@types/node@26.0.1)(esbuild@0.28.2)(jiti@2.7.0):
+  vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -7403,35 +7393,26 @@ snapshots:
       rolldown: 1.2.16
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 26.0.1
+      '@types/node': 26.6.6
       esbuild: 0.28.2
       fsevents: 2.3.3
       jiti: 2.7.0
 
   vscode-jsonrpc@10.0.0: {}
 
-  vscode-jsonrpc@9.0.3: {}
-
-  vscode-languageclient@10.1.2:
+  vscode-languageclient@11.0.0:
     dependencies:
       minimatch: 10.2.6
       semver: 7.8.6
-      vscode-languageserver-protocol: 3.18.4
-      vscode-languageserver-textdocument: 1.0.15
-
-  vscode-languageserver-protocol@3.18.4:
-    dependencies:
-      vscode-jsonrpc: 9.0.3
-      vscode-languageserver-types: 3.18.4
+      vscode-languageserver-protocol: 3.18.5
+      vscode-languageserver-textdocument: 1.0.16
 
   vscode-languageserver-protocol@3.18.5:
     dependencies:
       vscode-jsonrpc: 10.0.0
       vscode-languageserver-types: 3.18.5
 
-  vscode-languageserver-textdocument@1.0.15: {}
-
-  vscode-languageserver-types@3.18.4: {}
+  vscode-languageserver-textdocument@1.0.16: {}
 
   vscode-languageserver-types@3.18.5: {}
 

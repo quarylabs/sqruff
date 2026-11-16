@@ -1108,6 +1108,11 @@ Trailing commas within select clause
 
 **Fixable:** Yes
 
+Set `select_clause_trailing_comma` to `require_multiline_forbid_single_line`
+to require trailing commas only for multiline SELECT clauses. This uses the
+rendered SQL from the SELECT keyword through the last target, ignoring trailing
+comments, whitespace and commas when determining whether a clause is multiline.
+
 **Anti-pattern**
 
 In this example, the last selected column has a trailing comma.

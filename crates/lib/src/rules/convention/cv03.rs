@@ -45,6 +45,11 @@ impl Rule for RuleCV03 {
 
     fn long_description(&self) -> &'static str {
         r#"
+Set `select_clause_trailing_comma` to `require_multiline_forbid_single_line`
+to require trailing commas only for multiline SELECT clauses. This uses the
+rendered SQL from the SELECT keyword through the last target, ignoring trailing
+comments, whitespace and commas when determining whether a clause is multiline.
+
 **Anti-pattern**
 
 In this example, the last selected column has a trailing comma.
@@ -86,9 +91,44 @@ FROM foo
             None => return Vec::new(),
         };
 
+        // Resolve the policy per clause without changing the configured mode.
+        let comma_policy: String =
+            if self.select_clause_trailing_comma == "require_multiline_forbid_single_line" {
+                let code_segments: Vec<_> = rule_cx
+                    .segment
+                    .get_raw_segments()
+                    .into_iter()
+                    .filter(|seg| seg.is_code() && !seg.is_type(SyntaxKind::Comma))
+                    .collect();
+
+                let (first_code, last_code) = match (code_segments.first(), code_segments.last()) {
+                    (Some(first_code), Some(last_code)) => (first_code, last_code),
+                    _ => return Vec::new(),
+                };
+
+                let (Some(first_marker), Some(last_marker)) = (
+                    first_code.get_position_marker(),
+                    last_code.get_position_marker(),
+                ) else {
+                    return Vec::new();
+                };
+
+                let start_line = first_marker.working_line_no;
+                let end_line = last_marker.working_loc_after(last_code.raw().as_str()).0;
+
+                if start_line != end_line {
+                    "require"
+                } else {
+                    "forbid"
+                }
+                .to_string()
+            } else {
+                self.select_clause_trailing_comma.clone()
+            };
+
         let mut fixes = Vec::new();
 
-        if self.select_clause_trailing_comma == "forbid" {
+        if comma_policy == "forbid" {
             if last_content.is_type(SyntaxKind::Comma) {
                 if last_content.get_position_marker().is_none() {
                     fixes = vec![LintFix::delete(last_content.clone())];
@@ -126,9 +166,7 @@ FROM foo
                     None,
                 )];
             }
-        } else if self.select_clause_trailing_comma == "require"
-            && !last_content.is_type(SyntaxKind::Comma)
-        {
+        } else if comma_policy == "require" && !last_content.is_type(SyntaxKind::Comma) {
             let new_comma = SegmentBuilder::comma(rule_cx.tables.next_id());
 
             let fix: Vec<LintFix> = vec![LintFix::replace(

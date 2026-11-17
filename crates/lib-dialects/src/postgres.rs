@@ -926,6 +926,20 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        // A boolean option value: TRUE, ON or 1 enable the option, and FALSE, OFF
+        // or 0 disable it.
+        // https://www.postgresql.org/docs/current/sql-explain.html
+        (
+            "OptionBooleanGrammar".into(),
+            one_of(vec![
+                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("OFF").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "DollarNumericLiteralSegment".into(),
             TypedParser::new(
@@ -3243,13 +3257,26 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("VERBOSE").to_matchable(),
                         Ref::keyword("COSTS").to_matchable(),
                         Ref::keyword("SETTINGS").to_matchable(),
+                        Ref::keyword("GENERIC_PLAN").to_matchable(),
                         Ref::keyword("BUFFERS").to_matchable(),
                         Ref::keyword("WAL").to_matchable(),
                         Ref::keyword("TIMING").to_matchable(),
                         Ref::keyword("SUMMARY").to_matchable(),
+                        Ref::keyword("MEMORY").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
+                    Ref::new("OptionBooleanGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SERIALIZE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("NONE").to_matchable(),
+                        Ref::keyword("TEXT").to_matchable(),
+                        Ref::keyword("BINARY").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -5509,7 +5536,7 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("ALLOW_CONNECTIONS").to_matchable(),
                             Ref::new("EqualsSegment").optional().to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                            Ref::new("OptionBooleanGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -5522,7 +5549,7 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("IS_TEMPLATE").to_matchable(),
                             Ref::new("EqualsSegment").optional().to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                            Ref::new("OptionBooleanGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -5548,7 +5575,7 @@ pub fn raw_dialect() -> Dialect {
                         AnyNumberOf::new(vec![
                             Sequence::new(vec![
                                 Ref::keyword("ALLOW_CONNECTIONS").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                Ref::new("OptionBooleanGrammar").to_matchable(),
                             ])
                             .to_matchable(),
                             Sequence::new(vec![
@@ -5559,7 +5586,7 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("IS_TEMPLATE").to_matchable(),
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                Ref::new("OptionBooleanGrammar").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -5686,9 +5713,13 @@ pub fn raw_dialect() -> Dialect {
                                         Ref::keyword("DISABLE_PAGE_SKIPPING").to_matchable(),
                                         Ref::keyword("SKIP_LOCKED").to_matchable(),
                                         Ref::keyword("INDEX_CLEANUP").to_matchable(),
+                                        Ref::keyword("PROCESS_MAIN").to_matchable(),
                                         Ref::keyword("PROCESS_TOAST").to_matchable(),
                                         Ref::keyword("TRUNCATE").to_matchable(),
                                         Ref::keyword("PARALLEL").to_matchable(),
+                                        Ref::keyword("SKIP_DATABASE_STATS").to_matchable(),
+                                        Ref::keyword("ONLY_DATABASE_STATS").to_matchable(),
+                                        Ref::keyword("BUFFER_USAGE_LIMIT").to_matchable(),
                                     ])
                                     .to_matchable(),
                                     one_of(vec![
@@ -6813,7 +6844,7 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![
                         Sequence::new(vec![
                             Ref::keyword("CONCURRENTLY").to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
+                            Ref::new("OptionBooleanGrammar").optional().to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -6823,7 +6854,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("VERBOSE").to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
+                            Ref::new("OptionBooleanGrammar").optional().to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -7169,13 +7200,25 @@ pub fn raw_dialect() -> Dialect {
         "AnalyzeStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::AnalyzeStatement, |_| {
             {
-                let option = Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("VERBOSE").to_matchable(),
-                        Ref::keyword("SKIP_LOCKED").to_matchable(),
+                let option = one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("VERBOSE").to_matchable(),
+                            Ref::keyword("SKIP_LOCKED").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("OptionBooleanGrammar").optional().to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("BUFFER_USAGE_LIMIT").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ]);
 
                 let tables_and_columns = Sequence::new(vec![
@@ -8634,7 +8677,7 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("FREEZE").to_matchable(),
-                                    Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
+                                    Ref::new("OptionBooleanGrammar").optional().to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
@@ -8655,7 +8698,7 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec![
                                     Ref::keyword("HEADER").to_matchable(),
                                     one_of(vec![
-                                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                        Ref::new("OptionBooleanGrammar").to_matchable(),
                                         Ref::keyword("MATCH").to_matchable(),
                                     ])
                                     .config(|this| this.optional())
@@ -9563,7 +9606,7 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec![
                                     Ref::keyword("DETERMINISTIC").to_matchable(),
                                     Ref::new("EqualsSegment").to_matchable(),
-                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                    Ref::new("OptionBooleanGrammar").to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![

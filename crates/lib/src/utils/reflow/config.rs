@@ -6,7 +6,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::rebreak::LinePosition;
-use crate::utils::reflow::reindent::{ImplicitIndents, IndentUnit, TrailingComments};
+use crate::utils::reflow::reindent::{ImplicitIndents, IndentUnit, ListWrapping, TrailingComments};
 
 type ConfigDictType = HashMap<SyntaxKind, LayoutTypeConfig>;
 
@@ -191,6 +191,7 @@ pub struct ReflowConfig {
     pub(crate) skip_implicit_indents_in: SyntaxSet,
     pub(crate) implicit_indents: ImplicitIndents,
     pub(crate) trailing_comments: TrailingComments,
+    pub(crate) list_wrapping: ListWrapping,
     pub(crate) ignore_comment_lines: bool,
 }
 
@@ -207,6 +208,7 @@ impl Default for ReflowConfig {
             skip_implicit_indents_in: SyntaxSet::EMPTY,
             implicit_indents: Default::default(),
             trailing_comments: Default::default(),
+            list_wrapping: Default::default(),
             ignore_comment_lines: false,
         }
     }
@@ -377,6 +379,11 @@ impl ReflowConfig {
             .unwrap();
         let implicit_indents = ImplicitIndents::from_str(implicit_indents).unwrap();
 
+        let list_wrapping = config.raw["indentation"]["list_wrapping"]
+            .as_string()
+            .unwrap();
+        let list_wrapping = ListWrapping::from_str(list_wrapping).unwrap();
+
         let tab_space_size = config.raw["indentation"]["tab_space_size"]
             .as_int()
             .unwrap() as usize;
@@ -406,6 +413,7 @@ impl ReflowConfig {
             skip_implicit_indents_in,
             implicit_indents,
             trailing_comments,
+            list_wrapping,
             ignore_comment_lines: config.raw["indentation"]["ignore_comment_lines"]
                 .as_bool()
                 .unwrap(),

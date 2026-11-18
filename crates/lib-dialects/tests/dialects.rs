@@ -456,6 +456,92 @@ fn bigquery_semi_structured_wildcard_accepts_except_replace() {
     }
 }
 
+/// Parse `sql` with the SQLite dialect and return the unparsable segments.
+fn sqlite_unparsable_segments(sql: &str) -> Vec<String> {
+    let dialect = kind_to_dialect(&DialectKind::Sqlite, None).unwrap();
+    let tables = Tables::default();
+    let (tokens, lex_errors) = Lexer::from(&dialect).lex(&tables, sql);
+    assert!(lex_errors.is_empty(), "{sql}");
+    let tree = Parser::from(&dialect)
+        .parse(&tables, &tokens)
+        .unwrap()
+        .unwrap();
+    check_no_unparsable_segments(&tree)
+}
+
+#[test]
+fn sqlite_accepts_postfix_collate_in_expressions() {
+    for sql in [
+        "SELECT email = trim(email) COLLATE BINARY FROM example",
+        "SELECT a COLLATE NOCASE FROM t",
+        "SELECT a FROM t WHERE a COLLATE nocase = 'x' AND b = 'y' COLLATE RTRIM",
+        "SELECT a FROM t GROUP BY a COLLATE NOCASE ORDER BY a COLLATE BINARY DESC",
+        "SELECT CASE WHEN a COLLATE nocase = b THEN 1 END FROM t",
+        "SELECT a FROM t WHERE a COLLATE \"my collation\" = 'x'",
+    ] {
+        assert_eq!(
+            sqlite_unparsable_segments(sql),
+            Vec::<String>::new(),
+            "{sql}"
+        );
+    }
+}
+
+#[test]
+fn sqlite_collate_requires_a_collation_name() {
+    for sql in [
+        "SELECT a COLLATE FROM t",
+        "SELECT a FROM t WHERE a COLLATE = 'x'",
+    ] {
+        assert!(!sqlite_unparsable_segments(sql).is_empty(), "{sql}");
+    }
+}
+
+#[test]
+fn sqlite_accepts_indexed_by_and_not_indexed() {
+    for sql in [
+        "SELECT email FROM example INDEXED BY example_email",
+        "SELECT email FROM example AS e INDEXED BY main.example_email WHERE email > 'a'",
+        "SELECT email FROM example e NOT INDEXED",
+        "SELECT * FROM a INDEXED BY a_idx JOIN b NOT INDEXED ON a.id = b.id",
+        "UPDATE example INDEXED BY example_email SET email = 'b' WHERE email = 'a'",
+        "UPDATE example AS e NOT INDEXED SET email = 'b'",
+        "DELETE FROM example INDEXED BY example_email WHERE email = 'a'",
+        "DELETE FROM example NOT INDEXED WHERE email = 'a'",
+    ] {
+        assert_eq!(
+            sqlite_unparsable_segments(sql),
+            Vec::<String>::new(),
+            "{sql}"
+        );
+    }
+}
+
+#[test]
+fn sqlite_rejects_malformed_indexed_by() {
+    for sql in [
+        "SELECT email FROM example INDEXED example_email",
+        "SELECT email FROM example INDEXED BY",
+        "SELECT email FROM example NOT INDEXED BY example_email",
+        "UPDATE example INDEXED BY SET email = 'b'",
+    ] {
+        assert!(!sqlite_unparsable_segments(sql).is_empty(), "{sql}");
+    }
+}
+
+#[test]
+fn ansi_does_not_accept_sqlite_indexed_by() {
+    let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
+    let tables = Tables::default();
+    let sql = "SELECT email FROM example INDEXED BY example_email";
+    let (tokens, _) = Lexer::from(&dialect).lex(&tables, sql);
+    let tree = Parser::from(&dialect)
+        .parse(&tables, &tokens)
+        .unwrap()
+        .unwrap();
+    assert!(!check_no_unparsable_segments(&tree).is_empty());
+}
+
 #[test]
 fn clickhouse_regexp_rejects_not_and_escape() {
     let dialect = kind_to_dialect(&DialectKind::Clickhouse, None).unwrap();

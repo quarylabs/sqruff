@@ -766,6 +766,37 @@ pub fn raw_dialect() -> Dialect {
         ),
     );
 
+    // `expr COLLATE collation`, where the collation is a name such as `NOCASE`.
+    sqlite_dialect.add([(
+        "CollateGrammar".into(),
+        Sequence::new(vec![
+            Ref::keyword("COLLATE").to_matchable(),
+            Ref::new("CollationReferenceSegment").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // `table [AS alias] INDEXED BY index` and `table [AS alias] NOT INDEXED`.
+    sqlite_dialect.add([(
+        "PostTableExpressionGrammar".into(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("INDEXED").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                Ref::new("IndexReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("INDEXED").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // SQLite does not support GROUPING SETS, despite inheriting ANSI's
     // GroupByClauseSegment.
     sqlite_dialect.replace_grammar("GroupingSetsClauseSegment", Nothing::new().to_matchable());
@@ -1119,6 +1150,9 @@ pub fn raw_dialect() -> Dialect {
                     MetaSegment::indent().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                    Ref::new("PostTableExpressionGrammar")
+                        .optional()
+                        .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                     Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),

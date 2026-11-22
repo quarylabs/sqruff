@@ -110,8 +110,15 @@ Don’t wrap top-level statements in brackets.
                 .collect::<Vec<_>>();
             let mut fixes = vec![];
             if !lift_nodes.is_empty() {
-                fixes.push(LintFix::create_before(parent.clone(), leading.clone()));
-                fixes.push(LintFix::create_after(parent, trailing.clone(), None));
+                // Liftable content is often one-sided, so only emit the
+                // create_before()/create_after() edit for the side that
+                // actually has segments to lift.
+                if !leading.is_empty() {
+                    fixes.push(LintFix::create_before(parent.clone(), leading.clone()));
+                }
+                if !trailing.is_empty() {
+                    fixes.push(LintFix::create_after(parent, trailing.clone(), None));
+                }
                 fixes.extend(lift_nodes.into_iter().map(LintFix::delete));
                 filtered_children = filtered_children
                     [leading.len()..filtered_children.len() - trailing.len()]

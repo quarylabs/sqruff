@@ -23,9 +23,8 @@ file:
                   - keyword: from
                   - expression:
                     - numeric_literal: '2'
+                  - keyword: for
                   - expression:
-                    - data_type:
-                      - data_type_identifier: for
                     - numeric_literal: '3'
                   - end_bracket: )
 - statement_terminator: ;
@@ -76,9 +75,8 @@ file:
                   - start_bracket: (
                   - expression:
                     - quoted_literal: '''Thomas'''
+                  - keyword: for
                   - expression:
-                    - data_type:
-                      - data_type_identifier: for
                     - numeric_literal: '2'
                   - end_bracket: )
 - statement_terminator: ;

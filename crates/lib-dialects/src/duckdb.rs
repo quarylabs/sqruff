@@ -1824,16 +1824,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ExpressionSegment").to_matchable(),
             ])
             .to_matchable(),
-            Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("DatetimeUnitSegment").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::keyword("FROM").to_matchable(),
-                Ref::new("ExpressionSegment").to_matchable(),
-            ])
-            .to_matchable(),
+            postgres::substring_like_function_contents(),
             Sequence::new(vec![
                 Ref::keyword("DISTINCT").optional().to_matchable(),
                 one_of(vec![

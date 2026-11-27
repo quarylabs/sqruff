@@ -21,6 +21,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "BY",
     "CHECK",
     "CLEAR",
+    "CLONE",
     "CLUSTER",
     "CODEC",
     "COLLATE",

@@ -7,6 +7,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::grammar::preceded_by::PrecededBy;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -2794,6 +2795,12 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OFFSET")
+                    .exclude(PrecededBy::new(vec![vec!["AS"]]))
+                    .to_matchable(),
+                Ref::keyword("FETCH")
+                    .exclude(PrecededBy::new(vec![vec!["AS"]]))
+                    .to_matchable(),
                 Ref::keyword("OVERLAPS").to_matchable(),
                 Ref::new("SetOperatorSegment").to_matchable(),
                 Sequence::new(vec![

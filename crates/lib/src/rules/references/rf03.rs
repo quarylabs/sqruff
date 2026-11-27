@@ -8,11 +8,12 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::capitalize;
 use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::segments::from::FromClauseSegment;
 use sqruff_lib_core::parser::segments::object_reference::{
     ObjectReferenceLevel, ObjectReferenceSegment,
 };
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
-use sqruff_lib_core::utils::analysis::query::Query;
+use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -47,7 +48,6 @@ impl RuleRF03 {
                 .clone()
                 .filter(|select_info| select_info.table_aliases.len() == 1)
             {
-                let mut fixable = true;
                 // :TRICKY: Subqueries in the column list of a SELECT can see tables
                 // in the FROM list of the containing query. Thus, count tables
                 // at the *parent* query level. Only check if it is a subquery of the
@@ -58,9 +58,10 @@ impl RuleRF03 {
                     possible_ref_tables.extend(iter_available_targets(parent, Some(query.clone())));
                 }
 
-                if possible_ref_tables.len() > 1 {
-                    fixable = false;
-                }
+                // A bare column can resolve to a visible enclosing source.
+                let fixable = possible_ref_tables.len() <= 1
+                    && (single_table_references == "unqualified"
+                        || !has_visible_outer_sources(query.clone()));
 
                 let results = check_references(
                     tables,
@@ -93,6 +94,96 @@ impl RuleRF03 {
 
         acc
     }
+}
+
+fn has_visible_outer_sources(mut child: Query<'_>) -> bool {
+    while let Some(parent) = child.parent() {
+        let child_select = {
+            let inner = child.inner.borrow();
+            inner
+                .selectables
+                .first()
+                .filter(|_| inner.is_subquery)
+                .map(|selectable| selectable.selectable.clone())
+        };
+
+        if let Some(child_select) = child_select
+            && parent
+                .inner
+                .borrow()
+                .selectables
+                .iter()
+                .any(|outer| has_visible_parent_sources(outer, &child_select))
+        {
+            return true;
+        }
+
+        child = parent;
+    }
+
+    false
+}
+
+fn has_visible_parent_sources(outer: &Selectable<'_>, child: &ErasedSegment) -> bool {
+    let path = outer.selectable.path_to(child);
+    if path.is_empty() {
+        return false;
+    }
+
+    if let Some(index) = path
+        .iter()
+        .rposition(|step| step.segment.is_type(SyntaxKind::FromExpressionElement))
+    {
+        let (outer_path, item_path) = path.split_at(index);
+        let item = &item_path[0].segment;
+        let is_apply = outer_path.last().is_some_and(|step| {
+            step.segment.is_type(SyntaxKind::JoinClause) && has_keyword(&step.segment, "APPLY")
+        });
+        let is_table_function_argument = item_path.windows(2).any(|steps| {
+            steps[0].segment.is_type(SyntaxKind::TableExpression)
+                && steps[1].segment.is_type(SyntaxKind::Function)
+        });
+        return (has_keyword(item, "LATERAL") || is_apply || is_table_function_argument)
+            && has_preceding_from_source(&outer.selectable, item);
+    }
+
+    outer.select_info().is_some_and(|info| {
+        !info.standalone_aliases.is_empty()
+            || info
+                .table_aliases
+                .iter()
+                .any(|alias| alias.from_expression_element.path_to(child).is_empty())
+    })
+}
+
+fn has_keyword(segment: &ErasedSegment, keyword: &str) -> bool {
+    segment
+        .children(const { &SyntaxSet::single(SyntaxKind::Keyword) })
+        .any(|child| child.raw().eq_ignore_ascii_case(keyword))
+}
+
+fn has_preceding_from_source(select: &ErasedSegment, item: &ErasedSegment) -> bool {
+    let Some(from_clause) = select.child(const { &SyntaxSet::single(SyntaxKind::FromClause) })
+    else {
+        return false;
+    };
+    let item_position = item.get_position_marker();
+
+    // FROM aliases can come from ordinary tables or value-table functions.
+    // Compare positions in the rendered SQL, where scope is resolved.
+    FromClauseSegment(from_clause)
+        .eventual_aliases()
+        .iter()
+        .any(|(_, alias)| {
+            let source = &alias.from_expression_element;
+            source.id() != item.id()
+                && source
+                    .get_position_marker()
+                    .zip(item_position)
+                    .is_none_or(|(source, item)| {
+                        source.templated_slice.end <= item.templated_slice.start
+                    })
+        })
 }
 
 fn iter_available_targets(query: Query<'_>, subquery: Option<Query<'_>>) -> Vec<AliasInfo> {

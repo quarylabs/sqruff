@@ -15,6 +15,8 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::rules::aliasing::al04::RuleAL04;
 
+use super::postgres_order_by_alias_references;
+
 #[derive(Clone, Debug, Default)]
 pub struct RuleRF02Config {
     ignore_words: Vec<String>,
@@ -229,6 +231,7 @@ impl RuleRF02 {
 
         let sql_variables = Self::find_sql_variables(rule_context);
         let dialect = rule_context.dialect.name;
+        let order_by_aliases = postgres_order_by_alias_references(&rule_context.segment, dialect);
         let row_reference_aliases: HashSet<_> = if matches!(
             dialect,
             DialectKind::Bigquery | DialectKind::Postgres | DialectKind::Redshift
@@ -248,6 +251,10 @@ impl RuleRF02 {
 
         let mut violation_buff = Vec::new();
         for r in references {
+            if order_by_aliases.contains(&r.0.id()) {
+                continue;
+            }
+
             if context.ignore_words.contains(&r.0.raw().to_lowercase()) {
                 continue;
             }

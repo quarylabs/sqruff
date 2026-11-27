@@ -407,6 +407,65 @@ test_unfixable_ambiguous_reference_subquery:
     FROM
         (SELECT * FROM some_table) AS my_alias
 
+test_unfixable_correlated_unnest:
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  expect_no_fix: true
+  configs:
+    core:
+      dialect: postgres
+
+test_unfixable_correlated_generate_series:
+  fail_str: |
+    SELECT k FROM generate_series(1, 3) AS k
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  expect_no_fix: true
+  configs:
+    core:
+      dialect: postgres
+
+test_unfixable_correlated_unnest_with_column_alias:
+  fail_str: |
+    SELECT k FROM unnest(ARRAY[1, 2]) AS u (k)
+    WHERE NOT EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k)
+  expect_no_fix: true
+  configs:
+    core:
+      dialect: postgres
+
+test_unfixable_correlated_reference_across_fromless_select:
+  fail_str: |
+    SELECT o.k FROM outer_t AS o
+    WHERE EXISTS (SELECT 1 WHERE EXISTS (SELECT 1 FROM widget AS w WHERE w.id = k))
+  expect_no_fix: true
+  configs:
+    core:
+      dialect: postgres
+
+test_unfixable_lateral_reference_to_preceding_unnest:
+  fail_str: |
+    SELECT s.id, k
+    FROM unnest(ARRAY[1, 2]) AS k
+    CROSS JOIN LATERAL (SELECT w.id FROM widget AS w WHERE w.id = k) AS s
+  expect_no_fix: true
+  configs:
+    core:
+      dialect: postgres
+
+test_fixable_lateral_reference_with_following_unnest:
+  fail_str: |
+    SELECT s.id, k
+    FROM LATERAL (SELECT w.id FROM widget AS w WHERE w.id = k) AS s
+    CROSS JOIN unnest(ARRAY[1, 2]) AS k
+  fix_str: |
+    SELECT s.id, k
+    FROM LATERAL (SELECT w.id FROM widget AS w WHERE w.id = w.k) AS s
+    CROSS JOIN unnest(ARRAY[1, 2]) AS k
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_snowflake_flatten_function:
   # Tests a fix for issue 3178. This query passes because the second column
   # could refer to either 'r' or the table returned by FLATTEN().

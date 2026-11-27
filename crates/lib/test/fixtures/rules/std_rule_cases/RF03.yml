@@ -334,6 +334,55 @@ test_pass_order_by_alias:
     from table1 as t
     order by alias_col1
 
+test_pass_postgres_order_by_quoted_alias:
+  pass_str: |
+    SELECT t.id, upper(t.name) AS "name"
+    FROM thing AS t
+    ORDER BY "name" DESC NULLS LAST, t.id
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_order_by_mixed_alias_quoting:
+  pass_str: |
+    SELECT t.id, upper(t.name) AS "lower_name", lower(t.name) AS UPPER_NAME
+    FROM thing AS t
+    ORDER BY LOWER_NAME, "upper_name"
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_order_by_parenthesised_alias:
+  pass_str: |
+    SELECT t.id, upper(t.name) AS "Label"
+    FROM thing AS t
+    ORDER BY ("Label")
+  configs:
+    core:
+      dialect: postgres
+
+test_fix_postgres_order_by_case_sensitive_name:
+  fail_str: SELECT t.id, upper(t.name) AS "Label" FROM thing AS t ORDER BY label
+  fix_str: SELECT t.id, upper(t.name) AS "Label" FROM thing AS t ORDER BY t.label
+  configs:
+    core:
+      dialect: postgres
+
+test_fix_postgres_input_column_with_same_name_as_output_alias:
+  fail_str: |
+    SELECT t.id, upper(t.name) AS "name"
+    FROM thing AS t
+    WHERE "name" <> ''
+    ORDER BY lower("name"), "name"
+  fix_str: |
+    SELECT t.id, upper(t.name) AS "name"
+    FROM thing AS t
+    WHERE t."name" <> ''
+    ORDER BY lower(t."name"), "name"
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_having:
   pass_str: |
     select

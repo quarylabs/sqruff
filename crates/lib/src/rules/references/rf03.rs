@@ -20,6 +20,8 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
+use super::postgres_order_by_alias_references;
+
 #[derive(Debug, Clone, Default)]
 pub struct RuleRF03 {
     single_table_references: Option<String>,
@@ -44,7 +46,7 @@ impl RuleRF03 {
         if !selectables.is_empty() {
             select_info = selectables[0].select_info();
 
-            if let Some(select_info) = select_info
+            if let Some(mut select_info) = select_info
                 .clone()
                 .filter(|select_info| select_info.table_aliases.len() == 1)
             {
@@ -62,6 +64,14 @@ impl RuleRF03 {
                 let fixable = possible_ref_tables.len() <= 1
                     && (single_table_references == "unqualified"
                         || !has_visible_outer_sources(query.clone()));
+
+                let order_by_aliases =
+                    postgres_order_by_alias_references(&select_info.select_statement, dialect_name);
+                if !order_by_aliases.is_empty() {
+                    select_info
+                        .reference_buffer
+                        .retain(|reference| !order_by_aliases.contains(&reference.0.id()));
+                }
 
                 let results = check_references(
                     tables,

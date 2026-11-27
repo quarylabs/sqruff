@@ -12,6 +12,26 @@ test_fail_unqualified_references_multi_table_statements:
     FROM foo
     LEFT JOIN vee ON vee.a = foo.a
 
+test_pass_postgres_order_by_output_aliases:
+  pass_str: |
+    SELECT t.id, upper(u.name) AS "Label", lower(u.name) AS Name
+    FROM thing AS t JOIN other AS u ON t.id = u.id
+    ORDER BY "Label", "name"
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_order_by_input_reference_with_matching_alias:
+  fail_str: |
+    SELECT t.id, upper(u.name) AS "name"
+    FROM thing AS t JOIN other AS u ON t.id = u.id
+    ORDER BY lower("name"), "name"
+  line_numbers:
+    - 3
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_qualified_references_multi_table_statements_subquery:
   pass_str: |
     SELECT a

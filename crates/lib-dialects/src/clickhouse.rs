@@ -2491,10 +2491,31 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         one_of(vec![
             // Regular CREATE TABLE statement
             Sequence::new(vec![
-                Ref::keyword("CREATE").to_matchable(),
-                Ref::new("OrReplaceGrammar").optional().to_matchable(),
-                Ref::keyword("TABLE").to_matchable(),
-                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                one_of(vec![
+                    // CREATE [OR REPLACE] TABLE
+                    // https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    // REPLACE TABLE
+                    // https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                    Sequence::new(vec![
+                        Ref::keyword("REPLACE").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    // CREATE TABLE IF NOT EXISTS
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                        Ref::new("IfNotExistsGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Ref::new("OnClusterClauseSegment").optional().to_matchable(),
                 one_of(vec![
@@ -2526,6 +2547,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     // CREATE TABLE AS other_table:
                     Sequence::new(vec![
+                        // https://clickhouse.com/docs/reference/statements/create/table#with-a-schema-and-data-cloned-from-another-table
+                        Ref::keyword("CLONE").optional().to_matchable(),
                         Ref::keyword("AS").to_matchable(),
                         Ref::new("TableReferenceSegment").to_matchable(),
                         Ref::new("TableEngineSegment").optional().to_matchable(),
@@ -2558,10 +2581,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable(),
             // CREATE TEMPORARY TABLE statement
             Sequence::new(vec![
-                Ref::keyword("CREATE").to_matchable(),
-                Ref::keyword("TEMPORARY").to_matchable(),
-                Ref::keyword("TABLE").to_matchable(),
-                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                one_of(vec![
+                    // CREATE [OR REPLACE] TEMPORARY TABLE
+                    // https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                        Ref::keyword("TEMPORARY").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    // REPLACE TEMPORARY TABLE
+                    // https://clickhouse.com/docs/reference/statements/create/table/replace-table#syntax
+                    Sequence::new(vec![
+                        Ref::keyword("REPLACE").to_matchable(),
+                        Ref::keyword("TEMPORARY").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    // CREATE TEMPORARY TABLE IF NOT EXISTS
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("TEMPORARY").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                        Ref::new("IfNotExistsGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
                 one_of(vec![
                     // CREATE TEMPORARY TABLE (...):
@@ -2580,7 +2627,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
-                        Ref::new("TableEngineSegment").to_matchable(),
+                        Ref::new("TableEngineSegment").optional().to_matchable(),
                         // CREATE TEMPORARY TABLE (...) AS SELECT:
                         Sequence::new(vec![
                             Ref::keyword("AS").to_matchable(),
@@ -2592,6 +2639,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     // CREATE TEMPORARY TABLE AS other_table:
                     Sequence::new(vec![
+                        // https://clickhouse.com/docs/reference/statements/create/table#with-a-schema-and-data-cloned-from-another-table
+                        Ref::keyword("CLONE").optional().to_matchable(),
                         Ref::keyword("AS").to_matchable(),
                         Ref::new("TableReferenceSegment").to_matchable(),
                         Ref::new("TableEngineSegment").optional().to_matchable(),
@@ -2601,12 +2650,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("AS").to_matchable(),
                         Ref::new("FunctionSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // CREATE TEMPORARY TABLE AS SELECT (without column definitions)
-                    Sequence::new(vec![
-                        Ref::keyword("AS").to_matchable(),
-                        Ref::new("SelectableGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

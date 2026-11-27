@@ -1690,3 +1690,23 @@ file:
       - keyword: verbose
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - keyword: on
+      - comma: ','
+      - keyword: FREEZE
+      - keyword: off
+      - end_bracket: )
+- statement_terminator: ;

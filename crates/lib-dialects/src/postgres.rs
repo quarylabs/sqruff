@@ -150,6 +150,31 @@ fn overlaps_operand() -> Matchable {
     .to_matchable()
 }
 
+/// `SUBSTRING(x FROM a FOR b)`, `SUBSTRING(x FOR b)` and `EXTRACT(unit FROM x)` style contents.
+pub(crate) fn substring_like_function_contents() -> Matchable {
+    Sequence::new(vec![
+        one_of(vec![
+            Ref::new("DatetimeUnitSegment").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        any_set_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FOR").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
 /// Build the DatatypeSegment grammar, optionally including pgvector types.
 fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
     let mut known_types: Vec<Matchable> = vec![
@@ -9703,6 +9728,7 @@ pub fn raw_dialect() -> Dialect {
         .copy(
             Some(vec![
                 position_function_contents(true),
+                substring_like_function_contents(),
                 Delimited::new(vec![
                     Sequence::new(vec![
                         Ref::new("ExpressionSegment").to_matchable(),
